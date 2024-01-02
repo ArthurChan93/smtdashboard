@@ -1,0 +1,25 @@
+credentials:
+  usernames:
+    arthurchan:
+      email: arthurchan@ese.com.hk
+      name: Arthur
+      password: "$2b$12$PMHz7PeNjTujAypAJQXRF.CUOzpPST2BsrUGoI/F1fPxVUi2y5xku" #smt888 
+    dorothyyeung:
+      email: dorothyyeung@ese.com.hk
+      name: Dorothy
+      password: "$2b$12$nj.MtvS7/To37oUxLhXCBeucdar.vMvlHZ4l2zqFX0C8IYoU9FBz2" #smt888
+    ringochan:
+      email: ringochan@ese.com.hk
+      name: Ringo
+      password: "$2b$12$nj.MtvS7/To37oUxLhXCBeucdar.vMvlHZ4l2zqFX0C8IYoU9FBz2"  #smt888    
+cookie:
+  expiry_days: 0
+  key: abcdef
+  name: smt_dashboard
+preauthorized:
+  emails:
+  - sing0017@gmail.com
+
+
+# hashed_passwords = stauth.Hasher(['smt888', 'smt888']).generate() 
+#要load一次generate yaml 密碼再copy & paste去replace yaml檔的原有密碼
