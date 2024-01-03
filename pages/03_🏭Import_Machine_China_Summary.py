@@ -237,10 +237,7 @@ with st.expander(":point_right: Click to expand"):
                      st.dataframe(pvt_qty.style.format("{:,}"), use_container_width=True)
  
 ############################################################################################################################################################################################################
-
-left_column, middle_column = st.columns(2)
-with left_column:
-        st.title(":star: Top YAMAHA Mounter Inv Trend_FQ to FQ:")
+st.title(":star: Top YAMAHA Mounter Inv Trend_FQ to FQ:")
  
 left_column, right_column = st.columns(2)
 #Line Chart FY to FY YSM20R Invoice Details:
