@@ -96,7 +96,7 @@ def next_year(df, igr, rr, cgr):
 if not button:
     col_01, col_02, col_03, col_04 = st.columns(4)
     with col_01:
-        st.info(":point_left: After entering the above information, adjust the parameter in the sidebar, then press the 'Calculation' button.")
+        st.info(":point_left: After entering the above information, adjust the parameter in the sidebar, then press the 'Start Prediction' button.")
         labels = ["Revenue", "Gross Profit", "Cost", "Cash Flow"]
         sizes = [rev, gp, cost, cf]
         colors = ["blue", "yellow", "red", "green"]
