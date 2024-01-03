@@ -14,7 +14,7 @@ import seaborn as sns
 #Webpage config& tab name& Icon
 st.set_page_config(page_title="Sales Dashboard",page_icon=":rainbow:",layout="wide")
 #Title
-st.title(':cn: :factory: Mounter Import Data of China_Analysis')
+st.title(':flag-cn: :factory: Mounter Import Data of China_Analysis')
 #Move the title higher
 st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow_html=True)
 #Text
