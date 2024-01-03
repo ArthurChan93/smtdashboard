@@ -33,12 +33,12 @@ def load_data(file):
  
 uploaded_file = st.sidebar.file_uploader(":file_folder: Upload monthly report here")
  
-if uploaded_file is not None:
-         df = load_data(uploaded_file)
-         st.dataframe(df)
+#if uploaded_file is not None:
+#         df = load_data(uploaded_file)
+#         st.dataframe(df)
  
  #唔show 17/18, cancel, tba資料
-else:
+#else:
 #        os.chdir(r"/Users/arthurchan/Downloads/Sample")
         df = pd.read_excel(
                 io='Sample_excel.xlsx',engine= 'openpyxl',sheet_name='sheet 1', skiprows=0, usecols='A:AO',nrows=10000,).query('Region != "C66 N/A"').query('FY_Contract != "Cancel"').query('FY_INV != "TBA"').query('FY_INV != "FY 17/18"').query('FY_INV != "Cancel"').query('Inv_Yr != "TBA"').query('Inv_Yr != "Cancel"').query('Inv_Month != "TBA"').query('Inv_Month != "Cancel"')
