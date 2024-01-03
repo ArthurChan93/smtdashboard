@@ -39,7 +39,7 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 #         st.dataframe(df)
  
  #唔show 17/18, cancel, tba資料
-else:
+#else:
 #        os.chdir(r"/Users/arthurchan/Downloads/Sample")
 df = pd.read_excel(
                 io='Sample_excel.xlsx',engine= 'openpyxl',sheet_name='sheet 1', skiprows=0, usecols='A:AO',nrows=10000,).query('FY_Contract != "TBA"').query('FY_Contract != "Cancel"').query('Contract_Month != "TBA"').query('Contract_Month != "Cancel"').query('Region != "C66 N/A"').query('FY_Contract != "FY 16/17"').query('FY_Contract != "FY 17/18"')
