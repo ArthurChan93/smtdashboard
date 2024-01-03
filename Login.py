@@ -101,7 +101,7 @@ elif authentication_status:
      with middle_column:
      #Animation- lab table
         #用iframe加入小框架json animation- <iframe src="https://lottie.host/embed/db52db3f-d63e-4796-87e4-9e6e33058186/LFuU45fNO6.json"></iframe> 去lottie copy iframe code
-        com.iframe("https://lottie.host/embed/db52db3f-d63e-4796-87e4-9e6e33058186/LFuU45fNO6.json",height=600, width= 600)
+        com.iframe("https://lottie.host/embed/db52db3f-d63e-4796-87e4-9e6e33058186/LFuU45fNO6.json",height=600, width= 300)
      with right_column1:
         st.title(":coffee: User Guide:")
         st.header(":eight_pointed_black_star: Attention")
