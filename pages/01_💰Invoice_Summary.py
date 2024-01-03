@@ -26,12 +26,12 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 ######################################################################################################
 #Create a browser for user to upload
  
-@st.cache_data
-def load_data(file):
-        data = pd.read_excel(file)
-        return data
+#@st.cache_data
+#def load_data(file):
+#        data = pd.read_excel(file)
+#        return data
  
-uploaded_file = st.sidebar.file_uploader(":file_folder: Upload monthly report here")
+#uploaded_file = st.sidebar.file_uploader(":file_folder: Upload monthly report here")
  
 #if uploaded_file is not None:
 #         df = load_data(uploaded_file)
