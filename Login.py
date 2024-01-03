@@ -121,7 +121,7 @@ elif authentication_status:
      with right_column2:
      #Animation- presentation
         #用iframe加入小框架json animation- <iframe src="https://lottie.host/embed/716da532-a8b9-42f9-b5b5-dc375ae80148/HMAcHQBE6q.json"></iframe> 去lottie copy iframe code
-        com.iframe("https://lottie.host/embed/716da532-a8b9-42f9-b5b5-dc375ae80148/HMAcHQBE6q.json",height=500, width= 600)
+        com.iframe("https://lottie.host/embed/716da532-a8b9-42f9-b5b5-dc375ae80148/HMAcHQBE6q.json",height=500, width= 400)
 
 st.sidebar.success(":point_up_2: Select a page above.")
      ###---- HIDE STREAMLIT STYLE ----
