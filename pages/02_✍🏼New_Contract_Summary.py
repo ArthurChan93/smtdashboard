@@ -27,21 +27,21 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 ######################################################################################################
 #Create a browser for user to upload
  
-@st.cache_data
-def load_data(file):
-        data = pd.read_excel(file)
-        return data
+#@st.cache_data
+#def load_data(file):
+#        data = pd.read_excel(file)
+#        return data
  
-uploaded_file = st.sidebar.file_uploader(":file_folder: Upload monthly report here")
+#uploaded_file = st.sidebar.file_uploader(":file_folder: Upload monthly report here")
  
-if uploaded_file is not None:
-         df = load_data(uploaded_file)
-         st.dataframe(df)
+#if uploaded_file is not None:
+#         df = load_data(uploaded_file)
+#         st.dataframe(df)
  
  #唔show 17/18, cancel, tba資料
 else:
 #        os.chdir(r"/Users/arthurchan/Downloads/Sample")
-        df = pd.read_excel(
+df = pd.read_excel(
                 io='Sample_excel.xlsx',engine= 'openpyxl',sheet_name='sheet 1', skiprows=0, usecols='A:AO',nrows=10000,).query('FY_Contract != "TBA"').query('FY_Contract != "Cancel"').query('Contract_Month != "TBA"').query('Contract_Month != "Cancel"').query('Region != "C66 N/A"').query('FY_Contract != "FY 16/17"').query('FY_Contract != "FY 17/18"')
  
 ######################################################################################################
@@ -66,8 +66,6 @@ else:
 #if selected == "Contract Summary":
  
 ######################################################################################################
-#New Section       
-st.sidebar.divider() 
 #Sidebar Filter
  
 # Create FY Contract filter
