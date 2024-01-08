@@ -30,7 +30,7 @@ left_col, mid_col, right_col, col_04, col_05 = st.columns(5)
 
 #os.chdir(r"/Users/arthurchan/Downloads/Sample")
 df = pd.read_excel(
-io='Monthly_report_for_edit.xlsx',engine= 'openpyxl',sheet_name='list', skiprows=0, usecols='A:AO',nrows=10000,).query('Region != "C66 N/A"').query('FY_Contract != "Cancel"').query('FY_INV != "TBA"').query('FY_INV != "FY 17/18"').query('FY_INV != "Cancel"').query('Inv_Yr != "TBA"').query('Inv_Yr != "Cancel"').query('Inv_Month != "TBA"').query('Inv_Month != "Cancel"')
+io='Monthly_report_for_edit.xlsx',engine= 'openpyxl',sheet_name='raw_sheet', skiprows=0, usecols='A:AO',nrows=10000,).query('Region != "C66 N/A"').query('FY_Contract != "Cancel"').query('FY_INV != "TBA"').query('FY_INV != "FY 17/18"').query('FY_INV != "Cancel"').query('Inv_Yr != "TBA"').query('Inv_Yr != "Cancel"').query('Inv_Month != "TBA"').query('Inv_Month != "Cancel"')
  
 with mid_col:
     st.subheader(":orange_book: Total Inv Amount for reference")
