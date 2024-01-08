@@ -42,7 +42,7 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 #else:
 #        os.chdir(r"/Users/arthurchan/Downloads/Sample")
 df = pd.read_excel(
-                io='Monthly_report_for_edit.xlsx',engine= 'openpyxl',sheet_name='raw_sheet', skiprows=0, usecols='A:AO',nrows=10000,).query('FY_Contract != "TBA"').query('FY_Contract != "Cancel"').query('Contract_Month != "TBA"').query('Contract_Month != "Cancel"').query('Region != "C66 N/A"').query('FY_Contract != "FY 16/17"').query('FY_Contract != "FY 17/18"')
+                io='Monthly_report_for_edit.xlsm',engine= 'openpyxl',sheet_name='raw_sheet', skiprows=0, usecols='A:AO',nrows=10000,).query('FY_Contract != "TBA"').query('FY_Contract != "Cancel"').query('Contract_Month != "TBA"').query('Contract_Month != "Cancel"').query('Region != "C66 N/A"').query('FY_Contract != "FY 16/17"').query('FY_Contract != "FY 17/18"')
  
 ######################################################################################################
 # https://icons.getbootstrap.com/
