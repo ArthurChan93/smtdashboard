@@ -63,7 +63,6 @@ elif authentication_status == None:
 elif authentication_status:
      st.success('Login Success!')
      st.balloons() 
-     st.snow()
 
 ###############################################
 
