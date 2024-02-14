@@ -462,39 +462,7 @@ with col_2:
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
              csv3 = pvt16.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
  
-      st.download_button(label='Download Table', data=csv3, file_name='G.P Amount.csv', mime='text/csv')
-#################################################################################################################
-col_1, col_2, col_3= st.columns(3)
-with col_1:
-      st.divider()
-with col_2:
-      st.divider()
-with col_3:
-       st.divider()
-       def scroll_to_bottom():
-            st.markdown("<a name='top'></a>", unsafe_allow_html=True)
-            st.markdown("[Scroll to bottom](#top)")
-       if __name__ == "__main__":
-             scroll_to_bottom()
-
-       st.divider()
-       
-       scroll_to_top_js = """
-       <script>
-       function scrollToTop() {
-              window.scrollTo({top: 0, behavior: 'smooth'});
-              }
-              </script>
-              """
-       
-       scroll_to_top_button = """
-       <button onclick="scrollToTop()">Scroll to top</button>
-       """
-       
-       if __name__ == "__main__":
-             st.markdown(scroll_to_top_js, unsafe_allow_html=True)
-             st.markdown(scroll_to_top_button, unsafe_allow_html=True)
-             
+      st.download_button(label='Download Table', data=csv3, file_name='G.P Amount.csv', mime='text/csv')        
 ############################################################################################################################################################################################################
 #TAB 2: Region Category
 with tab2:
@@ -1437,9 +1405,9 @@ with tab4:
  
 #FY to FY YRM Invoice Details:
              filter_df["FQ(Invoice)"] = pd.Categorical(filter_df["FQ(Invoice)"], categories=["Q1", "Q2", "Q3", "Q4"])
-             pvt16 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YRM"').pivot_table(values="Item Qty",index=["FY_INV"],columns=["FQ(Invoice)"],
-                    aggfunc="sum",fill_value=0, margins=True,margins_name="Total").sort_index(axis=0, ascending=True)
-             html122 = pvt16.applymap('{:,.0f}'.format).to_html(classes='table table-bordered', justify='center')
+             pvt20 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YRM"').pivot_table(values="Item Qty",
+                     index=["FY_INV"],columns=["FQ(Invoice)"], aggfunc="sum",fill_value=0, margins=True,margins_name="Total").sort_index(axis=0, ascending=True)
+             html122 = pvt20.applymap('{:,.0f}'.format).to_html(classes='table table-bordered', justify='center')
              # 把total值的那行的背景顏色設為黃色，並將字體設為粗體
              html123 = html122.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
              #改column color
@@ -1451,7 +1419,7 @@ with tab4:
              html129 = f'<div style="zoom: 1.2;">{html128}</div>'
              st.markdown(html129, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
-             csv16 = pvt16.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
+             csv16 = pvt20.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
             
              st.download_button(label='Download Table', data=csv16, file_name='YRM Invocie Qty.csv', mime='text/csv')          
 #############################################################################################################################    
