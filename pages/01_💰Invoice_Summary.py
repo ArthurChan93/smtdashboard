@@ -472,12 +472,12 @@ with col_2:
 with col_3:
        st.divider()
        def scroll_to_top():
-                st.markdown("<a name='top'></a>", unsafe_allow_html=True)
-                st.write("This is the top of the page.")
+            st.markdown("<a name='top'></a>", unsafe_allow_html=True)
+            st.write("This is the top of the page.")
+            st.markdown("[Scroll to top](#top)")
        if __name__ == "__main__":
                 st.button("Scroll to top", on_click=scroll_to_top)
-                st.markdown("[Scroll to top](#top)")
-               
+              
      
 ############################################################################################################################################################################################################
 #TAB 2: Region Category
