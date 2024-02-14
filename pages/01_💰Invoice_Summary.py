@@ -1549,26 +1549,40 @@ with tab5:
       left_column, middle_column , right_column= st.columns(3)
 #BAR CHART Customer List
       with left_column:
-             st.subheader(":bar_chart: :orange[Top 10 Customer]_Invoice Amount:")
-             customer_line = (
-             filter_df.query('BRAND != "C66 SERVICE"').query('Product_Type != "SERVICE/ PARTS"').query('Inv_Yr != "TBA"').query('Inv_Month != "TBA"').query('Inv_Month != "Cancel"').groupby(by=["Customer Name"])[["Before tax Inv Amt (HKD)"]]
-             .sum().sort_values(by="Before tax Inv Amt (HKD)", ascending = False).head(10)
-      )
+             st.subheader(":bar_chart: Invoice Amount_:orange[Top 10 Customer]:")
+             
+             customer_line = (filter_df.query('BRAND != "C66 SERVICE"').query('Product_Type != "SERVICE/ PARTS"').query('Inv_Yr != "TBA"').query('Inv_Month != "TBA"').query(
+                  'Inv_Month != "Cancel"').groupby(by=["Customer Name"])[["Before tax Inv Amt (HKD)"]].sum().sort_values(by="Before tax Inv Amt (HKD)", ascending=False).head(10))
+
+# 生成颜色梯度
+             colors = px.colors.sequential.Blues[::-1]  # 将颜色顺序反转为从深到浅
+
+# 创建条形图
              fig_customer = px.bar(
-             customer_line,
-             x=["Before tax Inv Amt (HKD)"],
-             y=customer_line.index,
-             text_auto='.2s',
-             orientation="h",
-             color_discrete_sequence=["orange"]*len(customer_line),
-             template="plotly_white",
-             height=400,
-             )
-             fig_customer.update_traces(text = filter_df["Customer Name"])
-             fig_customer.update_traces(marker_line_color = 'black',
-             marker_line_width = 2, opacity = 1)
-             st.plotly_chart(fig_customer, use_container_width=True, ascending = False)
-    
+                  customer_line,
+                  x="Before tax Inv Amt (HKD)",
+                  y=customer_line.index,
+                  text="Before tax Inv Amt (HKD)",
+                  orientation="h",
+                  color=customer_line.index,
+                  color_discrete_sequence=colors[:len(customer_line)],
+                  template="plotly_white", text_auto='.3s')
+
+# 更新图表布局和样式
+             fig_customer.update_layout(
+                  height=400,
+                  yaxis=dict(title="Customer Name"),
+                  xaxis=dict(title="Before tax Inv Amt (HKD)"),)
+             fig_customer.update_layout(font=dict(family="Arial", size=15))
+             fig_customer.update_traces(
+                  textposition="inside",
+                  marker_line_color="black",
+                  marker_line_width=2,
+                  opacity=1,showlegend=False,
+                  )
+             # 显示图表
+             st.plotly_chart(fig_customer, use_container_width=True)
+##################################################    
       with middle_column:
              st.subheader(":trophy: :orange[Top Customer List]_Inv Amount& Qty:")
              pvt11 = filter_df.query('Product_Type != "SERVICE/ PARTS"').query('Inv_Yr != "TBA"').query('Inv_Month != "TBA"').query('Inv_Month != "Cancel"').round(2).pivot_table(index=["Customer Name","Region"],
