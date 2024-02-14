@@ -471,13 +471,30 @@ with col_2:
       st.divider()
 with col_3:
        st.divider()
-       def scroll_to_top():
-             st.write("This is the top of the page.")
-             st.markdown("<script>window.scrollTo(0, 0);</script>", unsafe_allow_html=True)
+       def scroll_to_bottom():
+            st.markdown("<a name='top'></a>", unsafe_allow_html=True)
+            st.markdown("[Scroll to bottom](#top)")
        if __name__ == "__main__":
-            st.button("Scroll to top", on_click=scroll_to_top)
-           
-     
+             scroll_to_bottom()
+
+       st.divider()
+       
+       scroll_to_top_js = """
+       <script>
+       function scrollToTop() {
+              window.scrollTo({top: 0, behavior: 'smooth'});
+              }
+              </script>
+              """
+       
+       scroll_to_top_button = """
+       <button onclick="scrollToTop()">Scroll to top</button>
+       """
+       
+       if __name__ == "__main__":
+             st.markdown(scroll_to_top_js, unsafe_allow_html=True)
+             st.markdown(scroll_to_top_button, unsafe_allow_html=True)
+             
 ############################################################################################################################################################################################################
 #TAB 2: Region Category
 with tab2:
@@ -1135,7 +1152,7 @@ with tab4:
 #Top Product line chart invoice qty trend
        left_column, middle_column, right_column = st.columns(3)
        with middle_column:
-             st.subheader(":chart_with_upwards_trend: Main Unit Invoice Qty_:orange[Monthly]:")
+             st.title(":chart_with_upwards_trend: Main Unit Invoice Qty_:orange[Monthly]:")
 ###########################################################################################################
        left_column, right_column = st.columns(2)
 #Line Chart FY to FY YSM20R Invoice Details:
