@@ -969,9 +969,10 @@ with tab3:
  
 #TAB 4: Brand category
 with tab4:
-      # BAR CHART of RAND Comparision
+      # BAR CHART of BRAND Comparision
        st.subheader(":bar_chart: Main Brand Invoice Qty_:orange[Monthly]:")
-       brand_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').round(0).groupby(by=["Inv_Month",
+       brand_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND != "SOLDERSTAR"').query(
+                                  'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').round(0).groupby(by=["Inv_Month",
                             "BRAND"], as_index=False)["Item Qty"].sum().sort_values(by="Item Qty", ascending=False)
         # 按照指定顺序排序
 #       brand_df["BRAND"] = pd.Categorical(brand_df["BRAND"], ["YAMAHA", "PEMTRON", "HELLER"])
@@ -1075,11 +1076,12 @@ with tab4:
 ################################################################      
        with tab4_row2_col2:
              st.subheader(":sports_medal: Main Brand Invoice Qty_:orange[FY]:")
-             brandinv_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').round(0).groupby(by=["FY_INV","BRAND"],
+             brandinv_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND != "SOLDERSTAR"').query(
+                                  'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').round(0).groupby(by=["FY_INV","BRAND"],
                             as_index=False)["Item Qty"].sum().sort_values(by="Item Qty", ascending=False)
         # 按照指定顺序排序
-             brandinv_df["BRAND"] = pd.Categorical(brandinv_df["BRAND"], ["YAMAHA", "PEMTRON", "HELLER"])
-             brandinv_df = brandinv_df.sort_values("BRAND")
+#             brandinv_df["BRAND"] = pd.Categorical(brandinv_df["BRAND"], ["YAMAHA", "PEMTRON", "HELLER"])
+#             brandinv_df = brandinv_df.sort_values("BRAND")
              df_brand = px.bar(brandinv_df, x="FY_INV", y="Item Qty", color="BRAND", text_auto='.3s')
 # 更改顏色
              colors = {"PEMTRON": "lightblue","HELLER": "orange","YAMAHA": "lightgreen",}
