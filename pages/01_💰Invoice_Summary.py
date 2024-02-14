@@ -302,8 +302,7 @@ with tab1:
        html_table = pvt17_concatenated.to_html(classes='table table-bordered', justify='center')
  
  
-# 設定當地化
-       locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+
  
 # 使用BeautifulSoup处理HTML表格
        soup = BeautifulSoup(html_table, 'html.parser')
@@ -559,8 +558,6 @@ with tab2:
 # 生成HTML表格
         html_table = pvt7_concatenated.to_html(classes='table table-bordered', justify='center')
  
-# 設定當地化
-        locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
  
 # 使用BeautifulSoup处理HTML表格
         soup = BeautifulSoup(html_table, 'html.parser')
@@ -1042,8 +1039,6 @@ with tab4:
  
 # 生成HTML表格
              html_table = pvt6_concatenated.to_html(classes='table table-bordered', justify='center')
-# 設定當地化
-             locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
  
 # 使用BeautifulSoup处理HTML表格
              soup = BeautifulSoup(html_table, 'html.parser')
