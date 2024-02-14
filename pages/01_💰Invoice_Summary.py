@@ -974,7 +974,7 @@ with tab4:
        brand_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').round(0).groupby(by=["Inv_Month",
                             "BRAND"], as_index=False)["Item Qty"].sum().sort_values(by="Item Qty", ascending=False)
         # 按照指定顺序排序
-       brand_df["BRAND"] = pd.Categorical(brand_df["BRAND"], ["YAMAHA", "PEMTRON", "HELLER"])
+#       brand_df["BRAND"] = pd.Categorical(brand_df["BRAND"], ["YAMAHA", "PEMTRON", "HELLER"])
 #       brand_df = brand_df.sort_values("BRAND")
        # 创建一个包含排序顺序的列表
        sort_Month_order = ["4", "5", "6", "7", "8", "9", "10","11","12", "1", "2", "3"]
