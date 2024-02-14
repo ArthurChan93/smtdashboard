@@ -975,12 +975,12 @@ with tab4:
                             "BRAND"], as_index=False)["Item Qty"].sum().sort_values(by="Item Qty", ascending=False)
         # 按照指定顺序排序
        brand_df["BRAND"] = pd.Categorical(brand_df["BRAND"], ["YAMAHA", "PEMTRON", "HELLER"])
-       brand_df = brand_df.sort_values("BRAND")
+#       brand_df = brand_df.sort_values("BRAND")
        # 创建一个包含排序顺序的列表
        sort_Month_order = ["4", "5", "6", "7", "8", "9", "10","11","12", "1", "2", "3"]
  
 # 将Inv_Month的数据类型更改为category
-       brand_df["Inv_Month"] = pd.Categorical(brand_df["Inv_Month"], categories=sort_Month_order, ordered=True)
+#       brand_df["Inv_Month"] = pd.Categorical(brand_df["Inv_Month"], categories=sort_Month_order, ordered=True)
  
 # 使用plotly绘制柱状图           
        brand_qty = px.bar(brand_df, x="Inv_Month", y="Item Qty", color="BRAND", text_auto='.3s')
