@@ -78,7 +78,7 @@ df_import = pd.read_excel(
  
 ######################################################################################################
 # Sidebar Slider
-st.sidebar.header("Slider for China import data:")
+st.sidebar.header(":point_down: Slider for China import data:")
 df_import["YEAR"] = df_import["YEAR"].astype(str)
  
 #start_yr, end_yr
@@ -92,7 +92,7 @@ st.sidebar.divider()
 #Sidebar Filter
  
 # Create FY Invoice filter
-st.sidebar.header("Filter for ESE data:")
+st.sidebar.header(":point_down: Filter for ESE data:")
 fy_yr_inv = st.sidebar.multiselect(
         "Select the Financial Year of Invoice",
          options=df["FY_INV"].unique(),
@@ -222,10 +222,10 @@ with row1_left_column:
 with row1_right_column:
        st.subheader(":radio: :blue[SMT] Main Unit Sales Trend_:orange[QTY]:")
 #LINE CHART of Overall Invoice Amount
-       InvoiceAmount_df2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","FQ(Invoice)","Inv_Month"],
+       InvoiceAmount_df2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","Inv_Month"],
                             as_index= False)["Item Qty"].sum()
 # 确保 "Inv Month" 列中的所有值都出现
-       sort_Month_order = ["4", "5", "6", "7", "8", "9", "10", "11", "12", "1", "2", "3"]
+       sort_Month_order = ["1", "2", "3","4", "5", "6", "7", "8", "9", "10", "11", "12"]
        InvoiceAmount_df2 = InvoiceAmount_df2.groupby(["FY_INV", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([InvoiceAmount_df2['FY_INV'].unique(), sort_Month_order],
                                    names=['FY_INV', 'Inv_Month'])).fillna(0).reset_index()
        fig3 = go.Figure()
