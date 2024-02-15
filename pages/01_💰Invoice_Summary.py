@@ -205,7 +205,7 @@ font-size: 28px;
 
  
 st.write(font_css, unsafe_allow_html=True)
-tab1, tab2, tab3 ,tab4,tab5= st.tabs([":earth_asia: Overview",":dart: Region",":blue_book: Invoice Details",":package: Brand",":handshake: Customer"])
+tab1, tab2, tab3 ,tab4,tab5, tab6= st.tabs([":wedding: Overview",":earth_asia: Region",":blue_book: Invoice Details",":package: Brand",":handshake: Customer",":dart: Target"])
 
 #TAB 1: Overall category
 ################################################################################################################################################
@@ -256,7 +256,7 @@ with tab1:
        html12 = html11.replace('<th>Q3</th>', '<th style="background-color: lightgrey">Q3</th>')
        html13 = html12.replace('<th>Q4</th>', '<th style="background-color: pink">Q4</th>')
       
-              # 把所有數值等於或少於0的數值的顏色設為紅色
+# 把所有數值等於或少於0的數值的顏色設為紅色
        html14 = html13.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 # 放大pivot table
        html15 = f'<div style="zoom: 0.95;">{html14}</div>'
