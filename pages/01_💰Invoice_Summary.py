@@ -205,7 +205,7 @@ font-size: 28px;
 
  
 st.write(font_css, unsafe_allow_html=True)
-tab1, tab2, tab3 ,tab4,tab5, tab6= st.tabs([":wedding: Overview",":earth_asia: Region",":blue_book: Invoice Details",":package: Brand",":handshake: Customer",":dart: Target"])
+tab1, tab2, tab3 ,tab4,tab5, tab6= st.tabs([":wedding: Overview",":earth_asia: Region",":blue_book: Invoice Details",":package: Brand",":handshake: Customer",":dart: Target Achievement"])
 
 #TAB 1: Overall category
 ################################################################################################################################################
