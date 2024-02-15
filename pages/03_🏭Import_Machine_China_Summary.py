@@ -256,7 +256,7 @@ with row1_right_column:
 ################################################################################################################################# 
 row2_left_column, row2_right_column = st.columns(2) 
 with row2_left_column:
-              st.subheader(":money_with_wings: :red[China] Mounter Import Trend_:orange[CNY AMOUNT]:")
+              st.subheader(":money_with_wings: :red[China] Mounter Import Trend_:orange[RMB AMOUNT]:")
               df_mounter_import = selected_df.groupby(by = ["MONTH","YEAR"], as_index= False)["Import_Amount(RMB)"].sum()
               fig2 = px.line(df_mounter_import,
                              x= "MONTH",
