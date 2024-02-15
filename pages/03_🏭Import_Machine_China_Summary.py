@@ -7,7 +7,15 @@ import numpy as np
 import os
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
+from streamlit_extras.metric_cards import style_metric_cards
 import seaborn as sns
+import base64
+from io import BytesIO
+import plotly.graph_objects as go
+from bs4 import BeautifulSoup
+import locale
+import re
+from lxml import etree
 ######################################################################################################
  
 # emojis https://streamlit-emoji-shortcodes-streamlit-app-gwckff.streamlit.app/
@@ -37,7 +45,7 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 #st.dataframe(df)
 #唔show 17/18, cancel, tba資料
 #else:
-#os.chdir(r"/Users/arthurchan/Downloads/Sample")
+#os.chdir(r"C:\Users\ArthurChan\OneDrive\VS Code\PythonProject_ESE\Sample Excel")
  
 df = pd.read_excel(
        io='Monthly_report_for_edit.xlsm',engine= 'openpyxl',sheet_name='raw_sheet', skiprows=0, usecols='A:AO',
@@ -183,7 +191,7 @@ elif region and cost_centre and brand:
 font_css = """
 <style>
 button[data-baseweb="tab"] > div[data-testid="stMarkdownContainer"] > p {
-  font-size: 24px;
+  font-size: 28px;
 }
 </style>
 """
@@ -196,9 +204,9 @@ st.write(font_css, unsafe_allow_html=True)
 #Set variable for slider result
 selected_df = df_import[df_import["YEAR"].between(df_yr[0], df_yr[1])]
 #MOUNTER IMPORT LINE CHART
-left_column, right_column = st.columns(2)
-with left_column:
-       st.subheader(":radio: :orange[Qty] Trend_YR to YR:")
+row1_left_column, row1_right_column = st.columns(2)
+with row1_left_column:
+       st.subheader(":radio: :red[China] Mounter Import Trend_:orange[QTY]:")
        df_mounter_import = selected_df.groupby(by = ["MONTH","YEAR"], as_index= False)["QTY"].sum()
        fig2 = px.line(df_mounter_import,
                             x= "MONTH",
@@ -210,9 +218,45 @@ with left_column:
                             )
        fig2.update_traces(marker_size=9, textposition="top center", texttemplate='%{text:.2s}')
        st.plotly_chart(fig2.update_layout(yaxis_showticklabels = False), use_container_width=True)
- 
-with right_column:
-              st.subheader(":money_with_wings: :orange[Amount] Trend_YR to YR:")
+#################################################################################################################################
+with row1_right_column:
+       st.subheader(":radio: :blue[SMT] Main Unit Sales Trend_:orange[QTY]:")
+#LINE CHART of Overall Invoice Amount
+       InvoiceAmount_df2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","FQ(Invoice)","Inv_Month"],
+                            as_index= False)["Item Qty"].sum()
+# 确保 "Inv Month" 列中的所有值都出现
+       sort_Month_order = ["4", "5", "6", "7", "8", "9", "10", "11", "12", "1", "2", "3"]
+       InvoiceAmount_df2 = InvoiceAmount_df2.groupby(["FY_INV", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([InvoiceAmount_df2['FY_INV'].unique(), sort_Month_order],
+                                   names=['FY_INV', 'Inv_Month'])).fillna(0).reset_index()
+       fig3 = go.Figure()
+# 添加每个FY_INV的折线
+       fy_inv_values = InvoiceAmount_df2['FY_INV'].unique()
+       for fy_inv in fy_inv_values:
+         fy_inv_data = InvoiceAmount_df2[InvoiceAmount_df2['FY_INV'] == fy_inv]
+         fig3.add_trace(go.Scatter(
+              x=fy_inv_data['Inv_Month'],
+              y=fy_inv_data['Item Qty'],
+              mode='lines+markers+text',
+              name=fy_inv,
+              text=fy_inv_data['Item Qty'],
+              textposition="bottom center",
+              texttemplate='%{text:.3s}',
+              hovertemplate='%{x}<br>%{y:.2f}',
+              marker=dict(size=10)))
+         fig3.update_layout(xaxis=dict(
+              type='category',
+              categoryorder='array',
+              categoryarray=sort_Month_order),
+              yaxis=dict(showticklabels=True),
+              font=dict(family="Arial, Arial", size=12, color="Black"),
+              hovermode='x', showlegend=True)
+       fig3.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+       st.plotly_chart(fig3.update_layout(yaxis_showticklabels = True), use_container_width=True)
+
+################################################################################################################################# 
+row2_left_column, row2_right_column = st.columns(2) 
+with row2_left_column:
+              st.subheader(":money_with_wings: :red[China] Mounter Import Trend_:orange[CNY AMOUNT]:")
               df_mounter_import = selected_df.groupby(by = ["MONTH","YEAR"], as_index= False)["Import_Amount(RMB)"].sum()
               fig2 = px.line(df_mounter_import,
                              x= "MONTH",
