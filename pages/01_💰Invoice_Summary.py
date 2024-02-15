@@ -883,7 +883,7 @@ with tab3:
      with tab3_col1:
       
             #FY to FY Quarter Invoice Details:
-      st.subheader(":ledger: Invoice Amount Subtotal_:orange[FQ]:")
+      st.subheader(":ledger: Invoice Amount Subtotal_:orange[FY]:")
       with st.subheader("Click to expand"):
              pvt21 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).pivot_table(
                     values="Before tax Inv Amt (HKD)",index=["FY_INV"],
