@@ -45,7 +45,7 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 #st.dataframe(df)
 #唔show 17/18, cancel, tba資料
 #else:
-#os.chdir(r"C:\Users\ArthurChan\OneDrive\VS Code\PythonProject_ESE\Sample Excel")
+#os.chdir(r"/Users/arthurchan/Downloads/Sample")
  
 df = pd.read_excel(
        io='Monthly_report_for_edit.xlsm',engine= 'openpyxl',sheet_name='raw_sheet', skiprows=0, usecols='A:AO',
@@ -83,7 +83,7 @@ df_import["YEAR"] = df_import["YEAR"].astype(str)
  
 #start_yr, end_yr
 df_yr= st.sidebar.select_slider('Select a range of year',
-            options=df_import["YEAR"].unique(), value=("2021","2023"))
+            options=df_import["YEAR"].unique(), value=("2022","2023"))
    
 #st.sidebar.write('You selected:', start_yr, 'to', end_yr)
  
@@ -95,14 +95,14 @@ st.sidebar.divider()
 st.sidebar.header(":point_down: Filter for ESE data:")
 fy_yr_inv = st.sidebar.multiselect(
         "Select the Financial Year of Invoice",
-         options=df["FY_INV"].unique(),
-         default=["FY 23/24","FY 22/23"],
+         options=df["Inv_Yr"].unique(),
+         default=[2023,2022],
          )
  
 if not fy_yr_inv:
        df2 = df.copy()
 else:
-       df2 = df[df["FY_INV"].isin(fy_yr_inv)]
+       df2 = df[df["Inv_Yr"].isin(fy_yr_inv)]
  
 # Create Region filter
 region = st.sidebar.multiselect(
@@ -140,9 +140,9 @@ else:
 # No selection
 if not fy_yr_inv and not region and not cost_centre and not brand:
        filter_df = df
-# Only select FY_INV
+# Only select Inv_Yr
 elif not region and not cost_centre and not brand:
-        filter_df = df[df["FY_INV"].isin(fy_yr_inv)]
+        filter_df = df[df["Inv_Yr"].isin(fy_yr_inv)]
 # Only select Region
 elif not fy_yr_inv and not cost_centre and not brand:
        filter_df = df[df["Region"].isin(region)]
@@ -154,13 +154,13 @@ elif not fy_yr_inv and not region and not cost_centre:
        filter_df = df[df["BRAND"].isin(brand)]
 # Select FY INV & Region
 elif fy_yr_inv and region:
-      filter_df = df5[df["FY_INV"].isin(fy_yr_inv) & df5["Region"].isin(region)]
-# Select 'FY_INV', 'COST_CENTRE'
+      filter_df = df5[df["Inv_Yr"].isin(fy_yr_inv) & df5["Region"].isin(region)]
+# Select 'Inv_Yr', 'COST_CENTRE'
 elif fy_yr_inv and cost_centre:
-      filter_df = df5[df["FY_INV"].isin(fy_yr_inv) & df5["COST_CENTRE"].isin(cost_centre)]
-# Select 'FY_INV', 'BRAND'
+      filter_df = df5[df["Inv_Yr"].isin(fy_yr_inv) & df5["COST_CENTRE"].isin(cost_centre)]
+# Select 'Inv_Yr', 'BRAND'
 elif fy_yr_inv and brand:
-      filter_df = df5[df["FY_INV"].isin(fy_yr_inv) & df5["BRAND"].isin(brand)]
+      filter_df = df5[df["Inv_Yr"].isin(fy_yr_inv) & df5["BRAND"].isin(brand)]
 # Select 'Region', 'COST_CENTRE'
 elif region and cost_centre:
       filter_df = df5[df["Region"].isin(region) & df5["COST_CENTRE"].isin(cost_centre)]
@@ -170,15 +170,15 @@ elif region and brand:
 # Select 'COST_CENTRE', 'BRAND'
 elif cost_centre and brand:
       filter_df = df5[df["COST_CENTRE"].isin(cost_centre) & df5["BRAND"].isin(brand)]
-# Select 'FY_INV', 'Region', 'COST_CENTRE'
+# Select 'Inv_Yr', 'Region', 'COST_CENTRE'
 elif fy_yr_inv and region and cost_centre:
-      filter_df = df5[df["FY_INV"].isin(fy_yr_inv) & df["Region"].isin(region) & df5["COST_CENTRE"].isin(cost_centre)]
-# Select 'FY_INV', 'Region', 'BRAND'
+      filter_df = df5[df["Inv_Yr"].isin(fy_yr_inv) & df["Region"].isin(region) & df5["COST_CENTRE"].isin(cost_centre)]
+# Select 'Inv_Yr', 'Region', 'BRAND'
 elif fy_yr_inv and region and brand:
-      filter_df = df5[df["FY_INV"].isin(fy_yr_inv) & df["Region"].isin(region) & df5["BRAND"].isin(brand)]
-# Select 'FY_INV', 'COST_CENTRE', 'BRAND'
+      filter_df = df5[df["Inv_Yr"].isin(fy_yr_inv) & df["Region"].isin(region) & df5["BRAND"].isin(brand)]
+# Select 'Inv_Yr', 'COST_CENTRE', 'BRAND'
 elif fy_yr_inv and cost_centre and brand:
-      filter_df = df5[df["FY_INV"].isin(fy_yr_inv) & df["COST_CENTRE"].isin(cost_centre) & df5["BRAND"].isin(brand)]
+      filter_df = df5[df["Inv_Yr"].isin(fy_yr_inv) & df["COST_CENTRE"].isin(cost_centre) & df5["BRAND"].isin(brand)]
 # Select 'Region', 'COST_CENTRE', 'BRAND'
 elif region and cost_centre and brand:
       filter_df = df5[df["Region"].isin(region) & df["COST_CENTRE"].isin(cost_centre) & df5["BRAND"].isin(brand)]
@@ -206,7 +206,7 @@ selected_df = df_import[df_import["YEAR"].between(df_yr[0], df_yr[1])]
 #MOUNTER IMPORT LINE CHART
 row1_left_column, row1_right_column = st.columns(2)
 with row1_left_column:
-       st.subheader(":radio: :red[China] Mounter Import Trend_:orange[QTY]:")
+       st.subheader(":radio: :red[China Mounter Import Trend]_:orange[QTY]:")
        df_mounter_import = selected_df.groupby(by = ["MONTH","YEAR"], as_index= False)["QTY"].sum()
        fig2 = px.line(df_mounter_import,
                             x= "MONTH",
@@ -220,24 +220,25 @@ with row1_left_column:
        st.plotly_chart(fig2.update_layout(yaxis_showticklabels = False), use_container_width=True)
 #################################################################################################################################
 with row1_right_column:
-       st.subheader(":radio: :blue[SMT] Main Unit Sales Trend_:orange[QTY]:")
-#LINE CHART of Overall Invoice Amount
-       InvoiceAmount_df2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","Inv_Month"],
+       st.subheader(":radio: :blue[SMT Sales Trend]_:orange[QTY]:")
+#LINE CHART of Overall Invoice Qty
+       smtqtyAmount_df2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('BRAND != "SOLDERSTAR"').query(
+                                  'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').round(0).groupby(by = ["Inv_Yr","Inv_Month"],
                             as_index= False)["Item Qty"].sum()
 # 确保 "Inv Month" 列中的所有值都出现
-       sort_Month_order = ["1", "2", "3","4", "5", "6", "7", "8", "9", "10", "11", "12"]
-       InvoiceAmount_df2 = InvoiceAmount_df2.groupby(["FY_INV", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([InvoiceAmount_df2['FY_INV'].unique(), sort_Month_order],
-                                   names=['FY_INV', 'Inv_Month'])).fillna(0).reset_index()
+       sort_Month_order = [1, 2, 3,4, 5, 6, 7, 8, 9, 10, 11, 12]
+       smtqtyAmount_df2 = smtqtyAmount_df2.groupby(["Inv_Yr", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([smtqtyAmount_df2['Inv_Yr'].unique(), sort_Month_order],
+                                   names=['Inv_Yr', 'Inv_Month'])).fillna(0).reset_index()
        fig3 = go.Figure()
-# 添加每个FY_INV的折线
-       fy_inv_values = InvoiceAmount_df2['FY_INV'].unique()
+# 添加每个Inv_Yr的折线
+       fy_inv_values = smtqtyAmount_df2['Inv_Yr'].unique()
        for fy_inv in fy_inv_values:
-         fy_inv_data = InvoiceAmount_df2[InvoiceAmount_df2['FY_INV'] == fy_inv]
+         fy_inv_data = smtqtyAmount_df2[smtqtyAmount_df2['Inv_Yr'] == fy_inv]
          fig3.add_trace(go.Scatter(
               x=fy_inv_data['Inv_Month'],
               y=fy_inv_data['Item Qty'],
               mode='lines+markers+text',
-              name=fy_inv,
+              name=str(fy_inv),
               text=fy_inv_data['Item Qty'],
               textposition="bottom center",
               texttemplate='%{text:.3s}',
@@ -252,22 +253,88 @@ with row1_right_column:
               hovermode='x', showlegend=True)
        fig3.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
        st.plotly_chart(fig3.update_layout(yaxis_showticklabels = True), use_container_width=True)
-
+#####################################################
+       #加pivot table, column只用YAMAHA, PEMTRON, HELLER台數要match圖
 ################################################################################################################################# 
 row2_left_column, row2_right_column = st.columns(2) 
 with row2_left_column:
-              st.subheader(":money_with_wings: :red[China] Mounter Import Trend_:orange[RMB AMOUNT]:")
-              df_mounter_import = selected_df.groupby(by = ["MONTH","YEAR"], as_index= False)["Import_Amount(RMB)"].sum()
-              fig2 = px.line(df_mounter_import,
-                             x= "MONTH",
-                             y = "Import_Amount(RMB)",
-                             color='YEAR',
-                             symbol="YEAR",
-                             markers=True,
-                             text="Import_Amount(RMB)",
-                             )
-              fig2.update_traces(marker_size=9, textposition="top center", texttemplate='%{text:.2s}')
-              st.plotly_chart(fig2.update_layout(yaxis_showticklabels = False), use_container_width=True)      
+       st.subheader(":money_with_wings: :red[China Mounter Import Trend]_:orange[AMOUNT]:")
+       df_mounter_import = selected_df.groupby(by = ["MONTH","YEAR"], as_index= False)["Import_Amount(RMB)"].sum()
+ # 确保 "Inv Month" 列中的所有值都出现
+       sort_Month_order = [1, 2, 3,4, 5, 6, 7, 8, 9, 10, 11, 12]
+       df_mounter_import = df_mounter_import.groupby(["YEAR", "MONTH"]).sum().reindex(pd.MultiIndex.from_product([df_mounter_import['YEAR'].unique(), sort_Month_order],
+                                   names=['YEAR', 'MONTH'])).fillna(0).reset_index()
+       fig2 = go.Figure()      
+       years = df_mounter_import["YEAR"].unique().astype(str)  # 獲取唯一年份並轉換為字符串列表
+       for year in years:
+              df_year = df_mounter_import[df_mounter_import["YEAR"] == year]
+              fig2.add_trace(go.Scatter(
+                     x=df_year["MONTH"],
+                     y=df_year["Import_Amount(RMB)"],
+                     mode='lines+markers+text',
+                     marker=dict(size=9),
+                     text=df_year["Import_Amount(RMB)"].apply(lambda x: f'{x:.3f}'),
+                     textposition="bottom center",
+                     texttemplate='%{text:.3s}',
+                     name=year,
+                     showlegend=True))
+              fig2.update_layout(xaxis=dict(
+                     tickmode='linear',
+                     tick0=1,
+                     dtick=1,
+                     title="MONTH"),
+                     yaxis=dict(showticklabels=True), 
+                     font=dict(family="Arial, Arial", size=12, color="Black"),
+                     hovermode='x', showlegend=True,
+                     legend=dict(orientation="h"))
+              fig2.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+       
+       st.plotly_chart(fig2.update_layout(yaxis_showticklabels = True), use_container_width=True)      
+
+##########################################################################################################
+with row2_right_column:
+       st.subheader(":radio: :blue[SMT Sales Trend]_:orange[AMOUNT]:")
+#LINE CHART of Overall Invoice Qty
+       smtinvoiceAmount_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).groupby(by = ["Inv_Yr","Inv_Month"],
+                            as_index= False)["Before tax Inv Amt (HKD)"].sum()
+# 确保 "Inv Month" 列中的所有值都出现
+       sort_Month_order = [1, 2, 3,4, 5, 6, 7, 8, 9, 10, 11, 12]
+       smtinvoiceAmount_df = smtinvoiceAmount_df.groupby(["Inv_Yr", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([smtinvoiceAmount_df['Inv_Yr'].unique(), sort_Month_order],
+                                   names=['Inv_Yr', 'Inv_Month'])).fillna(0).reset_index()
+       fig3 = go.Figure()
+# 添加每个Inv_Yr的折线
+       fy_inv_values = smtinvoiceAmount_df['Inv_Yr'].unique()
+       for fy_inv in fy_inv_values:
+         fy_inv_data = smtinvoiceAmount_df[smtinvoiceAmount_df['Inv_Yr'] == fy_inv]
+         fig3.add_trace(go.Scatter(
+              x=fy_inv_data['Inv_Month'],
+              y=fy_inv_data['Before tax Inv Amt (HKD)'],
+              mode='lines+markers+text',
+              name=str(fy_inv),
+              text=fy_inv_data['Before tax Inv Amt (HKD)'],
+              textposition="bottom center",
+              texttemplate='%{text:.3s}',
+              hovertemplate='%{x}<br>%{y:.2f}',
+              marker=dict(size=10)))
+         fig3.update_layout(xaxis=dict(
+              type='category',
+              categoryorder='array',
+              categoryarray=sort_Month_order),
+              yaxis=dict(showticklabels=True),
+              font=dict(family="Arial, Arial", size=12, color="Black"),
+              hovermode='x', showlegend=True)
+       fig3.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+       st.plotly_chart(fig3.update_layout(yaxis_showticklabels = True), use_container_width=True)
+
+
+
+
+
+
+
+
+
+
 
 with st.expander(":point_right: Click to expand"):
               left_column, right_column = st.columns(2)
@@ -287,13 +354,13 @@ left_column, right_column = st.columns(2)
 #Line Chart FY to FY YSM20R Invoice Details:
 with left_column:
               st.subheader(":radio:")
-              InvoiceAmount_df2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Ordered_Items == "YSM20R"').query('FY_INV != "TBA"').round(0).groupby(by = ["FQ(Invoice)","FY_INV"],
+              InvoiceAmount_df2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Ordered_Items == "YSM20R"').query('FY_INV != "TBA"').round(0).groupby(by = ["FQ(Invoice)","Inv_Yr"],
                                    as_index= False)["Item Qty"].sum()
               fig = px.line(InvoiceAmount_df2,
               x= "FQ(Invoice)",
               y = "Item Qty",
-              color='FY_INV',
-              symbol="FY_INV",
+              color='Inv_Yr',
+              symbol="Inv_Yr",
               title="YSM20R INV QTY",
               markers=True,
               text="Item Qty",
@@ -302,20 +369,20 @@ with left_column:
               st.plotly_chart(fig.update_layout(yaxis_showticklabels = False), use_container_width=True)
 #FY to FY YSM20R Invoice Details:
               with st.expander(":point_right:  Click to expand"):
-                     pvt1 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YSM20R"').pivot_table(values="Item Qty",index=["FY_INV"],columns=["FQ(Invoice)"],
+                     pvt1 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YSM20R"').pivot_table(values="Item Qty",index=["Inv_Yr"],columns=["FQ(Invoice)"],
                      aggfunc="sum",fill_value=0, margins=True,margins_name="Total").sort_index(axis=0, ascending=False)
                      st.dataframe(pvt1.style.format("{:,}"), use_container_width=True)
  
 #Line Chart FY to FY YSM20R Invoice Amount Details:
 with right_column:
               st.subheader(":money_with_wings:")
-              InvoiceAmount_df3 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Ordered_Items == "YSM20R"').query('FY_INV != "TBA"').round(0).groupby(by = ["FQ(Invoice)","FY_INV"],
+              InvoiceAmount_df3 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Ordered_Items == "YSM20R"').query('FY_INV != "TBA"').round(0).groupby(by = ["FQ(Invoice)","Inv_Yr"],
                                    as_index= False)["Before tax Inv Amt (HKD)"].sum()
               fig = px.line(InvoiceAmount_df3,
               x= "FQ(Invoice)",
               y = "Before tax Inv Amt (HKD)",
-              color='FY_INV',
-              symbol="FY_INV",
+              color='Inv_Yr',
+              symbol="Inv_Yr",
               title="YSM20R INV AMOUNT(HKD)",
               markers=True,
               text="Before tax Inv Amt (HKD)",
@@ -325,7 +392,7 @@ with right_column:
 #FY to FY YSM20R Invoice Amount Details:
               with st.expander(":point_right:  Click to expand"):
                      pvt1 = filter_df.round(0).query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YSM20R"').pivot_table(values="Before tax Inv Amt (HKD)",
-                            index=["FY_INV"],columns=["FQ(Invoice)"],
+                            index=["Inv_Yr"],columns=["FQ(Invoice)"],
                      aggfunc="sum",fill_value=0, margins=True,margins_name="Total").sort_index(axis=0, ascending=False)
                      st.dataframe(pvt1.style.format("{:,}"), use_container_width=True)
 #New Section      
@@ -335,13 +402,13 @@ left_column, right_column = st.columns(2)
 #Line Chart FY to FY YSM10 Invoice Qty Details:
 with left_column:
               st.subheader(":radio:")
-              InvoiceAmount_df3 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Ordered_Items == "YSM10"').query('FY_INV != "TBA"').round(0).groupby(by = ["FQ(Invoice)","FY_INV"],
+              InvoiceAmount_df3 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Ordered_Items == "YSM10"').query('FY_INV != "TBA"').round(0).groupby(by = ["FQ(Invoice)","Inv_Yr"],
                                    as_index= False)["Item Qty"].sum()
               fig = px.line(InvoiceAmount_df3,
               x= "FQ(Invoice)",
               y = "Item Qty",
-              color='FY_INV',
-              symbol="FY_INV",
+              color='Inv_Yr',
+              symbol="Inv_Yr",
               title="YSM10 INV QTY",
               markers=True,
               text="Item Qty",
@@ -350,20 +417,20 @@ with left_column:
               st.plotly_chart(fig.update_layout(yaxis_showticklabels = False), use_container_width=True)
 #FY to FY YSM10 Invoice QTY Details:
               with st.expander(":point_right:  Click to expand"):
-                     pvt1 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YSM10"').pivot_table(values="Item Qty",index=["FY_INV"],columns=["FQ(Invoice)"],
+                     pvt1 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YSM10"').pivot_table(values="Item Qty",index=["Inv_Yr"],columns=["FQ(Invoice)"],
                      aggfunc="sum",fill_value=0, margins=True,margins_name="Total").sort_index(axis=0, ascending=False)
                      st.dataframe(pvt1.style.format("{:,}"), use_container_width=True)
  
 #Line Chart FY to FY YSM10 Invoice Amount Details:
 with right_column:
               st.subheader(":money_with_wings:")
-              InvoiceAmount_df3 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Ordered_Items == "YSM10"').query('FY_INV != "TBA"').round(0).groupby(by = ["FQ(Invoice)","FY_INV"],
+              InvoiceAmount_df3 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Ordered_Items == "YSM10"').query('FY_INV != "TBA"').round(0).groupby(by = ["FQ(Invoice)","Inv_Yr"],
                                    as_index= False)["Before tax Inv Amt (HKD)"].sum()
               fig = px.line(InvoiceAmount_df3,
               x= "FQ(Invoice)",
               y = "Before tax Inv Amt (HKD)",
-              color='FY_INV',
-              symbol="FY_INV",
+              color='Inv_Yr',
+              symbol="Inv_Yr",
               title="YSM10 INV AMOUNT(HKD)",
               markers=True,
               text="Before tax Inv Amt (HKD)",
@@ -373,6 +440,6 @@ with right_column:
 #FY to FY YSM10 Invoice Amount Details:
               with st.expander(":point_right:  Click to expand"):
                      pvt1 = filter_df.round(0).query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YSM10"').pivot_table(values="Before tax Inv Amt (HKD)",
-                            index=["FY_INV"],columns=["FQ(Invoice)"],
+                            index=["Inv_Yr"],columns=["FQ(Invoice)"],
                      aggfunc="sum",fill_value=0, margins=True,margins_name="Total").sort_index(axis=0, ascending=False)
                      st.dataframe(pvt1.style.format("{:,}"), use_container_width=True)
