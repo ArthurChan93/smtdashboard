@@ -71,7 +71,7 @@ df = pd.read_excel(
 st.sidebar.divider()
 #Sidebar Filter
 # Create FY Invoice filter
-st.sidebar.header("Filter:")
+st.sidebar.header(":point_down:Filter:")
 fy_yr_inv = st.sidebar.multiselect(
        "Select the Financial Year of Invoice",
         options=df["FY_INV"].unique(),
@@ -354,7 +354,6 @@ with col_2:
       InvoiceAmount_df2 = InvoiceAmount_df2.groupby(["FY_INV", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([InvoiceAmount_df2['FY_INV'].unique(), sort_Month_order],
                                    names=['FY_INV', 'Inv_Month'])).fillna(0).reset_index()
       fig3 = go.Figure()
-
 # 添加每个FY_INV的折线
       fy_inv_values = InvoiceAmount_df2['FY_INV'].unique()
       for fy_inv in fy_inv_values:
