@@ -1652,28 +1652,15 @@ with tab5:
                   )
              # 显示图表
              st.plotly_chart(fig_customer_inv_qty, use_container_width=True)
-
-
-
-
-
-
-
- 
-
-
-
-
-
-row2_left_column, row2_right_column= st.columns(2)
-with row2_left_column:
+       
+      row2_left_column, row2_right_column= st.columns(2)
+      with row2_left_column:
              st.subheader(":medal: :orange[Top Customer Purchase List]_Inv Amount& Qty:")
              pvt12 = filter_df.query('Product_Type != "SERVICE/ PARTS"').query('Inv_Yr != "TBA"').query('Inv_Month != "TBA"').query('Inv_Month != "Cancel"').round(2).pivot_table(index=["Customer Name","Region","Ordered_Items"],
                     values=["Item Qty","Before tax Inv Amt (HKD)"],
              aggfunc="sum",fill_value=0,).sort_values(by="Item Qty",ascending=False)
              st.dataframe(pvt12.style.format("{:,}"), use_container_width=True)
-
-with row2_right_column:
+      with row2_right_column:
              st.subheader(":trophy: :orange[Top Customer List]_Inv Amount& Qty:")
              pvt11 = filter_df.query('Product_Type != "SERVICE/ PARTS"').query('Inv_Yr != "TBA"').query('Inv_Month != "TBA"').query('Inv_Month != "Cancel"').round(2).pivot_table(index=["Customer Name","Region"],
                     values=["Item Qty","Before tax Inv Amt (HKD)"],
