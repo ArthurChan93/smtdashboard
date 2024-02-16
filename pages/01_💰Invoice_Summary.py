@@ -374,7 +374,8 @@ with col_2:
               categoryarray=sort_Month_order),
               yaxis=dict(showticklabels=True),
               font=dict(family="Arial, Arial", size=12, color="Black"),
-              hovermode='x', showlegend=True)
+              hovermode='x', showlegend=True,
+              legend=dict(orientation="h",font=dict(size=14)))
       fig3.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
       st.plotly_chart(fig3.update_layout(yaxis_showticklabels = True), use_container_width=True)
 #############################################################################################################
@@ -432,7 +433,8 @@ with col_2:
               categoryarray=sort_Month_order),
               yaxis=dict(showticklabels=True),
               font=dict(family="Arial, Arial", size=12, color="Black"),
-              hovermode='x', showlegend=True)
+              hovermode='x', showlegend=True,
+              legend=dict(orientation="h",font=dict(size=14)))
       
       fig12.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
       st.plotly_chart(fig12.update_layout(yaxis_showticklabels = True), use_container_width=True)
@@ -600,7 +602,7 @@ with tab2:
         df_contract_vs_invoice.update_layout(barmode='group')
 
 # 将图例放在底部
-        df_contract_vs_invoice.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.03, xanchor="right", x=1))
+        df_contract_vs_invoice.update_layout(legend=dict(orientation="h",font=dict(size=14), yanchor="bottom", y=1.03, xanchor="right", x=1))
 
         st.plotly_chart(df_contract_vs_invoice, use_container_width=True) 
 ##############################################################################################################################          
@@ -625,7 +627,7 @@ with tab2:
                     family="Arial, Arial",
                     size=12,
                     color="Black"))
-        fig2.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+        fig2.update_layout(legend=dict(orientation="h",font=dict(size=14), yanchor="bottom", y=1.02, xanchor="right", x=1))
         fig2.update_traces(marker_size=9, textposition="bottom center", texttemplate='%{text:.2s}')
         st.plotly_chart(fig2.update_layout(yaxis_showticklabels = True), use_container_width=True)
 
@@ -664,9 +666,10 @@ with tab2:
                           categoryarray=all_fq_invoice_values),
                           yaxis=dict(showticklabels=True),
                           font=dict(family="Arial, Arial", size=12, color="Black"),
-                          hovermode='x', showlegend=True)
+                          hovermode='x', showlegend=True,
+                          legend=dict(orientation="h",font=dict(size=14)),paper_bgcolor='rgba(255,165,0,0.3)')
              
-              fig4.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+              fig4.update_layout(legend=dict(orientation="h",font=dict(size=14), yanchor="bottom", y=1.02, xanchor="right", x=1))
 
               st.plotly_chart(fig4.update_layout(yaxis_showticklabels = True), use_container_width=True)
 
@@ -685,7 +688,7 @@ with tab2:
               html81 = html80.replace('<th>Q4</th>', '<th style="background-color: orange">Q4</th>')
               html822 = html81.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 # 放大pivot table
-              html833 = f'<div style="zoom: 0.8;">{html822}</div>'
+              html833 = f'<div style="zoom: 1;">{html822}</div>'
 
               st.markdown(html833, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
@@ -726,7 +729,9 @@ with tab2:
                           categoryarray=all_fq_invoice_values),
                           yaxis=dict(showticklabels=True),
                           font=dict(family="Arial, Arial", size=12, color="Black"),
-                          hovermode='x', showlegend=True)
+                          hovermode='x', showlegend=True,
+                          legend=dict(orientation="h",font=dict(size=14)),
+                          paper_bgcolor='rgba(0,150,255,0.1)')
              
               fig5.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
               st.plotly_chart(fig5.update_layout(yaxis_showticklabels = True), use_container_width=True)
@@ -746,7 +751,7 @@ with tab2:
               html88 = html87.replace('<th>Q4</th>', '<th style="background-color: lightblue">Q4</th>')
               html89 = html88.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 # 放大pivot table
-              html900 = f'<div style="zoom: 0.8;">{html89}</div>'
+              html900 = f'<div style="zoom: 1;">{html89}</div>'
              
               st.markdown(html900, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
@@ -789,7 +794,9 @@ with tab2:
                           categoryarray=all_fq_invoice_values),
                           yaxis=dict(showticklabels=True),
                           font=dict(family="Arial, Arial", size=12, color="Black"),
-                          hovermode='x', showlegend=True)
+                          hovermode='x', showlegend=True,
+                          legend=dict(orientation="h",font=dict(size=14)),
+                          paper_bgcolor='khaki')
               
              fig7.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
              st.plotly_chart(fig7.update_layout(yaxis_showticklabels = True), use_container_width=True)
@@ -809,7 +816,7 @@ with tab2:
              html68 = html67.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 
 # 放大pivot table
-             html699 = f'<div style="zoom: 0.8;">{html68}</div>'
+             html699 = f'<div style="zoom: 1;">{html68}</div>'
              st.markdown(html699, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
              csv9 = pvt10.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
@@ -848,7 +855,9 @@ with tab2:
                           categoryarray=all_fq_invoice_values),
                           yaxis=dict(showticklabels=True),
                           font=dict(family="Arial, Arial", size=12, color="Black"),
-                          hovermode='x', showlegend=True)
+                          hovermode='x', showlegend=True,
+                          legend=dict(orientation="h",font=dict(size=14)),
+                          paper_bgcolor='lightgreen')
               
              fig6.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
              st.plotly_chart(fig6.update_layout(yaxis_showticklabels = True), use_container_width=True)
@@ -866,7 +875,7 @@ with tab2:
              html74 = html73.replace('<th>Q4</th>', '<th style="background-color: lightgreen">Q4</th>')
              html75 = html74.replace('<th>Total</th>', '<th style="background-color: lightgreen">Total</th>')
 # 放大pivot table
-             html766 = f'<div style="zoom: 0.8;">{html75}</div>'
+             html766 = f'<div style="zoom: 1;">{html75}</div>'
 
              st.markdown(html766, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
@@ -896,7 +905,7 @@ with tab3:
              st.markdown(html148, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
              csv19 = pvt21.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
-      st.download_button(label='Download Table', data=csv19, file_name='FY_Sales_Total.csv', mime='text/csv')
+      st.download_button(label='Download Table', data=csv19, file_name='FY_Sales_Total.csv', mime='text/csv') 
 #############################################
 #FY to FY Quarter Invoice Details:
       st.subheader(":blue_book: Invoice Amount Subtotal_:orange[FQ]:")
@@ -925,7 +934,7 @@ with tab3:
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
              csv8 = pvt19.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
       st.download_button(label='Download Table', data=csv8, file_name='Monthly_Sales_Total.csv', mime='text/csv')
- ###################################################################################################################
+ ###################################################################################################################     
      with tab3_col2:
       st.subheader(":green_book: Invoice Details_:orange[Monthly]")
            
@@ -981,7 +990,7 @@ with tab4:
       # BAR CHART of BRAND Comparision
        st.subheader(":bar_chart: Main Brand Invoice Qty_:orange[Monthly]:")
        brand_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND != "SOLDERSTAR"').query(
-                                  'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').round(0).groupby(by=["Inv_Month",
+                      'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHINWA"').query('BRAND != "SIGMA"').round(0).groupby(by=["Inv_Month",
                             "BRAND"], as_index=False)["Item Qty"].sum().sort_values(by="Item Qty", ascending=False)
         # 按照指定顺序排序
 #       brand_df["BRAND"] = pd.Categorical(brand_df["BRAND"], ["YAMAHA", "PEMTRON", "HELLER"])
@@ -1005,14 +1014,14 @@ with tab4:
               trace.marker.color = colors.get(brand_color, "blue")
 
 # 更改字體和label
-       brand_qty.update_layout(font=dict(family="Arial", size=13))
+       brand_qty.update_layout(font=dict(family="Arial", size=13.5))
        brand_qty.update_traces(marker_line_color='black', textposition='outside', marker_line_width=2,opacity=1)
 
 # 將barmode設置為"group"以顯示多條棒形圖
        brand_qty.update_layout(barmode='group')
 
 # 将图例放在底部
-       brand_qty.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+       brand_qty.update_layout(legend=dict(orientation="h",font=dict(size=14), yanchor="bottom", y=1.02, xanchor="right", x=1))
 
 # 绘制图表
        st.plotly_chart(brand_qty, use_container_width=True)
@@ -1086,7 +1095,8 @@ with tab4:
        with tab4_row2_col2:
              st.subheader(":sports_medal: Main Brand Invoice Qty_:orange[FY]:")
              brandinv_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND != "SOLDERSTAR"').query(
-                                  'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').round(0).groupby(by=["FY_INV","BRAND"],
+                           'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHINWA"').query(
+                           'BRAND != "SIGMA"').round(0).groupby(by=["FY_INV","BRAND"],
                             as_index=False)["Item Qty"].sum().sort_values(by="Item Qty", ascending=False)
         # 按照指定顺序排序
 #             brandinv_df["BRAND"] = pd.Categorical(brandinv_df["BRAND"], ["YAMAHA", "PEMTRON", "HELLER"])
@@ -1106,7 +1116,7 @@ with tab4:
              df_brand.update_layout(barmode='group')
 
 # 将图例放在底部
-             df_brand.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+             df_brand.update_layout(legend=dict(orientation="h",font=dict(size=14), yanchor="bottom", y=1.02, xanchor="right", x=1))
              st.plotly_chart(df_brand, use_container_width=True)            
 ###################################################################
        with tab4_row2_col3:
@@ -1181,7 +1191,8 @@ with tab4:
                        categoryarray=sort_Month_order),
                        yaxis=dict(showticklabels=True),
                        font=dict(family="Arial, Arial", size=13, color="Black"),
-                       hovermode='x', showlegend=True)
+                       hovermode='x', showlegend=True,
+                       legend=dict(orientation="h",font=dict(size=14)))
                  
              fig8.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
              fig8.update_traces(marker_size=9, textposition="top center", texttemplate='%{text:.2s}')
@@ -1208,9 +1219,6 @@ with tab4:
              csv14 = pvt13.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
             
              st.download_button(label='Download Table', data=csv14, file_name='YSM20 Invocie Qty.csv', mime='text/csv')
-
- 
- 
 ##########################################################################################
 #Line Chart FY to FY YSM10 Invoice Details:
        with right_column:
@@ -1243,7 +1251,8 @@ with tab4:
                        categoryarray=sort_Month_order),
                        yaxis=dict(showticklabels=True),
                        font=dict(family="Arial, Arial", size=13, color="Black"),
-                       hovermode='x', showlegend=True)
+                       hovermode='x', showlegend=True,
+                       legend=dict(orientation="h",font=dict(size=14)))
                  
              fig9.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
              fig9.update_traces(marker_size=9, textposition="top center", texttemplate='%{text:.2s}')
@@ -1266,7 +1275,7 @@ with tab4:
              html105 = f'<div style="zoom: 1.2;">{html104}</div>'
              st.markdown(html105, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
-             csv14 = pvt13.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
+             csv14 = pvt14.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
             
              st.download_button(label='Download Table', data=csv14, file_name='YSM10 Invocie Qty.csv', mime='text/csv')
             
@@ -1305,7 +1314,8 @@ with tab4:
                        categoryarray=sort_Month_order),
                        yaxis=dict(showticklabels=True),
                        font=dict(family="Arial, Arial", size=13, color="Black"),
-                       hovermode='x', showlegend=True)
+                       hovermode='x', showlegend=True,
+                       legend=dict(orientation="h",font=dict(size=14)))
                  
              fig10.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
              fig10.update_traces(marker_size=9, textposition="top center", texttemplate='%{text:.2s}')
@@ -1362,7 +1372,8 @@ with tab4:
                        categoryarray=sort_Month_order),
                        yaxis=dict(showticklabels=True),
                        font=dict(family="Arial, Arial", size=13, color="Black"),
-                       hovermode='x', showlegend=True)
+                       hovermode='x', showlegend=True,
+                       legend=dict(orientation="h",font=dict(size=14)))
                  
              fig11.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
              fig11.update_traces(marker_size=9, textposition="top center", texttemplate='%{text:.2s}')
@@ -1422,7 +1433,8 @@ with tab4:
                        categoryarray=sort_Month_order),
                        yaxis=dict(showticklabels=True),
                        font=dict(family="Arial, Arial", size=13, color="Black"),
-                       hovermode='x', showlegend=True)
+                       hovermode='x', showlegend=True,
+                       legend=dict(orientation="h",font=dict(size=14)))
                  
              fig13.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
              fig13.update_traces(marker_size=9, textposition="top center", texttemplate='%{text:.2s}')
@@ -1481,7 +1493,8 @@ with tab4:
                        categoryarray=sort_Month_order),
                        yaxis=dict(showticklabels=True),
                        font=dict(family="Arial, Arial", size=13, color="Black"),
-                       hovermode='x', showlegend=True)
+                       hovermode='x', showlegend=True,
+                       legend=dict(orientation="h",font=dict(size=14)))
                  
              fig14.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
              fig14.update_traces(marker_size=9, textposition="top center", texttemplate='%{text:.2s}')
@@ -1539,7 +1552,8 @@ with tab4:
                        categoryarray=sort_Month_order),
                        yaxis=dict(showticklabels=True),
                        font=dict(family="Arial, Arial", size=13, color="Black"),
-                       hovermode='x', showlegend=True)
+                       hovermode='x', showlegend=True,
+                       legend=dict(orientation="h",font=dict(size=14)))
                  
              fig15.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
              fig15.update_traces(marker_size=9, textposition="top center", texttemplate='%{text:.2s}')
