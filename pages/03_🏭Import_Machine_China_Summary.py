@@ -235,7 +235,6 @@ with row1_left_column:
                      font=dict(family="Arial, Arial", size=14, color="Black"),
                      hovermode='x', showlegend=True,
                      legend=dict(orientation="h",font=dict(size=14)),
-                     #plot_bgcolor='rgba(0,150,255,0.1)',#圖表背景色, 
                      paper_bgcolor='rgba(255,182,193,0.2)')#圖紙背景色
               fig2.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
        
