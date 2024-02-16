@@ -582,10 +582,9 @@ with tab2:
 #All Regional total inv amount BAR CHART
       
         st.subheader(":bar_chart: Invoice Amount_:orange[FY](Available to show :orange[Multiple FY]):")
-        category2_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').round(0).groupby(by=["FY_INV","Region"], as_index=False)["Before tax Inv Amt (HKD)"].sum().sort_values(by="Before tax Inv Amt (HKD)", ascending=False)
+        category2_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').round(0).groupby(by=["FY_INV","Region"], 
+                       as_index=False)["Before tax Inv Amt (HKD)"].sum().sort_values(by="Before tax Inv Amt (HKD)", ascending=False)
 
- 
-      
         df_contract_vs_invoice = px.bar(category2_df, x="FY_INV", y="Before tax Inv Amt (HKD)", color="Region", text_auto='.3s')
 
 # 更改顏色
@@ -1581,27 +1580,25 @@ with tab4:
              st.download_button(label='Download Table', data=csv18, file_name='HELLER Main Units Invocie Qty.csv', mime='text/csv') 
              
 ############################################################################################################################################################################################################
-#TAB 4: Customer category
+#TAB 5: Customer category
 with tab5:
-      #Top Down Customer details Table
-
-      left_column, middle_column , right_column= st.columns(3)
+#Top Down Customer details Table
+      left_column, right_column= st.columns(2)
 #BAR CHART Customer List
       with left_column:
-             st.subheader(":bar_chart: Invoice Amount_:orange[Top 10 Customer]:")
-             
-             customer_line = (filter_df.query('BRAND != "C66 SERVICE"').query('Product_Type != "SERVICE/ PARTS"').query('Inv_Yr != "TBA"').query('Inv_Month != "TBA"').query(
-                  'Inv_Month != "Cancel"').groupby(by=["Customer Name"])[["Before tax Inv Amt (HKD)"]].sum().sort_values(by="Before tax Inv Amt (HKD)", ascending=False).head(10))
-
+             st.subheader(":bar_chart: Top 10 Customer_:blue[Invoice Qty]:")            
+             customer_line = (filter_df.query('BRAND != "C66 SERVICE"').query('Inv_Yr != "TBA"').query('Inv_Month != "TBA"').query(
+                             'Inv_Month != "Cancel"').query('BRAND != "SOLDERSTAR"').query('BRAND != "C66 SERVICE"').query(
+                             'BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHINWA"').query('BRAND != "SIGMA"').groupby(
+                             by=["Customer Name"])[["Item Qty"]].sum().sort_values(by="Item Qty", ascending=False).head(10))
 # 生成颜色梯度
              colors = px.colors.sequential.Blues[::-1]  # 将颜色顺序反转为从深到浅
-
 # 创建条形图
              fig_customer = px.bar(
                   customer_line,
-                  x="Before tax Inv Amt (HKD)",
+                  x="Item Qty",
                   y=customer_line.index,
-                  text="Before tax Inv Amt (HKD)",
+                  text="Item Qty",
                   orientation="h",
                   color=customer_line.index,
                   color_discrete_sequence=colors[:len(customer_line)],
@@ -1611,7 +1608,7 @@ with tab5:
              fig_customer.update_layout(
                   height=400,
                   yaxis=dict(title="Customer Name"),
-                  xaxis=dict(title="Before tax Inv Amt (HKD)"),)
+                  xaxis=dict(title="Item Qty"),)
              fig_customer.update_layout(font=dict(family="Arial", size=15))
              fig_customer.update_traces(
                   textposition="inside",
@@ -1622,21 +1619,66 @@ with tab5:
              # 显示图表
              st.plotly_chart(fig_customer, use_container_width=True)
 ##################################################    
-      with middle_column:
-             st.subheader(":trophy: :orange[Top Customer List]_Inv Amount& Qty:")
-             pvt11 = filter_df.query('Product_Type != "SERVICE/ PARTS"').query('Inv_Yr != "TBA"').query('Inv_Month != "TBA"').query('Inv_Month != "Cancel"').round(2).pivot_table(index=["Customer Name","Region"],
-                    values=["Item Qty","Before tax Inv Amt (HKD)"],
-             aggfunc="sum",fill_value=0,).sort_values(by="Item Qty",ascending=False)
-             st.dataframe(pvt11.style.format("{:,}"), use_container_width=True)
+      with right_column:
+             st.subheader(":bar_chart: Top 10 Customer_:orange[Invoice Amount]:")            
+             customer_qty_line = (filter_df.query('BRAND != "C66 SERVICE"').query('Inv_Yr != "TBA"').query(
+                                 'Inv_Month != "TBA"').query('Inv_Month != "Cancel"').groupby(
+                                 by=["Customer Name"])[["Before tax Inv Amt (HKD)"]].sum().sort_values(
+                                 by="Before tax Inv Amt (HKD)", ascending=False).head(10))
+# 生成颜色梯度
+             colors = px.colors.sequential.Oranges[::-1]  # 将颜色顺序反转为从深到浅
+# 创建条形图
+             fig_customer_inv_qty = px.bar(
+                  customer_qty_line,
+                  x="Before tax Inv Amt (HKD)",
+                  y=customer_qty_line.index,
+                  text="Before tax Inv Amt (HKD)",
+                  orientation="h",
+                  color=customer_qty_line.index,
+                  color_discrete_sequence=colors[:len(customer_qty_line)],
+                  template="plotly_white", text_auto='.3s')
+
+# 更新图表布局和样式
+             fig_customer_inv_qty.update_layout(
+                  height=400,
+                  yaxis=dict(title="Customer Name"),
+                  xaxis=dict(title="Before tax Inv Amt (HKD)"),)
+             fig_customer_inv_qty.update_layout(font=dict(family="Arial", size=15))
+             fig_customer_inv_qty.update_traces(
+                  textposition="inside",
+                  marker_line_color="black",
+                  marker_line_width=2,
+                  opacity=1,showlegend=False,
+                  )
+             # 显示图表
+             st.plotly_chart(fig_customer_inv_qty, use_container_width=True)
+
+
+
+
+
+
 
  
-      with right_column:
+
+
+
+
+
+row2_left_column, row2_right_column= st.columns(2)
+with row2_left_column:
              st.subheader(":medal: :orange[Top Customer Purchase List]_Inv Amount& Qty:")
              pvt12 = filter_df.query('Product_Type != "SERVICE/ PARTS"').query('Inv_Yr != "TBA"').query('Inv_Month != "TBA"').query('Inv_Month != "Cancel"').round(2).pivot_table(index=["Customer Name","Region","Ordered_Items"],
                     values=["Item Qty","Before tax Inv Amt (HKD)"],
              aggfunc="sum",fill_value=0,).sort_values(by="Item Qty",ascending=False)
              st.dataframe(pvt12.style.format("{:,}"), use_container_width=True)
 
+with row2_right_column:
+             st.subheader(":trophy: :orange[Top Customer List]_Inv Amount& Qty:")
+             pvt11 = filter_df.query('Product_Type != "SERVICE/ PARTS"').query('Inv_Yr != "TBA"').query('Inv_Month != "TBA"').query('Inv_Month != "Cancel"').round(2).pivot_table(index=["Customer Name","Region"],
+                    values=["Item Qty","Before tax Inv Amt (HKD)"],
+             aggfunc="sum",fill_value=0,).sort_values(by="Item Qty",ascending=False)
+             st.dataframe(pvt11.style.format("{:,}"), use_container_width=True)
  
       
 ############################################################################################################################################################################################################
