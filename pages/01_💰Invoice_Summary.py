@@ -16,16 +16,33 @@ from bs4 import BeautifulSoup
 import locale
 import re
 from lxml import etree
+from PIL import Image
 ######################################################################################################
 # emojis https://streamlit-emoji-shortcodes-streamlit-app-gwckff.streamlit.app/
 #Webpage config& tab name& Icon
 st.set_page_config(page_title="Sales Dashboard",page_icon=":rainbow:",layout="wide")
 #Title
 st.title(':world_map: SMT_Invoice Dashboard')
+#Text Credit
+st.write("by Arthur Chan")
+
+# 加載圖片
+image_path = '/Users/arthurchan/Downloads/Sample/LINE.jpg'
+image = Image.open(image_path)
+
+# 設置目標寬度和高度
+target_width = 1000
+target_height = 200
+
+# 縮小圖片
+resized_image = image.resize((target_width, target_height))
+
+# 在Streamlit應用程序中顯示縮小後的圖片
+st.image(resized_image, use_column_width=False)
+
 #Move the title higher
 st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow_html=True)
-#Text
-st.write("by Arthur Chan")
+
 #Move the title higher
 st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow_html=True)
 ######################################################################################################
@@ -40,7 +57,7 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 #        st.dataframe(df)
 #唔show 17/18, cancel, tba資料
 #else:
-#os.chdir(r"C:\Users\ArthurChan\OneDrive\VS Code\PythonProject_ESE\Sample Excel")
+#os.chdir(r"/Users/arthurchan/Downloads/Sample")
 df = pd.read_excel(
                io='Monthly_report_for_edit.xlsm',engine= 'openpyxl',sheet_name='raw_sheet', skiprows=0, usecols='A:AO',nrows=10000,).query(
                     'Region != "C66 N/A"').query('FY_Contract != "Cancel"').query('FY_INV != "TBA"').query('FY_INV != "FY 17/18"').query(
