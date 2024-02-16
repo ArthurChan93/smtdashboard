@@ -27,7 +27,7 @@ st.title(':world_map: SMT_Invoice Dashboard')
 st.write("by Arthur Chan")
 
 # 加載圖片
-image_path = '/Users/arthurchan/Downloads/Sample/LINE.jpg'
+image_path = 'LINE.jpg'
 image = Image.open(image_path)
 
 # 設置目標寬度和高度
