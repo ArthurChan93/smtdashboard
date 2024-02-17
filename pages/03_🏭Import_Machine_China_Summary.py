@@ -45,7 +45,7 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 #st.dataframe(df)
 #唔show 17/18, cancel, tba資料
 #else:
-#os.chdir(r"C:\Users\ArthurChan\OneDrive\VS Code\PythonProject_ESE\Sample Excel")
+#os.chdir(r"/Users/arthurchan/Downloads/Sample")
  
 df = pd.read_excel(
        io='Monthly_report_for_edit.xlsm',engine= 'openpyxl',sheet_name='raw_sheet', skiprows=0, usecols='A:AO',
@@ -421,7 +421,7 @@ with row2_left_column:
 
 ##########################################################################################################
 with row2_right_column:
-       st.subheader(":radio: :blue[SMT Sales Trend]_:green[AMOUNT]:")
+       st.subheader(":money_with_wings: :blue[SMT Sales Trend]_:green[AMOUNT]:")
 #LINE CHART of Overall Invoice Qty
        smtinvoiceAmount_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).groupby(by = ["Inv_Yr","Inv_Month"],
                             as_index= False)["Before tax Inv Amt (HKD)"].sum()
