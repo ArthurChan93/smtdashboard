@@ -67,7 +67,7 @@ df_sales_target = pd.read_excel(
           engine='openpyxl',
           sheet_name='YAMAHA_Sales_Target',
           skiprows=0,
-          usecols='A:E',
+          usecols='A:D',
           nrows=10000) 
      
 yr_sales_target = st.multiselect(
@@ -84,8 +84,6 @@ else:
 
 
 ########################################################################################
-
-     
 region_sales = df_sales_target2.groupby(by=["Region"]).agg({"Sales_Target": "sum", "Current Achievement": "sum"}
                      ).sort_values(by="Sales_Target", ascending=False)
      
