@@ -32,7 +32,7 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 #Move the title higher
 st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow_html=True)
 ######################################################################################################
-os.chdir(r"/Users/arthurchan/Downloads/Sample")
+#os.chdir(r"/Users/arthurchan/Downloads/Sample")
 #SOUTH STOCK DATA BASE
 df_south = pd.read_excel(
                io='south_stock_list.xlsx',engine= 'openpyxl',sheet_name='Stock_list', skiprows=0, usecols='A:AP',nrows=10000,)
