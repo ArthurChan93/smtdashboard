@@ -903,7 +903,7 @@ with tab3:
       st.subheader(":ledger: Invoice Amount Subtotal_:orange[FY]:")
       with st.subheader("Click to expand"):
              pvt21 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).pivot_table(
-                    values="Before tax Inv Amt (HKD)",index=["FY_INV"],
+                    values=["Before tax Inv Amt (HKD)","G.P.  (HKD)"],index=["FY_INV"],
                     aggfunc="sum",fill_value=0, margins=True,margins_name="Total")
             
              html146 = pvt21.applymap('HKD{:,.0f}'.format).to_html(classes='table table-bordered', justify='center') 
