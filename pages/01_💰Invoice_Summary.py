@@ -21,24 +21,15 @@ from PIL import Image
 # emojis https://streamlit-emoji-shortcodes-streamlit-app-gwckff.streamlit.app/
 #Webpage config& tab name& Icon
 st.set_page_config(page_title="Sales Dashboard",page_icon=":rainbow:",layout="wide")
+
+title_row1, title_row2, title_row3, title_row4 = st.columns(4)
+
+
 #Title
-st.title(':world_map: SMT_Invoice Dashboard')
+with title_row1:
+     st.title(':world_map: SMT_Invoice Dashboard')
 #Text Credit
-st.write("by Arthur Chan")
-
-# 加載圖片
-image_path = 'LINE.jpg'
-image = Image.open(image_path)
-
-# 設置目標寬度和高度
-target_width = 1000
-target_height = 200
-
-# 縮小圖片
-resized_image = image.resize((target_width, target_height))
-
-# 在Streamlit應用程序中顯示縮小後的圖片
-st.image(resized_image, use_column_width=False)
+     st.write("by Arthur Chan")
 
 #Move the title higher
 st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow_html=True)
@@ -58,11 +49,13 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 #唔show 17/18, cancel, tba資料
 #else:
 #os.chdir(r"/Users/arthurchan/Downloads/Sample")
+#os.chdir(r"/Users/arthurchan/Downloads/Sample")
 df = pd.read_excel(
                io='Monthly_report_for_edit.xlsm',engine= 'openpyxl',sheet_name='raw_sheet', skiprows=0, usecols='A:AO',nrows=10000,).query(
                     'Region != "C66 N/A"').query('FY_Contract != "Cancel"').query('FY_INV != "TBA"').query('FY_INV != "FY 17/18"').query(
                          'FY_INV != "Cancel"').query('Inv_Yr != "TBA"').query('Inv_Yr != "Cancel"').query('Inv_Month != "TBA"').query('Inv_Month != "Cancel"')
-
+df_sales_target = pd.read_excel(
+               io='Monthly_report_for_edit.xlsm',engine= 'openpyxl',sheet_name='YAMAHA_Sales_Target', skiprows=0, usecols='A:D',nrows=10000,)
 ######################################################################################################
 # https://icons.getbootstrap.com/
 #Top menu bar
@@ -222,7 +215,7 @@ font-size: 28px;
 
  
 st.write(font_css, unsafe_allow_html=True)
-tab1, tab2, tab3 ,tab4,tab5, tab6= st.tabs([":wedding: Overview",":earth_asia: Region",":blue_book: Invoice Details",":package: Brand",":handshake: Customer",":dart: Target Achievement"])
+tab1, tab2, tab3 ,tab4,tab5= st.tabs([":wedding: Overview",":earth_asia: Region",":blue_book: Invoice Details",":package: Brand",":handshake: Customer"])
 
 #TAB 1: Overall category
 ################################################################################################################################################
@@ -973,8 +966,18 @@ with tab3:
 
 # 使用map方法應用格式化
       pvt3_formatted = pvt3.copy()
-      pvt3_formatted["Item Qty"] = pvt3_formatted["Item Qty"].map("{:.1f}".format)#Value值去HKD
-      pvt3_formatted[["Before tax Inv Amt (HKD)", "G.P.  (HKD)"]] = pvt3_formatted[["Before tax Inv Amt (HKD)", "G.P.  (HKD)"]].map('HKD{:,.0f}'.format)#Value值加HKD
+
+# 定義格式化函數
+      def format_item_qty(value):
+           return "{:.1f}".format(value)
+
+# 使用 apply() 將格式化函數應用於 "Item Qty" 列的每個元素
+      pvt3_formatted["Item Qty"] = pvt3_formatted["Item Qty"].apply(format_item_qty)
+
+# 使用 applymap() 將格式化函數應用於 "Before tax Inv Amt (HKD)" 和 "G.P.  (HKD)" 列的每個元素
+      pvt3_formatted[["Before tax Inv Amt (HKD)", "G.P.  (HKD)"]] = pvt3_formatted[["Before tax Inv Amt (HKD)", "G.P.  (HKD)"]].applymap('HKD{:,.0f}'.format)
+
+
       html46 = pvt3_formatted.to_html(classes='table table-bordered', justify='center')
 
 # 放大pivot table
@@ -1030,7 +1033,7 @@ with tab4:
               trace.marker.color = colors.get(brand_color, "blue")
 
 # 更改字體和label
-       brand_qty.update_layout(font=dict(family="Arial", size=13.5))
+       brand_qty.update_layout(font=dict(family="Arial", size=13.5, color="black"))
        brand_qty.update_traces(marker_line_color='black', textposition='outside', marker_line_width=2,opacity=1)
 
 # 將barmode設置為"group"以顯示多條棒形圖
@@ -1107,7 +1110,7 @@ with tab4:
              csv13 = pvt6.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
              st.download_button(label='Download Table', data=csv13, file_name='Brand_invoice_qty.csv', mime='text/csv')
             
-################################################################      
+############################################################################################################################################      
        with tab4_row2_col2:
              st.subheader(":sports_medal: Main Brand Invoice Qty_:orange[FY]:")
              brandinv_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND != "SOLDERSTAR"').query(
@@ -1158,7 +1161,7 @@ with tab4:
 
 # 设置字体和样式
              df_pie.update_layout(
-                   font=dict(family="Arial", size=14),
+                   font=dict(family="Arial", size=14, color="black"),
                    legend=dict(orientation="v", yanchor="bottom", y=1.02, xanchor="right", x=1))
 
 # 显示百分比标签
@@ -1458,7 +1461,7 @@ with tab4:
 
 #FY to FY YRM Invoice Details:
              filter_df["FQ(Invoice)"] = pd.Categorical(filter_df["FQ(Invoice)"], categories=["Q1", "Q2", "Q3", "Q4"])
-             pvt20 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YRM"').pivot_table(values="Item Qty",
+             pvt20 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YSM10"').pivot_table(values="Item Qty",
                      index=["FY_INV"],columns=["FQ(Invoice)"], aggfunc="sum",fill_value=0, margins=True,margins_name="Total").sort_index(axis=0, ascending=True)
              html122 = pvt20.applymap('{:,.0f}'.format).to_html(classes='table table-bordered', justify='center')
              # 把total值的那行的背景顏色設為黃色，並將字體設為粗體
@@ -1603,7 +1606,7 @@ with tab5:
       left_column, right_column= st.columns(2)
 #BAR CHART Customer List
       with left_column:
-             st.subheader(":bar_chart: Top 10 Customer_:blue[Invoice Qty]:")            
+             st.subheader(":radio: Top 10 Customer_:blue[Invoice Qty]:")            
              customer_line = (filter_df.query('BRAND != "C66 SERVICE"').query('Inv_Yr != "TBA"').query('Inv_Month != "TBA"').query(
                              'Inv_Month != "Cancel"').query('BRAND != "SOLDERSTAR"').query('BRAND != "C66 SERVICE"').query(
                              'BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHINWA"').query('BRAND != "SIGMA"').groupby(
@@ -1637,7 +1640,7 @@ with tab5:
              st.plotly_chart(fig_customer, use_container_width=True)
 ##################################################    
       with right_column:
-             st.subheader(":bar_chart: Top 10 Customer_:orange[Invoice Amount]:")            
+             st.subheader(":money_with_wings: Top 10 Customer_:orange[Invoice Amount]:")            
              customer_qty_line = (filter_df.query('BRAND != "C66 SERVICE"').query('Inv_Yr != "TBA"').query(
                                  'Inv_Month != "TBA"').query('Inv_Month != "Cancel"').groupby(
                                  by=["Customer Name"])[["Before tax Inv Amt (HKD)"]].sum().sort_values(
@@ -1683,7 +1686,10 @@ with tab5:
                     values=["Item Qty","Before tax Inv Amt (HKD)"],
              aggfunc="sum",fill_value=0,).sort_values(by="Item Qty",ascending=False)
              st.dataframe(pvt11.style.format("{:,}"), use_container_width=True)
- 
+#############################################################################################################################################################################################################
+
+
+     
       
 ############################################################################################################################################################################################################
 #success info
