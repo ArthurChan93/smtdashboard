@@ -30,9 +30,9 @@ with title_row1:
 #Text Credit
      st.write("by Arthur Chan")
 # 加載圖片
-#image_path = 'LINE.jpg'
+image_path = 'LINE.jpg'
 #image_path = '/Users/arthurchan/Downloads/Sample/LINE.jpg'
-image_path = '/Users/arthurchan/Downloads/Sample/LINE.jpg'
+#image_path = '/Users/arthurchan/Downloads/Sample/LINE.jpg'
 image = Image.open(image_path)
 
 # 設置目標寬度和高度
