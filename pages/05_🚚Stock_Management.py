@@ -54,7 +54,7 @@ tab1, tab2, tab3= st.tabs(["📙 SOUTH","📘 EAST","📗 NORTH"])
 #########################################################################################
 with tab1:
 # BAR CHART of SOUTH Instock MANAGEMENT
-             st.header("🛒 Instock:")
+             st.header("🛒 :green[Instock]:")
              stockrow1_a, stockrow1_b= st.columns(2) 
              with stockrow1_a:             
                      df_instock = df_south.query('Stock_Status == "Instock"').groupby(by=["Delivery_Status",
@@ -81,7 +81,7 @@ with tab1:
                                          yaxis=dict(title=dict(text="Machine_QTY", font=dict(size=15),)))
 
 # 将图例放在底部
-                     brand_instock.update_layout(legend=dict(orientation="h", font=dict(size=17), yanchor="top", 
+                     brand_instock.update_layout(legend=dict(orientation="v", font=dict(size=17), yanchor="top", 
                                     y=1.02, xanchor="right", x=1))
 
 # 绘制图表
@@ -92,7 +92,7 @@ with tab1:
 # BAR CHART of SOUTH Incoming STOCK MANAGEMENT
              stockrow2_a, stockrow2_b= st.columns(2) 
              with stockrow2_a:                     
-                     st.header("🚢 Incoming_Stock_:blue[WITH]_YAMAHA_Schedule:")
+                     st.header("🚢 :orange[Incoming_Stock]_:blue[WITH]_YAMAHA_Shipping_Schedule:")
                      
                      df_incoming = df_south.query('Stock_Status == "Incoming_Stock_With_YAMAHA_Schedule"').groupby(by=["Delivery_Status",
                             "Item"], as_index=False)["Machine_QTY"].sum().sort_values(by="Machine_QTY", ascending=False)
@@ -118,7 +118,7 @@ with tab1:
 # BAR CHART of SOUTH STOCK MANAGEMENT
              stockrow3_a, stockrow3_b= st.columns(2) 
              with stockrow3_a:      
-                     st.header("📅 Incoming_Stock_:red[NO]_YAMAHA_Schedule:")
+                     st.header("📅 :orange[Incoming_Stock]_:red[NO]_YAMAHA_Shipping_Schedule:")
                      
                      df_incoming = df_south.query('Stock_Status == "Incoming_Stock_No_YAMAHA_Schedule"').groupby(by=["Delivery_Status",
                             "Item"], as_index=False)["Machine_QTY"].sum().sort_values(by="Machine_QTY", ascending=False)
