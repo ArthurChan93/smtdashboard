@@ -34,8 +34,11 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 ######################################################################################################
 #os.chdir(r"/Users/arthurchan/Downloads/Sample")
 #SOUTH STOCK DATA BASE
+#os.chdir(r"/Users/arthurchan/Downloads/Sample")
+#os.chdir(r"C:\Users\ArthurChan\OneDrive\VS Code\PythonProject_ESE\Sample Excel")
+
 df_south = pd.read_excel(
-               io='south_stock_list.xlsx',engine= 'openpyxl',sheet_name='Stock_list', skiprows=0, usecols='A:AP',nrows=10000,)
+               io='south_stock_list.xlsx',engine= 'openpyxl',sheet_name='Stock_list', skiprows=0, usecols='A:AS',nrows=10000,)
 
 # Make the tab font bigger
 font_css = """
@@ -47,49 +50,95 @@ font-size: 28px;
 """
 
 st.write(font_css, unsafe_allow_html=True)
-tab1, tab2, tab3= st.tabs(["🟠 SOUTH","🔵 EAST","🟢 NORTH"])
-
+tab1, tab2, tab3= st.tabs(["📙 SOUTH","📘 EAST","📗 NORTH"])
+#########################################################################################
 with tab1:
-      # BAR CHART of SOUTH STOCK MANAGEMENT
-       left_column, right_column = st.columns(2)
-       with left_column:
-             st.subheader("🛄 In Stock:")
-             
-             df_instock = df_south.query('ETA_MONTH == "已经到货"').groupby(by=["Deposit",
+# BAR CHART of SOUTH Instock MANAGEMENT
+             st.header("🛒 Instock:")
+             stockrow1_a, stockrow1_b= st.columns(2) 
+             with stockrow1_a:             
+                     df_instock = df_south.query('Stock_Status == "Instock"').groupby(by=["Delivery_Status",
+                            "Item"], as_index=False)["Machine_QTY"].sum().sort_values(by="Machine_QTY", ascending=False)
+       
+# 按照要求定义颜色顺序
+                     color_order = ["有定金+客戶交期", "有定金+无客戶交期", "无定金+有客戶交期", "无定金+无客戶交期"]
+
+
+
+# 使用plotly绘制柱状图           
+                     brand_instock = px.bar(df_instock, x="Item", y="Machine_QTY", color="Delivery_Status", 
+                            color_discrete_sequence=["silver", "orange", "pink", "lightgreen"], 
+                            category_orders={"Delivery_Status": color_order}, text_auto='.3s')
+
+# 將barmode設置為"group"以顯示多條棒形圖
+                     brand_instock.update_layout(barmode='group')
+                     brand_instock.update_traces(marker_line_color='black', textposition='inside', marker_line_width=2,opacity=1)
+
+
+# 更改字體和label
+                     brand_instock.update_layout(font=dict(family="Arial", size=15, color="black"), 
+                                         xaxis=dict(title=dict(text="Item", font=dict(size=15))), 
+                                         yaxis=dict(title=dict(text="Machine_QTY", font=dict(size=15),)))
+
+# 将图例放在底部
+                     brand_instock.update_layout(legend=dict(orientation="h", font=dict(size=17), yanchor="bottom", 
+                                    y=1.02, xanchor="right", x=1))
+
+# 绘制图表
+                     st.plotly_chart(brand_instock, use_container_width=True)
+
+
+#####################################################################################
+# BAR CHART of SOUTH Incoming STOCK MANAGEMENT
+             stockrow2_a, stockrow2_b= st.columns(2) 
+             with stockrow2_a:                     
+                     st.header("🚢 Incoming_Stock_:blue[WITH]_YAMAHA_Schedule:")
+                     
+                     df_incoming = df_south.query('Stock_Status == "Incoming_Stock_With_YAMAHA_Schedule"').groupby(by=["Delivery_Status",
                             "Item"], as_index=False)["Machine_QTY"].sum().sort_values(by="Machine_QTY", ascending=False)
        
  #      sort_Month_order = ["4", "5", "6", "7", "8", "9", "10","11","12", "1", "2", "3"]
 
 # 使用plotly绘制柱状图           
-             brand_instock = px.bar(df_instock, x="Item", y="Machine_QTY", color="Deposit", text_auto='.3s')
-
-# 更改顏色
-             colors = {"Yes": "lightgreen","No": "pink"}
-             for trace in brand_instock.data:
-                    brand_color = trace.name.split("=")[-1]
-                    trace.marker.color = colors.get(brand_color, "blue")
-
+                     incoming_stock = px.bar(df_incoming, x="Item", y="Machine_QTY", color="Delivery_Status", text_auto='.3s')
 # 更改字體和label
-             brand_instock.update_layout(font=dict(family="Arial", size=13.5, color="black"))
-             brand_instock.update_traces(marker_line_color='black', textposition='outside', marker_line_width=2,opacity=1)
+                     incoming_stock.update_layout(font=dict(family="Arial", size=13.5, color="black"))
+                     incoming_stock.update_traces(marker_line_color='black', textposition='outside', marker_line_width=2,opacity=1)
 
 # 將barmode設置為"group"以顯示多條棒形圖
-             brand_instock.update_layout(barmode='group')
+                     incoming_stock.update_layout(barmode='group')
 
 # 将图例放在底部
-             brand_instock.update_layout(legend=dict(orientation="h",font=dict(size=14), yanchor="bottom", y=1.02, xanchor="right", x=1))
+                     incoming_stock.update_layout(legend=dict(orientation="h",font=dict(size=14), yanchor="bottom", y=1.02, xanchor="right", x=1))
 
 # 绘制图表
-             st.plotly_chart(brand_instock, use_container_width=True)
+                     st.plotly_chart(incoming_stock, use_container_width=True)
 
+#####################################################################################
+# BAR CHART of SOUTH STOCK MANAGEMENT
+             stockrow3_a, stockrow3_b= st.columns(2) 
+             with stockrow3_a:      
+                     st.header("📅 Incoming_Stock_:red[NO]_YAMAHA_Schedule:")
+                     
+                     df_incoming = df_south.query('Stock_Status == "Incoming_Stock_No_YAMAHA_Schedule"').groupby(by=["Delivery_Status",
+                            "Item"], as_index=False)["Machine_QTY"].sum().sort_values(by="Machine_QTY", ascending=False)
+       
+ #      sort_Month_order = ["4", "5", "6", "7", "8", "9", "10","11","12", "1", "2", "3"]
 
+# 使用plotly绘制柱状图           
+                     incoming_stock = px.bar(df_incoming, x="Item", y="Machine_QTY", color="Delivery_Status", text_auto='.3s')
+# 更改字體和label
+                     incoming_stock.update_layout(font=dict(family="Arial", size=13.5, color="black"))
+                     incoming_stock.update_traces(marker_line_color='black', textposition='outside', marker_line_width=2,opacity=1)
 
+# 將barmode設置為"group"以顯示多條棒形圖
+                     incoming_stock.update_layout(barmode='group')
 
+# 将图例放在底部
+                     incoming_stock.update_layout(legend=dict(orientation="h",font=dict(size=14), yanchor="bottom", y=1.02, xanchor="right", x=1))
 
-
-       with right_column:
-             st.subheader("🚢 Incoming_Stock")
-
+# 绘制图表
+                     st.plotly_chart(incoming_stock, use_container_width=True)
 
 
 
