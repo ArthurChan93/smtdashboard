@@ -22,7 +22,7 @@ from PIL import Image
 #Webpage config& tab name& Icon
 st.set_page_config(page_title="Sales Dashboard",page_icon=":rainbow:",layout="wide")
 
-title_row1, title_row2, title_row3, title_row4 = st.columns(4)
+title_row1, title_row2, title_row3 = st.columns(3)
 
 
 #Title
