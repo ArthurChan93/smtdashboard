@@ -81,7 +81,7 @@ with tab1:
                                          yaxis=dict(title=dict(text="Machine_QTY", font=dict(size=15),)))
 
 # 将图例放在底部
-                     brand_instock.update_layout(legend=dict(orientation="h", font=dict(size=17), yanchor="bottom", 
+                     brand_instock.update_layout(legend=dict(orientation="h", font=dict(size=17), yanchor="top", 
                                     y=1.02, xanchor="right", x=1))
 
 # 绘制图表
