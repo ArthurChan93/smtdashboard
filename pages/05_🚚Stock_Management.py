@@ -59,10 +59,8 @@ with tab1:
              with stockrow1_a:             
                      df_instock = df_south.query('Stock_Status == "Instock"').groupby(by=["Delivery_Status",
                             "Item"], as_index=False)["Machine_QTY"].sum().sort_values(by=["Machine_QTY"], ascending=[False])
-       
 # 按照要求定义颜色顺序
                      color_order = ["有定金+客戶送貨期", "有定金+无客戶送貨期", "无定金+有客戶送貨期", "无定金+无客戶送貨期"]
-
 
 # 使用plotly绘制柱状图           
                      brand_instock = px.bar(df_instock, x="Item", y="Machine_QTY", color="Delivery_Status", 
@@ -103,10 +101,34 @@ with tab1:
                      brand_instock.update_layout(shapes=background_shapes, showlegend=True)
                      st.plotly_chart(brand_instock, use_container_width=True)
 
-
+####################################################################################
                      with st.expander(":point_right: Click to expand/ hide data"):
-                             st.write("Hi")
+                             pvt = df_south.query('Stock_Status == "Instock"').round(0).pivot_table(
+                                     index=["Item","Deposit"],
+                                     columns=["客戶送貨期"], 
+                                     values=["Machine_QTY"],
+                                     aggfunc="sum",
+                                     fill_value=0,
+                                     margins=True,
+                                     margins_name="Total",
+                                     observed=True)
 
+       #使用applymap方法應用格式化
+                             pvt = pvt.applymap('{:,.0f}'.format)
+                             html = pvt.to_html(classes='table table-bordered', justify='center')
+                             html = html.replace('<th>C66</th>', '<th style="background-color: orange">C66</th>')
+
+# 把total值的那行的背景顏色設為黃色，並將字體設為粗體
+                             html = html.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
+# 把所有數值等於或少於0的數值的顏色設為紅色
+                             html = html.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
+# 放大pivot table
+                             html = f'<div style="zoom: 1.1;">{html}</div>'
+                             st.markdown(html, unsafe_allow_html=True)           
+ 
+# 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
+                             csv1 = pvt.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
+                             st.download_button(label='Download Table', data=csv1, file_name='Instock_Machine.csv', mime='text/csv')
 
 #####################################################################################
 # BAR CHART of SOUTH Incoming STOCK MANAGEMENT
