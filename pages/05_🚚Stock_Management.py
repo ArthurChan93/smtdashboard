@@ -131,7 +131,7 @@ with tab1:
                              st.download_button(label='Download Table', data=csv1, file_name='Instock_Machine.csv', mime='text/csv')
 
 #####################################################################################
-# BAR CHART of SOUTH Incoming STOCK MANAGEMENT
+# BAR CHART of SOUTH Incoming STOCK MANAGEMENT with YAMAHA shipping schedule
              stockrow2_a, stockrow2_b= st.columns(2) 
              with stockrow2_a:                     
                      st.header("🚢 :orange[Incoming_Stock]_:blue[WITH]_YAMAHA_Shipping_Schedule:")
@@ -211,7 +211,7 @@ with tab1:
                              csv2 = pvt2.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
                              st.download_button(label='Download Table', data=csv2, file_name='Incoming_Machine_with_schedule.csv', mime='text/csv')
 #####################################################################################
-# BAR CHART of SOUTH STOCK MANAGEMENT
+# BAR CHART of SOUTH STOCK MANAGEMENT No YAMAHA shipping schedule
              stockrow3_a, stockrow3_b= st.columns(2) 
              with stockrow3_a:      
                      st.header("📅 :orange[Incoming_Stock]_:red[NO]_YAMAHA_Shipping_Schedule:")
