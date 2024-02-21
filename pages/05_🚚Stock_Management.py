@@ -34,7 +34,7 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 ######################################################################################################
 #os.chdir(r"/Users/arthurchan/Downloads/Sample")
 #SOUTH STOCK DATA BASE
-#os.chdir(r"/Users/arthurchan/Downloads/Sample")
+os.chdir(r"/Users/arthurchan/Downloads/Sample")
 #os.chdir(r"C:\Users\ArthurChan\OneDrive\VS Code\PythonProject_ESE\Sample Excel")
 
 df_south = pd.read_excel(
@@ -116,7 +116,7 @@ with tab1:
        #使用applymap方法應用格式化
                              pvt = pvt.applymap('{:,.0f}'.format)
                              html = pvt.to_html(classes='table table-bordered', justify='center')
-                             html = html.replace('<th>C66</th>', '<th style="background-color: orange">C66</th>')
+                             html = html.replace('<th>-</th>', '<th style="background-color: lightgreen">-</th>')
 
 # 把total值的那行的背景顏色設為黃色，並將字體設為粗體
                              html = html.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
@@ -198,7 +198,7 @@ with tab1:
                              
                              pvt2 = pvt2.applymap('{:,.0f}'.format)              
                              html = pvt2.to_html(classes='table table-bordered', justify='center')
-                             html = html.replace('<th>C66</th>', '<th style="background-color: orange">C66</th>')
+                             html = html.replace('<th>-</th>', '<th style="background-color: lightgreen">-</th>')
 
 # 把total值的那行的背景顏色設為黃色，並將字體設為粗體
                              html = html.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
@@ -275,7 +275,7 @@ with tab1:
        #使用applymap方法應用格式化
                              pvt3 = pvt3.applymap('{:,.0f}'.format)
                              html = pvt3.to_html(classes='table table-bordered', justify='center')
-                             html = html.replace('<th>C66</th>', '<th style="background-color: orange">C66</th>')
+                             html = html.replace('<th>-</th>', '<th style="background-color: lightgreen">-</th>')
 
 # 把total值的那行的背景顏色設為黃色，並將字體設為粗體
                              html = html.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
