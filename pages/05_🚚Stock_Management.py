@@ -34,11 +34,11 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 ######################################################################################################
 #os.chdir(r"/Users/arthurchan/Downloads/Sample")
 #SOUTH STOCK DATA BASE
-#os.chdir(r"/Users/arthurchan/Downloads/Sample")
+os.chdir(r"/Users/arthurchan/Downloads/Sample")
 #os.chdir(r"C:\Users\ArthurChan\OneDrive\VS Code\PythonProject_ESE\Sample Excel")
 
 df_south = pd.read_excel(
-               io='south_stock_list.xlsx',engine= 'openpyxl',sheet_name='Stock_list', skiprows=0, usecols='A:AS',nrows=10000,)
+               io='stock_list.xlsx',engine= 'openpyxl',sheet_name='Stock_list', skiprows=0, usecols='A:AV',nrows=10000,)
 
 # Make the tab font bigger
 font_css = """
@@ -104,7 +104,7 @@ with tab1:
 ####################################################################################
                      with st.expander(":point_right: Click to expand/ hide data"):
                              pvt = df_south.query('Stock_Status == "Instock"').round(0).pivot_table(
-                                     index=["Item","Deposit","Customer_Reserved"],
+                                     index=["Item","Deposit","Customer_Reserved","Customer_Reserved_Contract_No."],
                                      columns=["客戶送貨期"], 
                                      values=["Machine_QTY"],
                                      aggfunc="sum",
@@ -123,14 +123,14 @@ with tab1:
 # 把所有數值等於或少於0的數值的顏色設為紅色
                              html = html.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 # 放大pivot table
-                             html = f'<div style="zoom: 1;">{html}</div>'
+                             html = f'<div style="zoom: 1.1;">{html}</div>'
                              st.markdown(html, unsafe_allow_html=True)           
  
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
                              csv1 = pvt.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
                              st.download_button(label='Download Table', data=csv1, file_name='Instock_Machine.csv', mime='text/csv')
 
-##########################################################################################################################################
+#####################################################################################
 # BAR CHART of SOUTH Incoming STOCK MANAGEMENT
              stockrow2_a, stockrow2_b= st.columns(2) 
              with stockrow2_a:                     
@@ -141,6 +141,7 @@ with tab1:
 
 # 按照要求定义颜色顺序
                      color_order = ["有定金+客戶送貨期", "有定金+无客戶送貨期", "无定金+有客戶送貨期", "无定金+无客戶送貨期"]
+
 
 # 使用plotly绘制柱状图           
                      incoming_stock = px.bar(df_incoming, x="Item", y="Machine_QTY", color="Delivery_Status", 
@@ -180,8 +181,35 @@ with tab1:
 # 绘制图表
                      incoming_stock.update_layout(shapes=background_shapes, showlegend=True)
                      st.plotly_chart(incoming_stock, use_container_width=True)
+#####################################################################################
+                     with st.expander(":point_right: Click to expand/ hide data"):
+                             
+                             pvt2 = df_south.query('Stock_Status == "Incoming_Stock_With_YAMAHA_Schedule"').round(0).pivot_table(
+                                     index=["Item","Deposit","ETA_HK","Customer_Reserved","Customer_Reserved_Contract_No."],
+                                     columns=["客戶送貨期"], 
+                                     values=["Machine_QTY"],
+                                     aggfunc="sum",
+                                     fill_value=0,
+                                     margins=True,
+                                     margins_name="Total",
+                                     observed=True)
+                             
+       #使用applymap方法應用格式化
+                             
+                             pvt2 = pvt2.applymap('{:,.0f}'.format)              
+                             html = pvt2.to_html(classes='table table-bordered', justify='center')
+                             html = html.replace('<th>C66</th>', '<th style="background-color: orange">C66</th>')
 
-
+# 把total值的那行的背景顏色設為黃色，並將字體設為粗體
+                             html = html.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
+# 把所有數值等於或少於0的數值的顏色設為紅色
+                             html = html.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
+# 放大pivot table
+                             html = f'<div style="zoom: 1;">{html}</div>'
+                             st.markdown(html, unsafe_allow_html=True)
+# 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
+                             csv2 = pvt2.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
+                             st.download_button(label='Download Table', data=csv2, file_name='Incoming_Machine_with_schedule.csv', mime='text/csv')
 #####################################################################################
 # BAR CHART of SOUTH STOCK MANAGEMENT
              stockrow3_a, stockrow3_b= st.columns(2) 
@@ -232,5 +260,31 @@ with tab1:
 # 绘制图表
                      incoming_stock2.update_layout(shapes=background_shapes, showlegend=True)
                      st.plotly_chart(incoming_stock2, use_container_width=True)
+#####################################################################################
+                     with st.expander(":point_right: Click to expand/ hide data"):
+                             pvt3 = df_south.query('Stock_Status == "Incoming_Stock_No_YAMAHA_Schedule"').round(0).pivot_table(
+                                     index=["Item","Deposit","ETA_HK","Customer_Reserved","Customer_Reserved_Contract_No."],
+                                     
+                                     values=["Machine_QTY"],
+                                     aggfunc="sum",
+                                     fill_value=0,
+                                     margins=True,
+                                     margins_name="Total",
+                                     observed=True)
 
+       #使用applymap方法應用格式化
+                             pvt3 = pvt3.applymap('{:,.0f}'.format)
+                             html = pvt3.to_html(classes='table table-bordered', justify='center')
+                             html = html.replace('<th>C66</th>', '<th style="background-color: orange">C66</th>')
+
+# 把total值的那行的背景顏色設為黃色，並將字體設為粗體
+                             html = html.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
+# 把所有數值等於或少於0的數值的顏色設為紅色
+                             html = html.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
+# 放大pivot table
+                             html = f'<div style="zoom: 1;">{html}</div>'
+                             st.markdown(html, unsafe_allow_html=True)
+# 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
+                             csv3 = pvt3.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
+                             st.download_button(label='Download Table', data=csv3, file_name='Incoming_Machine_no_schedule.csv', mime='text/csv')
  
