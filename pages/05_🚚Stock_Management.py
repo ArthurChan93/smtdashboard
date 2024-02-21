@@ -64,7 +64,7 @@ with tab1:
 
 # 使用plotly绘制柱状图           
                      brand_instock = px.bar(df_instock, x="Item", y="Machine_QTY", color="Delivery_Status", 
-                            color_discrete_sequence=["lightyellow", "orange", "pink", "lightgreen"], category_orders={"Delivery_Status": color_order},
+                            color_discrete_sequence=["orange", "lightyellow", "pink", "lightgreen"], category_orders={"Delivery_Status": color_order},
                             text_auto='.0s')
 
 # 將barmode設置為"group"以顯示多條棒形圖
@@ -104,7 +104,7 @@ with tab1:
 ####################################################################################
                      with st.expander(":point_right: Click to expand/ hide data"):
                              pvt = df_south.query('Stock_Status == "Instock"').round(0).pivot_table(
-                                     index=["Item","Deposit"],
+                                     index=["Item","Deposit","Customer_Reserved"],
                                      columns=["客戶送貨期"], 
                                      values=["Machine_QTY"],
                                      aggfunc="sum",
@@ -123,14 +123,14 @@ with tab1:
 # 把所有數值等於或少於0的數值的顏色設為紅色
                              html = html.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 # 放大pivot table
-                             html = f'<div style="zoom: 1.1;">{html}</div>'
+                             html = f'<div style="zoom: 1;">{html}</div>'
                              st.markdown(html, unsafe_allow_html=True)           
  
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
                              csv1 = pvt.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
                              st.download_button(label='Download Table', data=csv1, file_name='Instock_Machine.csv', mime='text/csv')
 
-#####################################################################################
+##########################################################################################################################################
 # BAR CHART of SOUTH Incoming STOCK MANAGEMENT
              stockrow2_a, stockrow2_b= st.columns(2) 
              with stockrow2_a:                     
@@ -142,10 +142,9 @@ with tab1:
 # 按照要求定义颜色顺序
                      color_order = ["有定金+客戶送貨期", "有定金+无客戶送貨期", "无定金+有客戶送貨期", "无定金+无客戶送貨期"]
 
-
 # 使用plotly绘制柱状图           
                      incoming_stock = px.bar(df_incoming, x="Item", y="Machine_QTY", color="Delivery_Status", 
-                            color_discrete_sequence=["lightyellow", "orange", "pink", "lightgreen"], category_orders={"Delivery_Status": color_order},
+                            color_discrete_sequence=["orange", "lightyellow", "pink", "lightgreen"], category_orders={"Delivery_Status": color_order},
                             text_auto='.0s')
 
 # 將barmode設置為"group"以顯示多條棒形圖
@@ -197,7 +196,7 @@ with tab1:
 
 # 使用plotly绘制柱状图           
                      incoming_stock2 = px.bar(df_incoming2, x="Item", y="Machine_QTY", color="Delivery_Status", 
-                            color_discrete_sequence=["lightyellow", "orange", "pink", "lightgreen"], category_orders={"Delivery_Status": color_order},
+                            color_discrete_sequence=["orange", "lightyellow", "pink", "lightgreen"], category_orders={"Delivery_Status": color_order},
                             text_auto='.0s')
 
 # 將barmode設置為"group"以顯示多條棒形圖
