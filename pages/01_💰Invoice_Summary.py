@@ -1461,7 +1461,7 @@ with tab4:
 
 #FY to FY YRM Invoice Details:
              filter_df["FQ(Invoice)"] = pd.Categorical(filter_df["FQ(Invoice)"], categories=["Q1", "Q2", "Q3", "Q4"])
-             pvt20 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YSM10"').pivot_table(values="Item Qty",
+             pvt20 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YRM"').pivot_table(values="Item Qty",
                      index=["FY_INV"],columns=["FQ(Invoice)"], aggfunc="sum",fill_value=0, margins=True,margins_name="Total").sort_index(axis=0, ascending=True)
              html122 = pvt20.applymap('{:,.0f}'.format).to_html(classes='table table-bordered', justify='center')
              # 把total值的那行的背景顏色設為黃色，並將字體設為粗體
