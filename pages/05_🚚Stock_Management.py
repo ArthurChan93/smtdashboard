@@ -54,7 +54,7 @@ tab1, tab2, tab3= st.tabs(["📙 SOUTH","📘 EAST","📗 NORTH"])
 #########################################################################################
 with tab1:
 # BAR CHART of SOUTH Instock MANAGEMENT
-             st.header("🛒 :green[Instock]:")
+             st.subheader("🛒 :green[Instock]:")
              stockrow1_a, stockrow1_b= st.columns(2) 
              with stockrow1_a:             
                      df_instock = df_south.query('Stock_Status == "Instock"').groupby(by=["Delivery_Status",
@@ -134,7 +134,7 @@ with tab1:
 # BAR CHART of SOUTH Incoming STOCK MANAGEMENT with YAMAHA shipping schedule
              stockrow2_a, stockrow2_b= st.columns(2) 
              with stockrow2_a:                     
-                     st.header("🚢 :orange[Incoming_Stock]_:blue[WITH]_YAMAHA_Shipping_Schedule:")
+                     st.subheader("🚢 :orange[Incoming_Stock]_:blue[WITH]_YAMAHA_Shipping_Schedule:")
                      
                      df_incoming = df_south.query('Stock_Status == "Incoming_Stock_With_YAMAHA_Schedule"').groupby(by=["Delivery_Status",
                             "Item"], as_index=False)["Machine_QTY"].sum().sort_values(by="Machine_QTY", ascending=False)
@@ -214,7 +214,7 @@ with tab1:
 # BAR CHART of SOUTH STOCK MANAGEMENT No YAMAHA shipping schedule
              stockrow3_a, stockrow3_b= st.columns(2) 
              with stockrow3_a:      
-                     st.header("📅 :orange[Incoming_Stock]_:red[NO]_YAMAHA_Shipping_Schedule:")
+                     st.subheader("📅 :orange[Incoming_Stock]_:red[NO]_YAMAHA_Shipping_Schedule:")
                      
                      df_incoming2 = df_south.query('Stock_Status == "Incoming_Stock_No_YAMAHA_Schedule"').groupby(by=["Delivery_Status",
                             "Item"], as_index=False)["Machine_QTY"].sum().sort_values(by="Machine_QTY", ascending=False)
