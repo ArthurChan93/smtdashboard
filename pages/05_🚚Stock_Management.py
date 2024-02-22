@@ -123,7 +123,7 @@ with tab1:
 # 把所有數值等於或少於0的數值的顏色設為紅色
                              html = html.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 # 放大pivot table
-                             html = f'<div style="zoom: 1.1;">{html}</div>'
+                             html = f'<div style="zoom: 0.95;">{html}</div>'
                              st.markdown(html, unsafe_allow_html=True)           
  
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
@@ -205,7 +205,7 @@ with tab1:
 # 把所有數值等於或少於0的數值的顏色設為紅色
                              html = html.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 # 放大pivot table
-                             html = f'<div style="zoom: 1;">{html}</div>'
+                             html = f'<div style="zoom: 0.95;">{html}</div>'
                              st.markdown(html, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
                              csv2 = pvt2.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
@@ -282,7 +282,7 @@ with tab1:
 # 把所有數值等於或少於0的數值的顏色設為紅色
                              html = html.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 # 放大pivot table
-                             html = f'<div style="zoom: 1;">{html}</div>'
+                             html = f'<div style="zoom: 0.95;">{html}</div>'
                              st.markdown(html, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
                              csv3 = pvt3.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
