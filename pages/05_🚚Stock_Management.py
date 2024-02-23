@@ -34,7 +34,7 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 ######################################################################################################
 #os.chdir(r"/Users/arthurchan/Downloads/Sample")
 #SOUTH STOCK DATA BASE
-#os.chdir(r"/Users/arthurchan/Downloads/Sample")
+os.chdir(r"/Users/arthurchan/Downloads/Sample")
 #os.chdir(r"C:\Users\ArthurChan\OneDrive\VS Code\PythonProject_ESE\Sample Excel")
 
 df_south = pd.read_excel(
@@ -83,7 +83,7 @@ with tab1:
 
 # 将图例放在底部
                      brand_instock.update_layout(legend=dict(orientation="h", font=dict(size=17), yanchor="bottom", 
-                                    y=1.02, xanchor="right", x=1))       
+                                    y=1.02, xanchor="right", x=0.5))       
                      
 # 添加背景色
                      background_color = 'lightgreen'
@@ -130,7 +130,7 @@ with tab1:
 
 # 将图例放在底部
                      brand_instock.update_layout(legend=dict(orientation="h", font=dict(size=17), yanchor="bottom", 
-                                    y=1.02, xanchor="right", x=1))       
+                                    y=1.02, xanchor="right", x=0.6))       
                      
 # 添加背景色
                      background_color = 'lightgreen'
@@ -220,7 +220,7 @@ with tab1:
 
 # 将图例放在底部
                      incoming_stock.update_layout(legend=dict(orientation="h", font=dict(size=17), yanchor="bottom", 
-                                    y=1.02, xanchor="right", x=1))       
+                                    y=1.02, xanchor="right", x=0.5))       
                      
 # 添加背景色
                      background_color = 'lightblue'
@@ -250,7 +250,7 @@ with tab1:
                             "Item"], as_index=False)["Machine_QTY"].sum().sort_values(by="Machine_QTY", ascending=False)
 
 # 按照要求定义颜色顺序
-                     color_order = ["有定金+客戶送貨期", "有定金+无客戶送貨期", "无定金+有客戶送貨期", "无定金+无客戶送貨期"]
+                     color_order = ["有定金+有預留客戶", "有定金+无客戶送貨期", "无定金+有預留客戶", "无定金+无預留客戶"]
 
 
 # 使用plotly绘制柱状图           
@@ -270,7 +270,7 @@ with tab1:
 
 # 将图例放在底部
                      incoming_stock.update_layout(legend=dict(orientation="h", font=dict(size=17), yanchor="bottom", 
-                                    y=1.02, xanchor="right", x=1))       
+                                    y=1.02, xanchor="right", x=0.6))       
                      
 # 添加背景色
                      background_color = 'lightblue'
@@ -340,7 +340,7 @@ with tab1:
                             "Item"], as_index=False)["Machine_QTY"].sum().sort_values(by="Machine_QTY", ascending=False)
        
 # 按照要求定义颜色顺序
-                     color_order = ["有定金+客戶送貨期", "有定金+无客戶送貨期", "无定金+有客戶送貨期", "无定金+无客戶送貨期"]
+                     color_order = ["有定金+有預留客戶", "有定金+无客戶送貨期", "无定金+有預留客戶", "无定金+无預留客戶"]
 
 # 使用plotly绘制柱状图           
                      incoming_stock2 = px.bar(df_incoming2, x="Item", y="Machine_QTY", color="Deposit", 
@@ -359,7 +359,7 @@ with tab1:
 
 # 将图例放在底部
                      incoming_stock2.update_layout(legend=dict(orientation="h", font=dict(size=17), yanchor="bottom", 
-                                    y=1.02, xanchor="right", x=1))       
+                                    y=1.02, xanchor="right", x=0.5))       
                      
 # 添加背景色
                      background_color = 'pink'
@@ -388,7 +388,7 @@ with tab1:
                             "Item"], as_index=False)["Machine_QTY"].sum().sort_values(by="Machine_QTY", ascending=False)
        
 # 按照要求定义颜色顺序
-                     color_order = ["有定金+客戶送貨期", "有定金+无客戶送貨期", "无定金+有客戶送貨期", "无定金+无客戶送貨期"]
+                     color_order = ["有定金+有預留客戶", "有定金+无客戶送貨期", "无定金+有預留客戶", "无定金+无預留客戶"]
 
 # 使用plotly绘制柱状图           
                      incoming_stock2 = px.bar(df_incoming2, x="Item", y="Machine_QTY", color="Delivery_Status", 
@@ -407,7 +407,7 @@ with tab1:
 
 # 将图例放在底部
                      incoming_stock2.update_layout(legend=dict(orientation="h", font=dict(size=17), yanchor="bottom", 
-                                    y=1.02, xanchor="right", x=1))       
+                                    y=1.02, xanchor="right", x=0.5))       
                      
 # 添加背景色
                      background_color = 'pink'
@@ -459,3 +459,5 @@ with tab1:
                              csv3 = pvt3.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
                              st.download_button(label='Download Table', data=csv3, file_name='Incoming_Machine_no_schedule.csv', mime='text/csv')
  
+#####################################################################################################################################################################
+#with tab2:
