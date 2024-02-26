@@ -404,7 +404,6 @@ with tab1:
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
              csv2 = pvt6.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
              st.download_button(label='Download Table', data=csv2, file_name='FQ_Sales.csv', mime='text/csv')
-             st.divider()
 ################################################################################################################################################
 #New Section 
 #LINE CHART of GP Amount
