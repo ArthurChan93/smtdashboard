@@ -53,10 +53,13 @@ st.write(font_css, unsafe_allow_html=True)
 tab1, tab2, tab3= st.tabs(["📙 SOUTH","📘 EAST","📗 NORTH"])
 #########################################################################################
 with tab1:
-             stock_row11, stock_row12, stock_row13, stock_row14, stock_row15= st.columns(5)
-             with stock_row13:
-                     st.header("🛒 :green[Instock]:")
-                     
+             instock_df = df_south[df_south['Stock_Status'] == 'Instock']
+             total_qty = instock_df['Machine_QTY'].sum()
+             header_text = f"🛒 :green[Instock]: {int(total_qty)}台"  # 使用字符串格式化将数字插入标题中
+#             st.markdown(f"<h1 style='text-decoration: underline;'>{header_text}</h1>", unsafe_allow_html=True)
+             st.header(header_text)
+             
+
 # BAR CHART of SOUTH Instock MANAGEMENT
              stockrow1_a, stockrow1_b= st.columns(2) 
              with stockrow1_a:
@@ -185,8 +188,13 @@ with tab1:
              
              st.divider()
 #####################################################################################
+             incoming_df = df_south[df_south['Stock_Status'] == 'Incoming_Stock_With_YAMAHA_Schedule']
+             total_qty2 = incoming_df['Machine_QTY'].sum()
+             header_text2 = f"🚢 :orange[Incoming_STK]_:blue[有]_YAMAHA交期: {int(total_qty2)}台"  # 使用字符串格式化将数字插入标题中
+#             st.markdown(f"<h1 style='text-decoration: underline;'>{header_text}</h1>", unsafe_allow_html=True)
+             st.header(header_text2)
 
-             st.header("🚢 :orange[Incoming_STK]_:blue[有]_YAMAHA交期:")
+
 # BAR CHART of SOUTH Incoming STOCK MANAGEMENT with YAMAHA shipping schedule
              stockrow2_a, stockrow2_b= st.columns(2) 
              with stockrow2_a:                     
@@ -321,7 +329,12 @@ with tab1:
              st.divider()
 
 #####################################################################################
-             st.header("🚢 :orange[Incoming_STK]_:red[无]_YAMAHA交期:")
+             incoming_df2 = df_south[df_south['Stock_Status'] == 'Incoming_Stock_No_YAMAHA_Schedule']
+             total_qty3 = incoming_df2['Machine_QTY'].sum()
+             header_text3 = f"🚢 :orange[Incoming_STK]_:red[无]_YAMAHA交期: {int(total_qty3)}台"  # 使用字符串格式化将数字插入标题中
+#             st.markdown(f"<h1 style='text-decoration: underline;'>{header_text}</h1>", unsafe_allow_html=True)
+             st.header(header_text3)             
+
 # BAR CHART of SOUTH STOCK MANAGEMENT No YAMAHA shipping schedule
              stockrow3_a, stockrow3_b= st.columns(2) 
              with stockrow3_a:      
