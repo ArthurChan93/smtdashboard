@@ -41,7 +41,7 @@ target_height = 200
 # 縮小圖片
 resized_image = image.resize((target_width, target_height))
 
-with title_row2:
+with title_row3:
 
 # 在Streamlit應用程式中顯示縮小後的圖片
      st.image(resized_image, use_column_width=False, output_format='PNG')
