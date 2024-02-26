@@ -186,7 +186,7 @@ with tab1:
              st.divider()
 #####################################################################################
              stock_row11, stock_row12= st.columns(2)
-             with stock_row11:
+             with stock_row12:
                      st.header("🚢 :orange[Incoming_STK]_:blue[有]_YAMAHA交期:")
 
 # BAR CHART of SOUTH Incoming STOCK MANAGEMENT with YAMAHA shipping schedule
