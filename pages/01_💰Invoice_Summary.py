@@ -22,14 +22,12 @@ from PIL import Image
 #Webpage config& tab name& Icon
 st.set_page_config(page_title="Sales Dashboard",page_icon=":rainbow:",layout="wide")
 
-title_row1, title_row2, title_row3 = st.columns(3)
+title_row1, title_row2, title_row3, title_row4 = st.columns(4)
 
 
-#Title
-with title_row1:
-     st.title(':world_map: SMT_Invoice Dashboard')
+st.title(':world_map: SMT_Invoice Dashboard')
 #Text Credit
-     st.write("by Arthur Chan")
+st.write("by Arthur Chan")
 
 #Move the title higher
 st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow_html=True)
@@ -76,9 +74,7 @@ df_sales_target = pd.read_excel(
 #if selected == "Invoice Summary":
 ######################################################################################################
 
- 
-#New Section     
-st.sidebar.divider()
+
 #Sidebar Filter
 # Create FY Invoice filter
 st.sidebar.header(":point_down:Filter:")
@@ -220,8 +216,7 @@ tab1, tab2, tab3 ,tab4,tab5= st.tabs([":wedding: Overview",":earth_asia: Region"
 #TAB 1: Overall category
 ################################################################################################################################################
 with tab1:
-      col_1, col_2= st.columns(2)
-      with col_1:
+
        st.subheader(""":globe_with_meridians: Invoice Amount_:orange[Monthly]:""")
 
 # 将 "Inv_Month" 列转换为 Categorical 数据类型并指定自定义排序
@@ -269,7 +264,7 @@ with tab1:
 # 把所有數值等於或少於0的數值的顏色設為紅色
        html14 = html13.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 # 放大pivot table
-       html15 = f'<div style="zoom: 0.95;">{html14}</div>'
+       html15 = f'<div style="zoom: 1.5;">{html14}</div>'
        st.markdown(html15, unsafe_allow_html=True)           
  
  
@@ -278,8 +273,10 @@ with tab1:
        st.download_button(label='Download Table', data=csv1, file_name='Monthly_Sales.csv', mime='text/csv')
 
 ################################################################################
-       st.subheader(":clipboard: Invoice Amount Subtotal_:orange[FQ]:")
-       pvt17 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').round(0).pivot_table(
+#Pivot table2
+       with st.expander(":point_right: click to expand"):
+             st.subheader(":clipboard: Invoice Amount Subtotal_:orange[FQ]:")
+             pvt17 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').round(0).pivot_table(
                      values="Before tax Inv Amt (HKD)",
                      index=["FY_INV","FQ(Invoice)"],
                      columns=["COST_CENTRE"],
@@ -288,172 +285,166 @@ with tab1:
                      margins=True,
                      margins_name="Total",
                      observed=True)  # This ensures subtotals are only calculated for existing values)
-       desired_order = ["C49", "C28", "C66","Total"]
-       pvt17 = pvt17.reindex(columns=desired_order, level=1)
+             desired_order = ["C49", "C28", "C66","Total"]
+             pvt17 = pvt17.reindex(columns=desired_order, level=1)
 
 # 定义会计数字格式的格式化函数
-       def format_currency(value):
-             return "HKD{:,.0f}".format(value)
+             def format_currency(value):
+                   return "HKD{:,.0f}".format(value)
 
 # 计算小计行
-       subtotal_row = pvt17.groupby(level=0).sum(numeric_only=True)
-       subtotal_row.index = pd.MultiIndex.from_product([subtotal_row.index, [""]])
-       subtotal_row.name = ("Subtotal", "")  # 小计行索引的名称
+             subtotal_row = pvt17.groupby(level=0).sum(numeric_only=True)
+             subtotal_row.index = pd.MultiIndex.from_product([subtotal_row.index, [""]])
+             subtotal_row.name = ("Subtotal", "")  # 小计行索引的名称
 
 # 去除千位數符號並轉換為浮點數
-       pvt17 = pvt17.applymap(lambda x: float(str(x).strip('HKD').replace(',', '')))
+             pvt17 = pvt17.applymap(lambda x: float(str(x).strip('HKD').replace(',', '')))
 
 # 转换为字符串并添加样式
-       pvt17 = pvt17.applymap(lambda x: "HKD{:,.0f}".format(x))
+             pvt17 = pvt17.applymap(lambda x: "HKD{:,.0f}".format(x))
 
 # 将小计行与pvt17连接，使用concat函数
-       pvt17_concatenated = pd.concat([pvt17, subtotal_row])
+             pvt17_concatenated = pd.concat([pvt17, subtotal_row])
 
 # 生成HTML表格
-       html_table = pvt17_concatenated.to_html(classes='table table-bordered', justify='center')
+             html_table = pvt17_concatenated.to_html(classes='table table-bordered', justify='center')
 
 # 使用BeautifulSoup处理HTML表格
-       soup = BeautifulSoup(html_table, 'html.parser')
+             soup = BeautifulSoup(html_table, 'html.parser')
 
 # 找到所有的<td>标签，并为小于或等于0的值添加CSS样式
-       for td in soup.find_all('td'):
-             value = float(td.text.replace('HKD', '').replace(',', ''))
+             for td in soup.find_all('td'):
+                   value = float(td.text.replace('HKD', '').replace(',', ''))
              if value <= 0:
                    td['style'] = 'color: red;'
       
 # 找到所有的<td>标签，并将数值转换为会计数字格式的字符串
-       for td in soup.find_all('td'):
-             value = float(td.text.strip('HKD').replace(',', ''))
-             formatted_value = "HKD{:,.0f}".format(value)
-             td.string.replace_with(formatted_value)
+             for td in soup.find_all('td'):
+                   value = float(td.text.strip('HKD').replace(',', ''))
+                   formatted_value = "HKD{:,.0f}".format(value)
+                   td.string.replace_with(formatted_value)
 # 找到最底部的<tr>标签，并为其添加CSS样式
-       last_row = soup.find_all('tr')[-1]
-       last_row['style'] = 'background-color: yellow; font-weight: bold;'
+             last_row = soup.find_all('tr')[-1]
+             last_row['style'] = 'background-color: yellow; font-weight: bold;'
 
 # 在特定单元格应用其他样式           
-       soup = str(soup)
-       soup = soup.replace('<th>C66</th>', '<th style="background-color: orange">C66</th>')
-       soup = soup.replace('<th>C28</th>', '<th style="background-color: lightblue">C28</th>')
-       soup = soup.replace('<th>HKD0</th>', '<th style="background-color: Khaki">HKD0</th>')
-       soup = soup.replace('<th>C49</th>', '<th style="background-color: lightgreen">C49</th>')
-       soup = soup.replace('<td>', '<td style="text-align: middle;">')
-       soup = soup.replace('<th>Q1</th>', '<th style="background-color: lightgrey">Q1</th>')
-       soup = soup.replace('<th>Q2</th>', '<th style="background-color: pink">Q2</th>')
-       soup = soup.replace('<th>Q3</th>', '<th style="background-color: lightgrey">Q3</th>')
-       soup = soup.replace('<th>Q4</th>', '<th style="background-color: pink">Q4</th>')
-       soup = soup.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
+             soup = str(soup)
+             soup = soup.replace('<th>C66</th>', '<th style="background-color: orange">C66</th>')
+             soup = soup.replace('<th>C28</th>', '<th style="background-color: lightblue">C28</th>')
+             soup = soup.replace('<th>HKD0</th>', '<th style="background-color: Khaki">HKD0</th>')
+             soup = soup.replace('<th>C49</th>', '<th style="background-color: lightgreen">C49</th>')
+             soup = soup.replace('<td>', '<td style="text-align: middle;">')
+             soup = soup.replace('<th>Q1</th>', '<th style="background-color: lightgrey">Q1</th>')
+             soup = soup.replace('<th>Q2</th>', '<th style="background-color: pink">Q2</th>')
+             soup = soup.replace('<th>Q3</th>', '<th style="background-color: lightgrey">Q3</th>')
+             soup = soup.replace('<th>Q4</th>', '<th style="background-color: pink">Q4</th>')
+             soup = soup.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 
 # 在网页中显示HTML表格
-       html_with_style = str(f'<div style="zoom: 1.15;">{soup}</div>')
-       st.markdown(html_with_style, unsafe_allow_html=True)       
+             html_with_style = str(f'<div style="zoom: 1.5;">{soup}</div>')
+             st.markdown(html_with_style, unsafe_allow_html=True)       
        
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
-       csv6 = pvt17.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
-       st.download_button(label='Download Table', data=csv6, file_name='Cost_Centre_Quarter_Sales.csv', mime='text/csv')
-       st.divider()
+             csv6 = pvt17.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
+             st.download_button(label='Download Table', data=csv6, file_name='Cost_Centre_Quarter_Sales.csv', mime='text/csv')
+             st.divider()
 ###################################################################################################
-
-with col_2:
-
+       col_1, col_2= st.columns(2)
+       with col_1:
 #LINE CHART of Overall Invoice Amount
-      st.subheader(":chart_with_upwards_trend: Invoice Amount Trend_:orange[FQ](Available to Show :orange[Multiple FY)]:")
-      InvoiceAmount_df2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","FQ(Invoice)","Inv_Month"
+             st.subheader(":chart_with_upwards_trend: Invoice Amount Trend_:orange[FQ](Available to Show :orange[Multiple FY)]:")
+             InvoiceAmount_df2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","FQ(Invoice)","Inv_Month"
                           ], as_index= False)["Before tax Inv Amt (HKD)"].sum()
 # 确保 "Inv Month" 列中的所有值都出现
-      sort_Month_order = ["4", "5", "6", "7", "8", "9", "10", "11", "12", "1", "2", "3"]
-      InvoiceAmount_df2 = InvoiceAmount_df2.groupby(["FY_INV", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([InvoiceAmount_df2['FY_INV'].unique(), sort_Month_order],
+             sort_Month_order = ["4", "5", "6", "7", "8", "9", "10", "11", "12", "1", "2", "3"]
+             InvoiceAmount_df2 = InvoiceAmount_df2.groupby(["FY_INV", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([InvoiceAmount_df2['FY_INV'].unique(), sort_Month_order],
                                    names=['FY_INV', 'Inv_Month'])).fillna(0).reset_index()
-      fig3 = go.Figure()
+             fig3 = go.Figure()
 # 添加每个FY_INV的折线
-      fy_inv_values = InvoiceAmount_df2['FY_INV'].unique()
-      for fy_inv in fy_inv_values:
-       fy_inv_data = InvoiceAmount_df2[InvoiceAmount_df2['FY_INV'] == fy_inv]
-       fig3.add_trace(go.Scatter(
-              x=fy_inv_data['Inv_Month'],
-              y=fy_inv_data['Before tax Inv Amt (HKD)'],
-              mode='lines+markers+text',
-              name=fy_inv,
-              text=fy_inv_data['Before tax Inv Amt (HKD)'],
-              textposition="bottom center",
-              texttemplate='%{text:.3s}',
-              hovertemplate='%{x}<br>%{y:.2f}',
-              marker=dict(size=10)))
-       fig3.update_layout(xaxis=dict(
-              type='category',
-              categoryorder='array',
-              categoryarray=sort_Month_order),
-              yaxis=dict(showticklabels=True),
-              font=dict(family="Arial, Arial", size=12, color="Black"),
-              hovermode='x', showlegend=True,
-              legend=dict(orientation="h",font=dict(size=14)))
-      fig3.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
-      st.plotly_chart(fig3.update_layout(yaxis_showticklabels = True), use_container_width=True)
+             fy_inv_values = InvoiceAmount_df2['FY_INV'].unique()
+             for fy_inv in fy_inv_values:
+                   fy_inv_data = InvoiceAmount_df2[InvoiceAmount_df2['FY_INV'] == fy_inv]
+                   fig3.add_trace(go.Scatter(
+                         x=fy_inv_data['Inv_Month'],
+                         y=fy_inv_data['Before tax Inv Amt (HKD)'],
+                         mode='lines+markers+text',
+                         name=fy_inv,
+                         text=fy_inv_data['Before tax Inv Amt (HKD)'],
+                         textposition="bottom center",
+                         texttemplate='%{text:.3s}',
+                         hovertemplate='%{x}<br>%{y:.2f}',
+                         marker=dict(size=10)))
+                   fig3.update_layout(xaxis=dict(
+                         type='category',
+                         categoryorder='array',
+                         categoryarray=sort_Month_order),
+                         yaxis=dict(showticklabels=True),
+                         font=dict(family="Arial, Arial", size=12, color="Black"),
+                         hovermode='x', showlegend=True,
+                         legend=dict(orientation="h",font=dict(size=14)))
+                   fig3.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+                   st.plotly_chart(fig3.update_layout(yaxis_showticklabels = True), use_container_width=True)
 #############################################################################################################
-      #FY to FY Quarter Invoice Details:
-      with st.subheader("Click to expand"):
-             pvt6 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).pivot_table(values="Before tax Inv Amt (HKD)",index=["FY_INV"],columns=["FQ(Invoice)"],
-                    aggfunc="sum",fill_value=0, margins=True,margins_name="Total")
-            
-             html11 = pvt6.applymap('HKD{:,.0f}'.format).to_html(classes='table table-bordered', justify='center')
+#FY to FY Quarter Invoice Details:
+                   pvt6 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).pivot_table(values="Before tax Inv Amt (HKD)",index=["FY_INV"],columns=["FQ(Invoice)"],
+                            aggfunc="sum",fill_value=0, margins=True,margins_name="Total")
+                   html11 = pvt6.applymap('HKD{:,.0f}'.format).to_html(classes='table table-bordered', justify='center')
              #st.dataframe(pvt6.style.highlight_max(color = 'yellow', axis = 0)
              #                       .format("HKD{:,}"), use_container_width=True)   
              # 把total值的那行的背景顏色設為黃色，並將字體設為粗體
-             html12 = html11.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
+                   html12 = html11.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
              #改column color
-             html13 = html12.replace('<th>Q1</th>', '<th style="background-color: lightgrey">Q1</th>')
-             html14 = html13.replace('<th>Q2</th>', '<th style="background-color: pink">Q2</th>')
-             html15 = html14.replace('<th>Q3</th>', '<th style="background-color: lightgrey">Q3</th>')
-             html16 = html15.replace('<th>Q4</th>', '<th style="background-color: pink">Q4</th>')
-             html117 = html16.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
-             st.markdown(html117, unsafe_allow_html=True)
+                   html13 = html12.replace('<th>Q1</th>', '<th style="background-color: lightgrey">Q1</th>')
+                   html14 = html13.replace('<th>Q2</th>', '<th style="background-color: pink">Q2</th>')
+                   html15 = html14.replace('<th>Q3</th>', '<th style="background-color: lightgrey">Q3</th>')
+                   html16 = html15.replace('<th>Q4</th>', '<th style="background-color: pink">Q4</th>')
+                   html117 = html16.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
+                   st.markdown(html117, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
-             csv2 = pvt6.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
-      st.download_button(label='Download Table', data=csv2, file_name='FQ_Sales.csv', mime='text/csv')
-
-      st.divider()
+                   csv2 = pvt6.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
+                   st.download_button(label='Download Table', data=csv2, file_name='FQ_Sales.csv', mime='text/csv')
+                   st.divider()
 ################################################################################################################################################
 #New Section 
 #LINE CHART of GP Amount
-      st.subheader(":chart_with_upwards_trend: :green[G.P Amount Trend]_FQ(Available to Show :green[Multiple FY)]:")
-      InvoiceAmount_df2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).groupby(by =
+       with col_2:
+             st.subheader(":chart_with_upwards_trend: :green[G.P Amount Trend]_FQ(Available to Show :green[Multiple FY)]:")
+             InvoiceAmount_df2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).groupby(by =
                      ["Inv_Month","FY_INV"], as_index= False)["G.P.  (HKD)"].sum()
 # 确保 "Inv Month" 列中的所有值都出现
-      sort_Month_order = ["4", "5", "6", "7", "8", "9", "10", "11", "12", "1", "2", "3"]
-      InvoiceAmount_df2 = InvoiceAmount_df2.groupby(["FY_INV", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([InvoiceAmount_df2['FY_INV'].unique(), sort_Month_order],
+             sort_Month_order = ["4", "5", "6", "7", "8", "9", "10", "11", "12", "1", "2", "3"]
+             InvoiceAmount_df2 = InvoiceAmount_df2.groupby(["FY_INV", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([InvoiceAmount_df2['FY_INV'].unique(), sort_Month_order],
                                    names=['FY_INV', 'Inv_Month'])).fillna(0).reset_index()
-      fig12 = go.Figure()
+             fig12 = go.Figure()
 
 # 添加每个FY_INV的折线
-      fy_inv_values = InvoiceAmount_df2['FY_INV'].unique()
-      for fy_inv in fy_inv_values:
-       fy_inv_data = InvoiceAmount_df2[InvoiceAmount_df2['FY_INV'] == fy_inv]
-       fig12.add_trace(go.Scatter(
-              x=fy_inv_data['Inv_Month'],
-              y=fy_inv_data['G.P.  (HKD)'],
-              mode='lines+markers+text',
-              name=fy_inv,
-              text=fy_inv_data['G.P.  (HKD)'],
-              textposition="bottom center",
-              texttemplate='%{text:.3s}',
-              hovertemplate='%{x}<br>%{y:.2f}',
-              marker=dict(size=10)))
-       fig12.update_layout(xaxis=dict(
-              type='category',
-              categoryorder='array',
-              categoryarray=sort_Month_order),
-              yaxis=dict(showticklabels=True),
-              font=dict(family="Arial, Arial", size=12, color="Black"),
-              hovermode='x', showlegend=True,
-              legend=dict(orientation="h",font=dict(size=14)))
-      
-      fig12.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
-      st.plotly_chart(fig12.update_layout(yaxis_showticklabels = True), use_container_width=True)
+             fy_inv_values = InvoiceAmount_df2['FY_INV'].unique()
+             for fy_inv in fy_inv_values:
+                   fy_inv_data = InvoiceAmount_df2[InvoiceAmount_df2['FY_INV'] == fy_inv]
+                   fig12.add_trace(go.Scatter(
+                         x=fy_inv_data['Inv_Month'],
+                         y=fy_inv_data['G.P.  (HKD)'],
+                         mode='lines+markers+text',
+                         name=fy_inv,
+                         text=fy_inv_data['G.P.  (HKD)'],
+                         textposition="bottom center",
+                         texttemplate='%{text:.3s}',
+                         hovertemplate='%{x}<br>%{y:.2f}',
+                         marker=dict(size=10)))
+                   fig12.update_layout(xaxis=dict(
+                         type='category',
+                         categoryorder='array',
+                         categoryarray=sort_Month_order),
+                         yaxis=dict(showticklabels=True),
+                         font=dict(family="Arial, Arial", size=12, color="Black"),
+                         hovermode='x', showlegend=True,
+                         legend=dict(orientation="h",font=dict(size=14)))
+                   fig12.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+                   st.plotly_chart(fig12.update_layout(yaxis_showticklabels = True), use_container_width=True)
 #################################################
       #FY to FY Quarter Invoice Details:
-      with st.subheader("Click to expand"):
              pvt16 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).pivot_table(values="G.P.  (HKD)",index=["FY_INV"],columns=["FQ(Invoice)"],
-                    aggfunc="sum",fill_value=0, margins=True,margins_name="Total")
-
+                                   aggfunc="sum",fill_value=0, margins=True,margins_name="Total")
              html17 = pvt16.applymap('HKD{:,.0f}'.format).to_html(classes='table table-bordered', justify='center')
              # 把total值的那行的背景顏色設為黃色，並將字體設為粗體
              html18 = html17.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
@@ -466,8 +457,7 @@ with col_2:
              st.markdown(html23, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
              csv3 = pvt16.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
-
-      st.download_button(label='Download Table', data=csv3, file_name='G.P Amount.csv', mime='text/csv')        
+             st.download_button(label='Download Table', data=csv3, file_name='G.P Amount.csv', mime='text/csv')        
 ############################################################################################################################################################################################################
 #TAB 2: Region Category
 with tab2:
@@ -1461,7 +1451,7 @@ with tab4:
 
 #FY to FY YRM Invoice Details:
              filter_df["FQ(Invoice)"] = pd.Categorical(filter_df["FQ(Invoice)"], categories=["Q1", "Q2", "Q3", "Q4"])
-             pvt20 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YRM"').pivot_table(values="Item Qty",
+             pvt20 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YSM10"').pivot_table(values="Item Qty",
                      index=["FY_INV"],columns=["FQ(Invoice)"], aggfunc="sum",fill_value=0, margins=True,margins_name="Total").sort_index(axis=0, ascending=True)
              html122 = pvt20.applymap('{:,.0f}'.format).to_html(classes='table table-bordered', justify='center')
              # 把total值的那行的背景顏色設為黃色，並將字體設為粗體
