@@ -383,6 +383,8 @@ with row1data_right_column:
 
 #加pivot table, column只用YAMAHA, PEMTRON, HELLER台數要match圖
 ################################################################################################################################# 
+st.divider()
+
 row2_left_column, row2_right_column = st.columns(2) 
 with row2_left_column:
        st.subheader(":money_with_wings: :red[China Mounter Import Trend]_:green[AMOUNT]:")
