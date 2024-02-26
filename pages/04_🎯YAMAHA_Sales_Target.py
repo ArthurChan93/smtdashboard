@@ -36,7 +36,7 @@ image_path = 'LINE.jpg'
 image = Image.open(image_path)
 
 # 設置目標寬度和高度
-target_width = 400
+target_width = 600
 target_height = 200
 
 # 縮小圖片
