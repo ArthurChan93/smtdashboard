@@ -1161,7 +1161,7 @@ with tab4:
 ###########################################################################################################
 #Top Product line chart invoice qty trend
        left_column, middle_column, right_column = st.columns(3)
-       with middle_column:
+       with left_column:
              st.divider()
              st.header(":chart_with_upwards_trend: Main Unit Invoice Qty_:orange[Monthly]:")
 ###########################################################################################################
