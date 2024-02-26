@@ -1034,8 +1034,7 @@ with tab4:
        st.plotly_chart(brand_qty, use_container_width=True)
 
 ########################################################################################################      
-       tab4_row2_col1, tab4_row2_col2, tab4_row2_col3 = st.columns(3)
-       with tab4_row2_col1:
+       with st.expander(":point_right: click to expand/hide data"):
 #Brand Inv Qty by Inv Month:
              st.subheader(":clipboard:  Main Brand Invoice Qty_:orange[FQ Subtotal]:")
              #with st.expander("Click to expand"):
@@ -1091,15 +1090,16 @@ with tab4:
              soup3 = soup3.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 
 # 在网页中显示HTML表格
-             html_with_style3 = str(f'<div style="zoom: 1;">{soup3}</div>')
+             html_with_style3 = str(f'<div style="zoom: 1.3;">{soup3}</div>')
              st.markdown(html_with_style3, unsafe_allow_html=True)       
       
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
              csv13 = pvt6.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
              st.download_button(label='Download Table', data=csv13, file_name='Brand_invoice_qty.csv', mime='text/csv')
             
-############################################################################################################################################      
-       with tab4_row2_col2:
+############################################################################################################################################
+       tab4_row2_col1, tab4_row2_col2= st.columns(2)      
+       with tab4_row2_col1:
              st.subheader(":sports_medal: Main Brand Invoice Qty_:orange[FY]:")
              brandinv_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND != "SOLDERSTAR"').query(
                            'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHINWA"').query(
@@ -1126,7 +1126,7 @@ with tab4:
              df_brand.update_layout(legend=dict(orientation="h",font=dict(size=14), yanchor="bottom", y=1.02, xanchor="right", x=1))
              st.plotly_chart(df_brand, use_container_width=True)            
 ###################################################################
-       with tab4_row2_col3:
+       with tab4_row2_col2:
              st.subheader(":round_pushpin: Main Brand Invoice Qty_:orange[Percentage]:")
 
 # 创建示例数据框
