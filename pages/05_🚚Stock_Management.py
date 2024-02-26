@@ -154,7 +154,7 @@ with tab1:
 
 ####################################################################################
              stock_row2a, stock_row2b, stock_row2c= st.columns(3)
-             with stock_row2b:
+             with stock_row2a:
                      with st.expander(":point_right: Click to expand/ hide data"):
                              pvt = df_south.query('Stock_Status == "Instock"').round(0).pivot_table(
                                      index=["Item","Delivery_Status","Customer_Reserved","Customer_Reserved_Contract_No."],
@@ -294,7 +294,7 @@ with tab1:
 #####################################################################################
                      
              stock_row3a, stock_row3b, stock_row3c= st.columns(3)
-             with stock_row3b:
+             with stock_row3a:
                      with st.expander(":point_right: Click to expand/ hide data"):
                              
                              pvt2 = df_south.query('Stock_Status == "Incoming_Stock_With_YAMAHA_Schedule"').round(0).pivot_table(
@@ -430,7 +430,7 @@ with tab1:
                      st.plotly_chart(incoming_stock2, use_container_width=True)
 #####################################################################################
              stock_row4a, stock_row4b, stock_row4c= st.columns(3)
-             with stock_row4b:
+             with stock_row4a:
                      with st.expander(":point_right: Click to expand/ hide data"):
                              pvt3 = df_south.query('Stock_Status == "Incoming_Stock_No_YAMAHA_Schedule"').round(0).pivot_table(
                                      index=["Item","Delivery_Status","ETA_HK","Customer_Reserved","Customer_Reserved_Contract_No."],
