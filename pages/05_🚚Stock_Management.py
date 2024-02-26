@@ -153,9 +153,7 @@ with tab1:
                      st.plotly_chart(brand_instock, use_container_width=True)
 
 ####################################################################################
-             stock_row2a, stock_row2b= st.columns(2)
-             with stock_row2a:
-                     with st.expander(":point_right: Click to expand/ hide data"):
+             with st.expander(":point_right: Click to expand/ hide data"):
                              pvt = df_south.query('Stock_Status == "Instock"').round(0).pivot_table(
                                      index=["Item","Delivery_Status","Customer_Reserved","Customer_Reserved_Contract_No."],
                                      columns=["客戶送貨期"], 
@@ -292,10 +290,7 @@ with tab1:
                      incoming_stock.update_layout(shapes=background_shapes, showlegend=True)
                      st.plotly_chart(incoming_stock, use_container_width=True)
 #####################################################################################
-                     
-             stock_row3a, stock_row3b= st.columns(2)
-             with stock_row3a:
-                     with st.expander(":point_right: Click to expand/ hide data"):
+             with st.expander(":point_right: Click to expand/ hide data"):
                              
                              pvt2 = df_south.query('Stock_Status == "Incoming_Stock_With_YAMAHA_Schedule"').round(0).pivot_table(
                                      index=["Item","Delivery_Status","ETA_HK","Customer_Reserved","Customer_Reserved_Contract_No."],
@@ -429,9 +424,7 @@ with tab1:
                      incoming_stock2.update_layout(shapes=background_shapes, showlegend=True)
                      st.plotly_chart(incoming_stock2, use_container_width=True)
 #####################################################################################
-             stock_row4a, stock_row4b= st.columns(2)
-             with stock_row4a:
-                     with st.expander(":point_right: Click to expand/ hide data"):
+             with st.expander(":point_right: Click to expand/ hide data"):
                              pvt3 = df_south.query('Stock_Status == "Incoming_Stock_No_YAMAHA_Schedule"').round(0).pivot_table(
                                      index=["Item","Delivery_Status","ETA_HK","Customer_Reserved","Customer_Reserved_Contract_No."],
                                      
