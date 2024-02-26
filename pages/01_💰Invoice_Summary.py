@@ -382,29 +382,29 @@ with tab1:
                          font=dict(family="Arial, Arial", size=12, color="Black"),
                          hovermode='x', showlegend=True,
                          legend=dict(orientation="h",font=dict(size=14)))
-                   fig3.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
-                   st.plotly_chart(fig3.update_layout(yaxis_showticklabels = True), use_container_width=True)
+             fig3.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+             st.plotly_chart(fig3.update_layout(yaxis_showticklabels = True), use_container_width=True)
 #############################################################################################################
 #FY to FY Quarter Invoice Details:
-                   pvt6 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).pivot_table(values="Before tax Inv Amt (HKD)",index=["FY_INV"],columns=["FQ(Invoice)"],
+             pvt6 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).pivot_table(values="Before tax Inv Amt (HKD)",index=["FY_INV"],columns=["FQ(Invoice)"],
                             aggfunc="sum",fill_value=0, margins=True,margins_name="Total")
-                   html11 = pvt6.applymap('HKD{:,.0f}'.format).to_html(classes='table table-bordered', justify='center')
+             html11 = pvt6.applymap('HKD{:,.0f}'.format).to_html(classes='table table-bordered', justify='center')
              #st.dataframe(pvt6.style.highlight_max(color = 'yellow', axis = 0)
              #                       .format("HKD{:,}"), use_container_width=True)   
              # 把total值的那行的背景顏色設為黃色，並將字體設為粗體
-                   html12 = html11.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
+             html12 = html11.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
              #改column color
-                   html13 = html12.replace('<th>Q1</th>', '<th style="background-color: lightgrey">Q1</th>')
-                   html14 = html13.replace('<th>Q2</th>', '<th style="background-color: pink">Q2</th>')
-                   html15 = html14.replace('<th>Q3</th>', '<th style="background-color: lightgrey">Q3</th>')
-                   html16 = html15.replace('<th>Q4</th>', '<th style="background-color: pink">Q4</th>')
-                   html117 = html16.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
-                   html_with_style = str(f'<div style="zoom: 0.7;">{html117}</div>')
-                   st.markdown(html_with_style, unsafe_allow_html=True)
+             html13 = html12.replace('<th>Q1</th>', '<th style="background-color: lightgrey">Q1</th>')
+             html14 = html13.replace('<th>Q2</th>', '<th style="background-color: pink">Q2</th>')
+             html15 = html14.replace('<th>Q3</th>', '<th style="background-color: lightgrey">Q3</th>')
+             html16 = html15.replace('<th>Q4</th>', '<th style="background-color: pink">Q4</th>')
+             html117 = html16.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
+             html_with_style = str(f'<div style="zoom: 0.7;">{html117}</div>')
+             st.markdown(html_with_style, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
-                   csv2 = pvt6.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
-                   st.download_button(label='Download Table', data=csv2, file_name='FQ_Sales.csv', mime='text/csv')
-                   st.divider()
+             csv2 = pvt6.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
+             st.download_button(label='Download Table', data=csv2, file_name='FQ_Sales.csv', mime='text/csv')
+             st.divider()
 ################################################################################################################################################
 #New Section 
 #LINE CHART of GP Amount
@@ -440,8 +440,8 @@ with tab1:
                          font=dict(family="Arial, Arial", size=12, color="Black"),
                          hovermode='x', showlegend=True,
                          legend=dict(orientation="h",font=dict(size=14)))
-                   fig12.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
-                   st.plotly_chart(fig12.update_layout(yaxis_showticklabels = True), use_container_width=True)
+             fig12.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+             st.plotly_chart(fig12.update_layout(yaxis_showticklabels = True), use_container_width=True)
 #################################################
       #FY to FY Quarter Invoice Details:
              pvt16 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).pivot_table(values="G.P.  (HKD)",index=["FY_INV"],columns=["FQ(Invoice)"],
