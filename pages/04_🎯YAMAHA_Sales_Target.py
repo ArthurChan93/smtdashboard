@@ -33,7 +33,8 @@ with title_row1:
 image_path = 'LINE.jpg'
 #image_path = '/Users/arthurchan/Downloads/Sample/LINE.jpg'
 #image_path = '/Users/arthurchan/Downloads/Sample/LINE.jpg'
-#image = Image.open(image_path)
+
+image = Image.open(image_path)
 
 # 設置目標寬度和高度
 target_width = 600
