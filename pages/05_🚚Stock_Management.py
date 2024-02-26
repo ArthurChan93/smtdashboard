@@ -185,10 +185,8 @@ with tab1:
              
              st.divider()
 #####################################################################################
-             stock_row11, stock_row12= st.columns(2)
-             with stock_row12:
-                     st.header("🚢 :orange[Incoming_STK]_:blue[有]_YAMAHA交期:")
 
+             st.header("🚢 :orange[Incoming_STK]_:blue[有]_YAMAHA交期:")
 # BAR CHART of SOUTH Incoming STOCK MANAGEMENT with YAMAHA shipping schedule
              stockrow2_a, stockrow2_b= st.columns(2) 
              with stockrow2_a:                     
@@ -323,9 +321,7 @@ with tab1:
              st.divider()
 
 #####################################################################################
-             stock_row3a, stock_row3b= st.columns(2)
-             with stock_row3a:
-                     st.header("🚢 :orange[Incoming_STK]_:red[无]_YAMAHA交期:")
+             st.header("🚢 :orange[Incoming_STK]_:red[无]_YAMAHA交期:")
 # BAR CHART of SOUTH STOCK MANAGEMENT No YAMAHA shipping schedule
              stockrow3_a, stockrow3_b= st.columns(2) 
              with stockrow3_a:      
