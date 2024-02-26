@@ -399,7 +399,7 @@ with tab1:
                    html15 = html14.replace('<th>Q3</th>', '<th style="background-color: lightgrey">Q3</th>')
                    html16 = html15.replace('<th>Q4</th>', '<th style="background-color: pink">Q4</th>')
                    html117 = html16.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
-                   html_with_style = str(f'<div style="zoom: 0.9;">{html117}</div>')
+                   html_with_style = str(f'<div style="zoom: 0.7;">{html117}</div>')
                    st.markdown(html_with_style, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
                    csv2 = pvt6.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
@@ -929,7 +929,7 @@ with tab3:
              html61 = html61.replace('<th>G.P.  (HKD)</th>', '<th style="background-color: lightblue">G.P.  (HKD)</th>')
              html61 = html61.replace('<th>Before tax Inv Amt (HKD)</th>', '<th style="background-color: yellow">Before tax Inv Amt (HKD)</th>')
 
-             html611= f'<div style="zoom: 0.7;">{html61}</div>'
+             html611= f'<div style="zoom: 0.9;">{html61}</div>'
              st.markdown(html611, unsafe_allow_html=True)
              
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
