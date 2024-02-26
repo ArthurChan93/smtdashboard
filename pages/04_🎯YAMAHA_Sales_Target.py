@@ -33,7 +33,7 @@ with title_row1:
 image_path = 'LINE.jpg'
 #image_path = '/Users/arthurchan/Downloads/Sample/LINE.jpg'
 #image_path = '/Users/arthurchan/Downloads/Sample/LINE.jpg'
-image = Image.open(image_path)
+#image = Image.open(image_path)
 
 # 設置目標寬度和高度
 target_width = 600
@@ -137,7 +137,7 @@ region_sales['Percentage'] = region_sales['Current Achievement'] / region_sales[
 
 # 创建四个饼图
 fig_pie_south = go.Figure(go.Pie(
-          labels=["Current Achievement", "Sales Target"],
+          labels=["Achievement", "Sales Target"],
           values=[region_sales.loc["SOUTH", 'Current Achievement'], region_sales.loc["SOUTH", 'Sales_Target']],
           name="SOUTH",
           hole=0.4,
@@ -145,7 +145,7 @@ fig_pie_south = go.Figure(go.Pie(
           textposition='outside', textinfo='label+percent', marker_line_width=1,opacity=1))
      
 fig_pie_east = go.Figure(go.Pie(
-          labels=["Current Achievement", "Sales Target"],
+          labels=["Achievement", "Sales Target"],
           values=[region_sales.loc["EAST", 'Current Achievement'], region_sales.loc["EAST", 'Sales_Target']],
           name="EAST",
           hole=0.4,
@@ -153,7 +153,7 @@ fig_pie_east = go.Figure(go.Pie(
           textposition='outside', textinfo='label+percent',marker_line_width=1,opacity=1))
      
 fig_pie_north = go.Figure(go.Pie(
-          labels=["Current Achievement", "Sales Target"],
+          labels=["Achievement", "Sales Target"],
           values=[region_sales.loc["NORTH", 'Current Achievement'], region_sales.loc["NORTH", 'Sales_Target']],
           name="NORTH",
           hole=0.4,
@@ -161,7 +161,7 @@ fig_pie_north = go.Figure(go.Pie(
           textposition='outside', textinfo='label+percent',marker_line_width=1,opacity=1))
      
 fig_pie_west = go.Figure(go.Pie(
-          labels=["Current Achievement", "Sales Target"],
+          labels=["Achievement", "Sales Target"],
           values=[region_sales.loc["WEST", 'Current Achievement'], region_sales.loc["WEST", 'Sales_Target']],
           name="WEST",
           hole=0.4,
