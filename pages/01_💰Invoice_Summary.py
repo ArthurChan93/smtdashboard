@@ -685,7 +685,7 @@ with tab2:
               html81 = html80.replace('<th>Q4</th>', '<th style="background-color: orange">Q4</th>')
               html822 = html81.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 # 放大pivot table
-              html833 = f'<div style="zoom: 1;">{html822}</div>'
+              html833 = f'<div style="zoom: 0.7;">{html822}</div>'
 
               st.markdown(html833, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
@@ -748,7 +748,7 @@ with tab2:
               html88 = html87.replace('<th>Q4</th>', '<th style="background-color: lightblue">Q4</th>')
               html89 = html88.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 # 放大pivot table
-              html900 = f'<div style="zoom: 1;">{html89}</div>'
+              html900 = f'<div style="zoom: 0.7;">{html89}</div>'
              
               st.markdown(html900, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
@@ -813,7 +813,7 @@ with tab2:
              html68 = html67.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 
 # 放大pivot table
-             html699 = f'<div style="zoom: 1;">{html68}</div>'
+             html699 = f'<div style="zoom: 0.7;">{html68}</div>'
              st.markdown(html699, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
              csv9 = pvt10.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
@@ -872,7 +872,7 @@ with tab2:
              html74 = html73.replace('<th>Q4</th>', '<th style="background-color: lightgreen">Q4</th>')
              html75 = html74.replace('<th>Total</th>', '<th style="background-color: lightgreen">Total</th>')
 # 放大pivot table
-             html766 = f'<div style="zoom: 1;">{html75}</div>'
+             html766 = f'<div style="zoom: 0.7;">{html75}</div>'
 
              st.markdown(html766, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
