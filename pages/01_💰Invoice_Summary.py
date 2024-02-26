@@ -264,7 +264,7 @@ with tab1:
 # 把所有數值等於或少於0的數值的顏色設為紅色
        html14 = html13.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 # 放大pivot table
-       html15 = f'<div style="zoom: 1.5;">{html14}</div>'
+       html15 = f'<div style="zoom: 1.3;">{html14}</div>'
        st.markdown(html15, unsafe_allow_html=True)           
  
  
@@ -341,7 +341,7 @@ with tab1:
              soup = soup.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 
 # 在网页中显示HTML表格
-             html_with_style = str(f'<div style="zoom: 1.5;">{soup}</div>')
+             html_with_style = str(f'<div style="zoom: 1.3;">{soup}</div>')
              st.markdown(html_with_style, unsafe_allow_html=True)       
        
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
