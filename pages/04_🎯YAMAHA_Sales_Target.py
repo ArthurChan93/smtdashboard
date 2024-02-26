@@ -22,7 +22,7 @@ from PIL import Image
 #Webpage config& tab name& Icon
 st.set_page_config(page_title="Sales Dashboard",page_icon=":rainbow:",layout="wide")
 
-title_row1, title_row2, title_row3, title_row4 = st.columns(4)
+title_row1, title_row2= st.columns(2)
 
 #Title
 with title_row1:
@@ -30,8 +30,9 @@ with title_row1:
 #Text Credit
      st.write("by Arthur Chan")
 # 加載圖片
-image_path = 'LINE.jpg'
+#image_path = 'LINE.jpg'
 #image_path = '/Users/arthurchan/Downloads/Sample/LINE.jpg'
+image_path = '/Users/arthurchan/Downloads/Sample/LINE.jpg'
 image = Image.open(image_path)
 
 # 設置目標寬度和高度
@@ -41,7 +42,7 @@ target_height = 200
 # 縮小圖片
 resized_image = image.resize((target_width, target_height))
 
-with title_row3:
+with title_row2:
 
 # 在Streamlit應用程式中顯示縮小後的圖片
      st.image(resized_image, use_column_width=False, output_format='PNG')
@@ -84,6 +85,8 @@ else:
 
 
 ########################################################################################
+
+     
 region_sales = df_sales_target2.groupby(by=["Region"]).agg({"Sales_Target": "sum", "Current Achievement": "sum"}
                      ).sort_values(by="Sales_Target", ascending=False)
      
