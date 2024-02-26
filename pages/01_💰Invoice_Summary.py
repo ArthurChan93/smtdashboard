@@ -550,8 +550,8 @@ with tab2:
 # 找到所有的<td>标签，并将数值转换为会计数字格式的字符串
               for td in soup.find_all('td'):
                     value = float(td.text.strip('HKD').replace(',', ''))
-              formatted_value = "HKD{:,.0f}".format(value)
-              td.string.replace_with(formatted_value)
+                    formatted_value = "HKD{:,.0f}".format(value)
+                    td.string.replace_with(formatted_value)
 # 找到最底部的<tr>标签，并为其添加CSS样式
               last_row = soup.find_all('tr')[-1]
               last_row['style'] = 'background-color: yellow; font-weight: bold;'
