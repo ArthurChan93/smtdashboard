@@ -264,7 +264,7 @@ with tab1:
 # 把所有數值等於或少於0的數值的顏色設為紅色
        html14 = html13.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 # 放大pivot table
-       html15 = f'<div style="zoom: 1.3;">{html14}</div>'
+       html15 = f'<div style="zoom: 1.2;">{html14}</div>'
        st.markdown(html15, unsafe_allow_html=True)           
  
  
@@ -341,7 +341,7 @@ with tab1:
              soup = soup.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 
 # 在网页中显示HTML表格
-             html_with_style = str(f'<div style="zoom: 1.3;">{soup}</div>')
+             html_with_style = str(f'<div style="zoom: 1.2;">{soup}</div>')
              st.markdown(html_with_style, unsafe_allow_html=True)       
        
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
@@ -455,7 +455,8 @@ with tab1:
              html21 = html20.replace('<th>Q3</th>', '<th style="background-color: lightgreen">Q3</th>')
              html22 = html21.replace('<th>Q4</th>', '<th style="background-color: lightgrey">Q4</th>')
              html23 = html22.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
-             st.markdown(html23, unsafe_allow_html=True)
+             html_with_style = str(f'<div style="zoom: 0.9;">{html23}</div>')
+             st.markdown(html_with_style, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
              csv3 = pvt16.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
              st.download_button(label='Download Table', data=csv3, file_name='G.P Amount.csv', mime='text/csv')        
