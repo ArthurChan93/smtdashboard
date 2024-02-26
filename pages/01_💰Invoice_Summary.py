@@ -484,7 +484,7 @@ with tab2:
         pvt = pvt.applymap('HKD{:,.0f}'.format)
         html24 = pvt.to_html(classes='table table-bordered', justify='center')
 # 放大pivot table
-        html24 = f'<div style="zoom: 1.15;">{html24}</div>'
+        html24 = f'<div style="zoom: 1.1;">{html24}</div>'
 # 將你想要變色的column header找出來，並加上顏色
         html25 = html24.replace('<th>SOUTH</th>', '<th style="background-color: orange">SOUTH</th>')
         html26 = html25.replace('<th>EAST</th>', '<th style="background-color: lightblue">EAST</th>')
