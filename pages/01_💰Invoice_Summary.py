@@ -250,7 +250,7 @@ with tab1:
        pvt2 = pvt2.reindex(columns=columns_order, level=1)
 
        #使用applymap方法應用格式化
-       pvt2 = pvt2.applymap('HKD{:,.0f}'.format)
+       pvt2 = pvt2.applymap('{:,.0f}'.format)
        html3 = pvt2.to_html(classes='table table-bordered', justify='center')
        html4 = html3.replace('<th>C66</th>', '<th style="background-color: orange">C66</th>')
        html5 = html4.replace('<th>C28</th>', '<th style="background-color: lightblue">C28</th>')
