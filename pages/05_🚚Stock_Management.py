@@ -134,7 +134,7 @@ with tab1:
 
 # 将图例放在底部
                              brand_instock.update_layout(legend=dict(orientation="h", font=dict(size=17), yanchor="bottom", 
-                                    y=1.02, xanchor="right", x=0.6))       
+                                    y=1.1, xanchor="right", x=0.95))       
                      
 # 添加背景色
                              background_color = 'lightgreen'
@@ -275,7 +275,7 @@ with tab1:
 
 # 将图例放在底部
                              incoming_stock.update_layout(legend=dict(orientation="h", font=dict(size=17), yanchor="bottom", 
-                                    y=1.02, xanchor="right", x=0.6))       
+                                    y=1.1, xanchor="right", x=0.7))       
                      
 # 添加背景色
                              background_color = 'lightblue'
@@ -412,7 +412,7 @@ with tab1:
 
 # 将图例放在底部
                              incoming_stock2.update_layout(legend=dict(orientation="h", font=dict(size=17), yanchor="bottom", 
-                                    y=1.02, xanchor="right", x=0.5))       
+                                    y=1.1, xanchor="right", x=0.7))       
                      
 # 添加背景色
                              background_color = 'pink'
