@@ -180,7 +180,9 @@ with middle_column:
 
 
 invoice_qty = filter_df[(filter_df['BRAND'] != 'LOCAL SUPPLIER') & (filter_df['BRAND'] != 'SOLDERSTAR')& 
-            (filter_df['BRAND'] != 'SHINWA')& (filter_df['BRAND'] != 'SIGMA')& (filter_df['BRAND'] != 'C66 SERVICE')
+            (filter_df['BRAND'] != 'SHINWA')& (filter_df['BRAND'] != 'SIGMA')& (filter_df['BRAND'] != 'C66 SERVICE')& 
+            (filter_df['BRAND'] != 'SHIMADZU')& (filter_df['BRAND'] != 'NUTEK')& (filter_df['BRAND'] != 'SAKI')
+            & (filter_df['BRAND'] != 'DEK')
             & (filter_df['FY_INV'] != 'TBA')& (filter_df['FY_INV'] != 'Cancel')]
 
 OnlyYAMAHA_HELLER_PEMTRON_qty = invoice_qty['Item Qty'].sum()
@@ -188,7 +190,7 @@ header_qty = int(OnlyYAMAHA_HELLER_PEMTRON_qty)  # 使用字符串格式化将�
 total_unit_qty = int(header_qty)
 
 with right_column:
-      st.subheader(f":factory: Total Invoice Qty(YAMAHA, PEMTRON, HELLER): :orange[{total_unit_qty:,}]")
+      st.subheader(f":factory: Invoice Qty(YAMAHA, PEMTRON, HELLER): :orange[{total_unit_qty:,}]")
 
 st.divider()
 ############################################################################################################################################################################################################
@@ -1001,7 +1003,9 @@ with tab4:
       # BAR CHART of BRAND Comparision
        st.subheader(":bar_chart: Main Brand Invoice Qty_:orange[Monthly]:")
        brand_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND != "SOLDERSTAR"').query(
-                      'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHINWA"').query('BRAND != "SIGMA"').round(0).groupby(by=["Inv_Month",
+                      'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHIMADZU"').query(
+                        'BRAND != "OTHERS"').query('BRAND != "SAKI"').query('BRAND != "SAKI"').query('BRAND != "NUTEK"').query(
+                        'BRAND != "DEK"').query('BRAND != "SHINWA"').query('BRAND != "SIGMA"').round(0).groupby(by=["Inv_Month",
                             "BRAND"], as_index=False)["Item Qty"].sum().sort_values(by="Item Qty", ascending=False)
         # 按照指定顺序排序
 #       brand_df["BRAND"] = pd.Categorical(brand_df["BRAND"], ["YAMAHA", "PEMTRON", "HELLER"])
@@ -1107,8 +1111,9 @@ with tab4:
        with tab4_row2_col1:
              st.subheader(":sports_medal: Main Brand Invoice Qty_:orange[FY]:")
              brandinv_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND != "SOLDERSTAR"').query(
-                           'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHINWA"').query(
-                           'BRAND != "SIGMA"').round(0).groupby(by=["FY_INV","BRAND"],
+                      'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHIMADZU"').query(
+                        'BRAND != "OTHERS"').query('BRAND != "SAKI"').query('BRAND != "SAKI"').query('BRAND != "NUTEK"').query(
+                        'BRAND != "DEK"').query('BRAND != "SHINWA"').query('BRAND != "SIGMA"').round(0).groupby(by=["FY_INV","BRAND"],
                             as_index=False)["Item Qty"].sum().sort_values(by="Item Qty", ascending=False)
         # 按照指定顺序排序
 #             brandinv_df["BRAND"] = pd.Categorical(brandinv_df["BRAND"], ["YAMAHA", "PEMTRON", "HELLER"])
@@ -1454,7 +1459,7 @@ with tab4:
 
 #FY to FY YRM Invoice Details:
              filter_df["FQ(Invoice)"] = pd.Categorical(filter_df["FQ(Invoice)"], categories=["Q1", "Q2", "Q3", "Q4"])
-             pvt20 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YRM"').pivot_table(values="Item Qty",
+             pvt20 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YSM10"').pivot_table(values="Item Qty",
                      index=["FY_INV"],columns=["FQ(Invoice)"], aggfunc="sum",fill_value=0, margins=True,margins_name="Total").sort_index(axis=0, ascending=True)
              html122 = pvt20.applymap('{:,.0f}'.format).to_html(classes='table table-bordered', justify='center')
              # 把total值的那行的背景顏色設為黃色，並將字體設為粗體
