@@ -17,6 +17,7 @@ import locale
 import re
 from lxml import etree
 from PIL import Image
+from streamlit.components.v1 import html
 ######################################################################################################
 # emojis https://streamlit-emoji-shortcodes-streamlit-app-gwckff.streamlit.app/
 #Webpage config& tab name& Icon
@@ -167,25 +168,28 @@ elif region and cost_centre and brand:
 #st.dataframe(df_selection)
 ############################################################################################################################################################################################################
 #Overall Summary
-
- 
 left_column, middle_column, right_column = st.columns(3)
 total_invoice_amount = int(filter_df["Before tax Inv Amt (HKD)"].sum())
 with left_column:
-             st.metric(label=":dollar: Total :orange[Invoice] Amount before tax",value=(f"HKD{total_invoice_amount:,}"),)
-             total_gp = int(filter_df["G.P.  (HKD)"].sum())
+      st.subheader((f":dollar: Total Invoice Amount before tax: :orange[HKD{total_invoice_amount:,}]"))
+
+
+total_gp = int(filter_df["G.P.  (HKD)"].sum())
 with middle_column:
-             st.metric(label=":moneybag: Total :orange[G.P] Amount",value=(f"HKD{total_gp:,}"))
+      st.subheader(f":moneybag: Total G.P Amount: :orange[HKD{total_gp:,}]")
 
- 
-total_unit_qty = int(filter_df["Item Qty"].sum())
+
+invoice_qty = filter_df[(filter_df['BRAND'] != 'LOCAL SUPPLIER') & (filter_df['BRAND'] != 'SOLDERSTAR')& 
+            (filter_df['BRAND'] != 'SHINWA')& (filter_df['BRAND'] != 'SIGMA')& (filter_df['BRAND'] != 'C66 SERVICE')]
+OnlyYAMAHA_HELLER_PEMTRON_qty = invoice_qty['Item Qty'].sum()
+header_qty = int(OnlyYAMAHA_HELLER_PEMTRON_qty)  # 使用字符串格式化将数字插入标题中
+total_unit_qty = int(header_qty)
+
+
 with right_column:
-             st.metric(label=":factory: Total :orange[Invoiced] Machine",value=(f"Qty: {total_unit_qty:,}"))
+      st.subheader(f":factory: Total Invoice Qty(YAMAHA, PEMTRON, HELLER): :orange[{total_unit_qty:,}]")
 
- 
-style_metric_cards(background_color="Summer",border_left_color="BLUE",border_size_px=5,box_shadow=True,border_radius_px=1)
-
- 
+st.divider()
 ############################################################################################################################################################################################################
 #Pivot table, 差sub-total, GP%
 
