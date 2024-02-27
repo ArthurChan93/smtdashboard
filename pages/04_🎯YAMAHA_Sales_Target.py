@@ -32,7 +32,7 @@ with title_row1:
 # 加載圖片
 image_path = 'LINE.jpg'
 #image_path = '/Users/arthurchan/Downloads/Sample/LINE.jpg'
-#image_path = '/Users/arthurchan/Downloads/Sample/LINE.jpg'
+#image_path = "/Users/ArthurChan/OneDrive/VS Code/PythonProject_ESE/LINE.jpg"
 
 image = Image.open(image_path)
 
@@ -63,7 +63,7 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
      
 #########################################################################################     
 # Filter of year of YAMAHA Sales Target
-
+os.chdir(r"C:\Users\ArthurChan\OneDrive\VS Code\PythonProject_ESE\Sample Excel")
 df_sales_target = pd.read_excel(
           io='Monthly_report_for_edit.xlsm',
           engine='openpyxl',
