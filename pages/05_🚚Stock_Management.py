@@ -134,7 +134,7 @@ with tab1:
 
 # 将图例放在底部
                              brand_instock.update_layout(legend=dict(orientation="h", font=dict(size=17), yanchor="bottom", 
-                                    y=1.1, xanchor="right", x=0.95))       
+                                    y=1.1, xanchor="right", x=0.8))       
                      
 # 添加背景色
                              background_color = 'lightgreen'
