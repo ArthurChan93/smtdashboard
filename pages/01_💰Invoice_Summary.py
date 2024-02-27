@@ -47,7 +47,8 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 #唔show 17/18, cancel, tba資料
 #else:
 #os.chdir(r"/Users/arthurchan/Downloads/Sample")
-#os.chdir(r"/Users/arthurchan/Downloads/Sample")
+#os.chdir(r"C:\Users\ArthurChan\OneDrive\VS Code\PythonProject_ESE\Sample Excel")
+
 df = pd.read_excel(
                io='Monthly_report_for_edit.xlsm',engine= 'openpyxl',sheet_name='raw_sheet', skiprows=0, usecols='A:AO',nrows=10000,).query(
                     'Region != "C66 N/A"').query('FY_Contract != "Cancel"').query('FY_INV != "TBA"').query('FY_INV != "FY 17/18"').query(
@@ -274,8 +275,8 @@ with tab1:
 
 ################################################################################
 #Pivot table2
+       st.subheader(":point_down: Invoice Amount Subtotal_:orange[FQ]:clipboard: ")
        with st.expander(":point_right: click to expand/hide"):
-             st.subheader(":clipboard: Invoice Amount Subtotal_:orange[FQ]:")
              pvt17 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').round(0).pivot_table(
                      values="Before tax Inv Amt (HKD)",
                      index=["FY_INV","FQ(Invoice)"],
@@ -505,8 +506,8 @@ with tab2:
         st.download_button(label='Download Table', data=csv4, file_name='Regional_Sales.csv', mime='text/csv')
 ################################################################################
 #Regional inv amount subtotal FQ
+        st.subheader(":point_down: Invoice Amount Subtotal_:orange[FQ]:clipboard:")
         with st.expander(":point_right: Click to expand/hide"):
-              st.subheader(":clipboard: Invoice Amount Subtotal_:orange[FQ]:")
               pvt7 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').round(0).pivot_table(
                      values="Before tax Inv Amt (HKD)",
                      index=["FY_INV","FQ(Invoice)"],
@@ -1032,10 +1033,10 @@ with tab4:
 # 绘制图表
        st.plotly_chart(brand_qty, use_container_width=True)
 
-########################################################################################################      
+########################################################################################################
+       st.subheader(":point_down: Main Brand Invoice Qty_:orange[FQ Subtotal]:clipboard:")          
        with st.expander(":point_right: click to expand/hide data"):
 #Brand Inv Qty by Inv Month:
-             st.subheader(":clipboard:  Main Brand Invoice Qty_:orange[FQ Subtotal]:")
              #with st.expander("Click to expand"):
              pvt6 = filter_df.query('FY_INV != "TBA"').query('BRAND != "C66 SERVICE"').query('Product_Type != "SERVICE/ PARTS"').round(0).pivot_table(
                     values="Item Qty",
