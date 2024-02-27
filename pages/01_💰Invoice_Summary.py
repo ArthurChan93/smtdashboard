@@ -1042,7 +1042,8 @@ with tab4:
        with st.expander(":point_right: click to expand/hide data"):
 #Brand Inv Qty by Inv Month:
              #with st.expander("Click to expand"):
-             pvt6 = filter_df.query('FY_INV != "TBA"').query('BRAND != "C66 SERVICE"').query('Product_Type != "SERVICE/ PARTS"').round(0).pivot_table(
+             pvt6 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND != "SOLDERSTAR"').query(
+                      'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHINWA"').query('BRAND != "SIGMA"').round(0).pivot_table(
                     values="Item Qty",
                     index=["FY_INV","FQ(Invoice)"],
                     columns=["BRAND"],
