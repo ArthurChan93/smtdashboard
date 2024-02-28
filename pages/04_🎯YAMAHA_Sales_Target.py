@@ -93,6 +93,10 @@ region_sales = df_sales_target2.groupby(by=["Region"]).agg({"Sales_Target": "sum
 region_order = ["SOUTH", "EAST", "NORTH", "WEST"]
 region_sales = region_sales.reindex(region_order)
 
+# 计算All_Region的值
+all_region_value = df_sales_target2.loc[df_sales_target2["Region"].isin(["SOUTH", "EAST", "NORTH", "WEST"]), "Current Achievement"].sum()
+
+
      
 fig_target = go.Figure()
 
@@ -113,7 +117,19 @@ fig_target.add_trace(
                orientation="h",
                marker=dict(color='blue'))) 
 
-     
+# 添加All_Region的bar
+fig_target.add_trace(
+    go.Bar(
+        x=[all_region_value],
+        y=["All_Region"],
+        name="All_Region",
+        orientation="h",
+        marker=dict(color='orange')
+    )
+)
+
+
+
 fig_target.update_layout(
           height=400,
           yaxis=dict(title="Region"),
@@ -131,7 +147,7 @@ fig_target.update_yaxes(categoryorder='array', categoryarray=region_order[::-1])
      
 st.plotly_chart(fig_target, use_container_width=True)
      
-     # 计算每个Region的百分比
+#计算每个Region的百分比
 region_sales['Percentage'] = region_sales['Current Achievement'] / region_sales['Sales_Target'] * 100
 
 # 创建四个饼图
