@@ -892,31 +892,30 @@ with tab3:
 
      with tab3_col1:
 #FY to FY Quarter Invoice Details:
-      st.subheader(":blue_book: Invoice Amount Subtotal_:orange[FQ]:")
-      with st.subheader("Click to expand"):
-             pvt19 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).pivot_table(values=["Before tax Inv Amt (HKD)","G.P.  (HKD)"],
-                     index=["FY_INV","FQ(Invoice)","Inv_Yr","Inv_Month"],aggfunc="sum",fill_value=0, 
-                     margins=False,margins_name="Total").sort_index(axis=0, ascending=False)
-            
-             html55 = pvt19.applymap('HKD{:,.0f}'.format).to_html(classes='table table-bordered', justify='center')
-             #st.dataframe(pvt6.style.highlight_max(color = 'yellow', axis = 0)
-             #                       .format("HKD{:,}"), use_container_width=True)   
-             # 把total值的那行的背景顏色設為黃色，並將字體設為粗體
-             html56 = html55.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
-             #改column color
-             html57 = html56.replace('<th>Inv_Month</th>', '<th style="background-color: orange">Inv_Month</th>')
-             html58 = html57.replace('<th>Inv_Yr</th>', '<th style="background-color: orange">Inv_Yr</th>')
-             html59 = html58.replace('<th>FQ(Invoice)</th>', '<th style="background-color: orange">FQ(Invoice)</th>')
-             html60 = html59.replace('<th>FY_INV</th>', '<th style="background-color: orange">FY_INV</th>')
-             html61 = html60.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
-             html61 = html61.replace('<th>G.P.  (HKD)</th>', '<th style="background-color: lightblue">G.P.  (HKD)</th>')
-             html61 = html61.replace('<th>Before tax Inv Amt (HKD)</th>', '<th style="background-color: yellow">Before tax Inv Amt (HKD)</th>')
+      st.subheader(":blue_book: Invoice Amount Subtotal_:orange[FQ]:")    
 
-             html611= f'<div style="zoom: 1.1;">{html61}</div>'
-             st.markdown(html611, unsafe_allow_html=True)
+      pvt19 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).pivot_table(values=["Before tax Inv Amt (HKD)", "G.P.  (HKD)", "GP%_of_month"],
+                     index=["FY_INV","FQ(Invoice)","Inv_Yr","Inv_Month"],aggfunc={"Before tax Inv Amt (HKD)": "sum", "G.P.  (HKD)": "sum", "GP%_of_month": "mean"},fill_value=0, 
+                     margins=False,margins_name="Total").sort_index(axis=0, ascending=False)
+      
+      html55 = pvt19.applymap('HKD{:,.0f}'.format).to_html(classes='table table-bordered', justify='center')
+
+      html56 = html55.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
+             #改column color
+      html57 = html56.replace('<th>Inv_Month</th>', '<th style="background-color: orange">Inv_Month</th>')
+      html58 = html57.replace('<th>Inv_Yr</th>', '<th style="background-color: orange">Inv_Yr</th>')
+      html59 = html58.replace('<th>FQ(Invoice)</th>', '<th style="background-color: orange">FQ(Invoice)</th>')
+      html60 = html59.replace('<th>FY_INV</th>', '<th style="background-color: orange">FY_INV</th>')
+      html61 = html60.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
+      html61 = html61.replace('<th>G.P.  (HKD)</th>', '<th style="background-color: lightblue">G.P.  (HKD)</th>')
+      html61 = html61.replace('<th>Before tax Inv Amt (HKD)</th>', '<th style="background-color: yellow">Before tax Inv Amt (HKD)</th>')
+
+      
+      html611= f'<div style="zoom: 1.1;">{html61}</div>'
+      st.markdown(html611, unsafe_allow_html=True)
              
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
-             csv8 = pvt19.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
+      csv8 = pvt19.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
       st.download_button(label='Download Table', data=csv8, file_name='Monthly_Sales_Total.csv', mime='text/csv')
       st.divider()
 
@@ -1179,7 +1178,7 @@ with tab4:
 #Line Chart FY to FY YSM20R Invoice Details:
        with left_column:
              
-             st.subheader(":red[YAMAHA:] YSM20")
+             st.subheader(":red[YAMAHA:] YSM20R")
              df_YSM20 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Ordered_Items == "YSM20R"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","Inv_Month"],
                                   as_index= False)["Item Qty"].sum()
 # 确保 "Inv Month" 列中的所有值都出现
@@ -1302,7 +1301,7 @@ with tab4:
 #Line Chart FY to FY YSM40R Invoice Details:
        with left_column:
              st.divider()
-             st.subheader(":red[YAMAHA:] YSM40")
+             st.subheader(":red[YAMAHA:] YSM40R")
              df_YSM40 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Ordered_Items == "YSM40R"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","Inv_Month"],
                                   as_index= False)["Item Qty"].sum()
 # 确保 "Inv Month" 列中的所有值都出现
