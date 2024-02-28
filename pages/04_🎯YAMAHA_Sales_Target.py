@@ -26,7 +26,7 @@ title_row1, title_row2= st.columns(2)
 
 #Title
 with title_row1:
-     st.title(":star2: YAMAHA Sales Target_JPY")
+     st.title("🚩 YAMAHA Sales Target_JPY")
 #Text Credit
      st.write("by Arthur Chan")
 # 加載圖片
@@ -34,7 +34,6 @@ image_path = 'LINE.jpg'
 #image_path = '/Users/arthurchan/Downloads/Sample/LINE.jpg'
 #image_path = "/Users/ArthurChan/OneDrive/VS Code/PythonProject_ESE/LINE.jpg"
 image = Image.open(image_path)
-
 #os.chdir(r"C:\Users\ArthurChan\OneDrive\VS Code\PythonProject_ESE\Sample Excel")
 
 # 設置目標寬度和高度
@@ -50,10 +49,8 @@ with title_row2:
      st.image(resized_image, use_column_width=False, output_format='PNG')
 
 #Move the title higher
-st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow_html=True)
+#st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow_html=True)
 
-#Move the title higher
-st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow_html=True)
 # Sidebar Slider
      
 #     df_sales_target["Year"] = df_sales_target["Year"].astype(str)
