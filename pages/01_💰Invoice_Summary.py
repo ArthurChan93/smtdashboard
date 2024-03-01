@@ -51,7 +51,7 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 #os.chdir(r"C:\Users\ArthurChan\OneDrive\VS Code\PythonProject_ESE\Sample Excel")
 
 df = pd.read_excel(
-               io='Monthly_report_for_edit.xlsm',engine= 'openpyxl',sheet_name='raw_sheet', skiprows=0, usecols='A:AO',nrows=10000,).query(
+               io='Monthly_report_for_edit.xlsm',engine= 'openpyxl',sheet_name='raw_sheet', skiprows=0, usecols='A:AR',nrows=10000,).query(
                     'Region != "C66 N/A"').query('FY_Contract != "Cancel"').query('FY_INV != "TBA"').query('FY_INV != "FY 17/18"').query(
                          'FY_INV != "Cancel"').query('Inv_Yr != "TBA"').query('Inv_Yr != "Cancel"').query('Inv_Month != "TBA"').query('Inv_Month != "Cancel"')
 df_sales_target = pd.read_excel(
@@ -1005,7 +1005,7 @@ with tab4:
                       'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHIMADZU"').query(
                         'BRAND != "OTHERS"').query('BRAND != "SAKI"').query('BRAND != "SAKI"').query('BRAND != "NUTEK"').query(
                         'BRAND != "DEK"').query('BRAND != "SHINWA"').query('BRAND != "SIGMA"').round(0).groupby(by=["Inv_Month",
-                            "BRAND"], as_index=False)["Item Qty"].sum().sort_values(by="Item Qty", ascending=False)
+                            "BRAND_Details"], as_index=False)["Item Qty"].sum().sort_values(by="Item Qty", ascending=False)
         # 按照指定顺序排序
 #       brand_df["BRAND"] = pd.Categorical(brand_df["BRAND"], ["YAMAHA", "PEMTRON", "HELLER"])
 #       brand_df = brand_df.sort_values("BRAND")
@@ -1016,13 +1016,13 @@ with tab4:
 #       brand_df["Inv_Month"] = pd.Categorical(brand_df["Inv_Month"], categories=sort_Month_order, ordered=True)
 
 # 使用plotly绘制柱状图           
-       brand_qty = px.bar(brand_df, x="Inv_Month", y="Item Qty", color="BRAND", text_auto='.3s')
+       brand_qty = px.bar(brand_df, x="Inv_Month", y="Item Qty", color="BRAND_Details", text_auto='.3s')
 
 # 设置x轴的分类顺序
        brand_qty.update_layout(xaxis={"type": "category", "categoryorder": "array", "categoryarray": sort_Month_order})
 
 # 更改顏色
-       colors = {"YAMAHA": "lightgreen","PEMTRON": "lightblue","HELLER": "orange"}
+       colors = {"YAMAHA_Mounter": "lightgreen","YAMAHA_Non_Mounter": "khaki", "PEMTRON": "lightblue","HELLER": "orange"}
        for trace in brand_qty.data:
               brand_color = trace.name.split("=")[-1]
               trace.marker.color = colors.get(brand_color, "blue")
@@ -1037,8 +1037,29 @@ with tab4:
 # 将图例放在底部
        brand_qty.update_layout(legend=dict(orientation="h",font=dict(size=14), yanchor="bottom", y=1.02, xanchor="right", x=1))
 
+
+# 添加背景色
+       background_color = 'lightgrey'
+       x_range = len(brand_df['Inv_Month'].unique())
+       background_shapes = [dict(
+              type='rect',
+              xref='x',
+              yref='paper',
+              x0=i - 0.5,
+              y0=0,
+              x1=i + 0.5,
+              y1=1,
+              fillcolor=background_color,
+              opacity=0.1,
+              layer='below',
+              line=dict(width=5)) for i in range(x_range)]
+
 # 绘制图表
+       brand_qty.update_layout(shapes=background_shapes, showlegend=True)
        st.plotly_chart(brand_qty, use_container_width=True)
+
+# 绘制图表
+#       st.plotly_chart(brand_qty, use_container_width=True)
 
 ########################################################################################################
        st.subheader(":point_down: Main Brand Invoice Qty_:orange[FQ Subtotal]:clipboard:")          
@@ -1046,17 +1067,19 @@ with tab4:
 #Brand Inv Qty by Inv Month:
              #with st.expander("Click to expand"):
              pvt6 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND != "SOLDERSTAR"').query(
-                      'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHINWA"').query('BRAND != "SIGMA"').round(0).pivot_table(
+                      'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHIMADZU"').query(
+                        'BRAND != "OTHERS"').query('BRAND != "SAKI"').query('BRAND != "SAKI"').query('BRAND != "NUTEK"').query(
+                        'BRAND != "DEK"').query('BRAND != "SHINWA"').query('BRAND != "SIGMA"').round(0).pivot_table(
                     values="Item Qty",
                     index=["FY_INV","FQ(Invoice)"],
-                    columns=["BRAND"],
+                    columns=["BRAND_Details"],
                     aggfunc="sum",
                     fill_value=0,
                     margins=True,
                     margins_name="Total",
                     observed=True)  # This ensures subtotals are only calculated for existing values)
             
-             desired_order_brand = ["YAMAHA", "PEMTRON", "HELLER","Total"]
+             desired_order_brand = ["YAMAHA_Mounter","YAMAHA_Non_Mounter", "PEMTRON", "HELLER","Total"]
              pvt6 = pvt6.reindex(columns=desired_order_brand)
 
 # 计算小计行
@@ -1086,10 +1109,10 @@ with tab4:
 
 # 在特定单元格应用其他样式           
              soup3 = str(soup)
-             soup3 = soup3.replace('<th>YAMAHA</th>', '<th style="background-color: lightgreen">YAMAHA</th>')
+             soup3 = soup3.replace('<th>YAMAHA_Mounter</th>', '<th style="background-color: lightgreen">YAMAHA_Mounter</th>')
              soup3 = soup3.replace('<th>PEMTRON</th>', '<th style="background-color: lightblue">PEMTRON</th>')
              soup3 = soup3.replace('<th>HELLER</th>', '<th style="background-color: orange">HELLER</th>')
-             soup3 = soup3.replace('<th>WEST</th>', '<th style="background-color: lightgreen">WEST</th>')
+             soup3 = soup3.replace('<th>YAMAHA_Non_Mounter</th>', '<th style="background-color: khaki">YAMAHA_Non_Mounter</th>')
              soup3 = soup3.replace('<td>', '<td style="text-align: middle;">')
              soup3 = soup3.replace('<th>Q1</th>', '<th style="background-color: lightgrey">Q1</th>')
              soup3 = soup3.replace('<th>Q2</th>', '<th style="background-color: pink">Q2</th>')
@@ -1112,14 +1135,14 @@ with tab4:
              brandinv_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND != "SOLDERSTAR"').query(
                       'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHIMADZU"').query(
                         'BRAND != "OTHERS"').query('BRAND != "SAKI"').query('BRAND != "SAKI"').query('BRAND != "NUTEK"').query(
-                        'BRAND != "DEK"').query('BRAND != "SHINWA"').query('BRAND != "SIGMA"').round(0).groupby(by=["FY_INV","BRAND"],
+                        'BRAND != "DEK"').query('BRAND != "SHINWA"').query('BRAND != "SIGMA"').round(0).groupby(by=["FY_INV","BRAND_Details"],
                             as_index=False)["Item Qty"].sum().sort_values(by="Item Qty", ascending=False)
         # 按照指定顺序排序
 #             brandinv_df["BRAND"] = pd.Categorical(brandinv_df["BRAND"], ["YAMAHA", "PEMTRON", "HELLER"])
 #             brandinv_df = brandinv_df.sort_values("BRAND")
-             df_brand = px.bar(brandinv_df, x="FY_INV", y="Item Qty", color="BRAND", text_auto='.3s')
+             df_brand = px.bar(brandinv_df, x="FY_INV", y="Item Qty", color="BRAND_Details", text_auto='.3s')
 # 更改顏色
-             colors = {"PEMTRON": "lightblue","HELLER": "orange","YAMAHA": "lightgreen",}
+             colors = {"PEMTRON": "lightblue","HELLER": "orange","YAMAHA_Mounter": "lightgreen","YAMAHA_Non_Mounter": "khaki",}
              for trace in df_brand.data:
               region = trace.name.split("=")[-1]
               trace.marker.color = colors.get(region, "blue")
@@ -1140,21 +1163,30 @@ with tab4:
 
 # 创建示例数据框
             
-             brand_data = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').round(0).groupby(by=["FY_INV","BRAND"],
+             brand_data = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').round(0).groupby(by=["FY_INV","BRAND_Details"],
                      as_index=False)["Item Qty"].sum().sort_values(by="Item Qty", ascending=False)
+#             brand_data = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').round(0).groupby(by=["FY_INV","BRAND"],
+#                     as_index=False)["Item Qty"].sum().sort_values(by="Item Qty", ascending=False)
             
              brandinvpie_df = pd.DataFrame(brand_data)
 
 # 按照指定順序排序
 
  
-             brandinvpie_df["BRAND"] = brandinvpie_df["BRAND"].replace(to_replace=[x for x in brandinvpie_df["BRAND"
-                                       ].unique() if x not in ["YAMAHA", "PEMTRON", "HELLER"]], value="OTHERS")
-             brandinvpie_df["BRAND"] = pd.Categorical(brandinvpie_df["BRAND"], ["YAMAHA", "PEMTRON", "HELLER","OTHERS"])
+             brandinvpie_df["BRAND_Details"] = brandinvpie_df["BRAND_Details"].replace(to_replace=[x for x in brandinvpie_df["BRAND_Details"
+                                       ].unique() if x not in ["YAMAHA_Mounter","YAMAHA_Non_Mounter", "PEMTRON", "HELLER"]], value="OTHERS")
+             brandinvpie_df["BRAND_Details"] = pd.Categorical(brandinvpie_df["BRAND_Details"], ["YAMAHA_Mounter","YAMAHA_Non_Mounter", "PEMTRON", "HELLER","OTHERS"])
+
+#             brandinvpie_df["BRAND"] = brandinvpie_df["BRAND"].replace(to_replace=[x for x in brandinvpie_df["BRAND"
+#                                       ].unique() if x not in ["YAMAHA", "PEMTRON", "HELLER"]], value="OTHERS")
+#             brandinvpie_df["BRAND"] = pd.Categorical(brandinvpie_df["BRAND"], ["YAMAHA", "PEMTRON", "HELLER","OTHERS"])
 
 # 创建饼状图
-             df_pie = px.pie(brandinvpie_df, values="Item Qty", names="BRAND", color="BRAND", color_discrete_map={
-                      "PEMTRON": "lightblue", "HELLER": "orange", "YAMAHA": "lightgreen", "OTHERS":"purple"})
+             df_pie = px.pie(brandinvpie_df, values="Item Qty", names="BRAND_Details", color="BRAND_Details", color_discrete_map={
+                      "PEMTRON": "lightblue", "HELLER": "orange", "YAMAHA_Mounter": "lightgreen","YAMAHA_Non_Mounter": "khaki", "OTHERS":"purple"})
+
+#             df_pie = px.pie(brandinvpie_df, values="Item Qty", names="BRAND", color="BRAND", color_discrete_map={
+#                      "PEMTRON": "lightblue", "HELLER": "orange", "YAMAHA": "lightgreen", "OTHERS":"purple"})
 
 # 设置字体和样式
              df_pie.update_layout(
