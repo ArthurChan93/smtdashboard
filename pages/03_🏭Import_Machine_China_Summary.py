@@ -46,9 +46,11 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 #唔show 17/18, cancel, tba資料
 #else:
 #os.chdir(r"/Users/arthurchan/Downloads/Sample")
- 
+#os.chdir(r"C:\Users\ArthurChan\OneDrive\VS Code\PythonProject_ESE\Sample Excel")
+
+
 df = pd.read_excel(
-       io='Monthly_report_for_edit.xlsm',engine= 'openpyxl',sheet_name='raw_sheet', skiprows=0, usecols='A:AO',
+       io='Monthly_report_for_edit.xlsm',engine= 'openpyxl',sheet_name='raw_sheet', skiprows=0, usecols='A:AR',
        nrows=10000,).query('Region != "C66 N/A"').query('FY_Contract != "Cancel"').query('FY_INV != "TBA"').query('FY_INV != "FY 17/18"').query('FY_INV != "Cancel"').query('Inv_Yr != "TBA"').query('Inv_Yr != "Cancel"').query('Inv_Month != "TBA"').query('Inv_Month != "Cancel"')
  
 
@@ -506,24 +508,24 @@ with row2data_right_column:
        with st.expander(":point_right: Click to expand/ hide data"):
               filter_df["Inv_Month"] = pd.Categorical(filter_df["Inv_Month"], categories=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
               pvt2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').pivot_table(
-                      values="Before tax Inv Amt (HKD)",index=["Inv_Yr","Inv_Month"],
-                      aggfunc="sum",fill_value=0, margins=True,margins_name="Total").sort_index(axis=0, ascending=True)
+                      values="Before tax Inv Amt (HKD)",index=["Inv_Month"],columns=["Inv_Yr",],
+                      aggfunc="sum",fill_value=0, margins=True,margins_name="Total")
 
 # 定义会计数字格式的格式化函数
-              def format_currency(value):
-                     return "{:,.0f}".format(value)
+#              def format_currency(value):
+#                     return "{:,.0f}".format(value)
 # 计算小计行
-              subtotal_row = pvt2.groupby(level=0).sum(numeric_only=True)
-              subtotal_row.index = pd.MultiIndex.from_product([subtotal_row.index, [""]])
-              subtotal_row.name = ("Subtotal", "")  # 小计行索引的名称
+#              subtotal_row = pvt2.groupby(level=0).sum(numeric_only=True)
+#              subtotal_row.index = pd.MultiIndex.from_product([subtotal_row.index, [""]])
+#              subtotal_row.name = ("Subtotal", "")  # 小计行索引的名称
 # 去除千位數符號並轉換為浮點數
               pvt2 = pvt2.applymap(lambda x: float(str(x).strip('').replace(',', '')))
 # 转换为字符串并添加样式
-              pvt2 = pvt2.applymap(lambda x: "{:,.0f}".format(x))
+#              pvt2 = pvt2.applymap(lambda x: "{:,.0f}".format(x))
 # 将小计行与pvt17连接，使用concat函数
-              pvt14_concatenated = pd.concat([pvt2, subtotal_row])
+#              pvt14_concatenated = pd.concat([pvt2, subtotal_row])
 # 生成HTML表格
-              html_table = pvt14_concatenated.to_html(classes='table table-bordered', justify='center')
+              html_table = pvt2.to_html(classes='table table-bordered', justify='center')
 # 使用BeautifulSoup处理HTML表格
               soup = BeautifulSoup(html_table, 'html.parser')
 
@@ -544,10 +546,10 @@ with row2data_right_column:
 
 # 在特定单元格应用其他样式           
               soup = str(soup)
-              soup = soup.replace('<th>YAMAHA</th>', '<th style="background-color: lightgreen">YAMAHA</th>')
-              soup = soup.replace('<th>PEMTRON</th>', '<th style="background-color: lightblue">PEMTRON</th>')
-              soup = soup.replace('<th>HELLER</th>', '<th style="background-color: orange">HELLER</th>')
-              soup = soup.replace('<td>', '<td style="text-align: middle;">')
+#              soup = soup.replace('<th>YAMAHA</th>', '<th style="background-color: lightgreen">YAMAHA</th>')
+#              soup = soup.replace('<th>PEMTRON</th>', '<th style="background-color: lightblue">PEMTRON</th>')
+#              soup = soup.replace('<th>HELLER</th>', '<th style="background-color: orange">HELLER</th>')
+#              soup = soup.replace('<td>', '<td style="text-align: middle;">')
               soup = soup.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 
 # 在网页中显示HTML表格
