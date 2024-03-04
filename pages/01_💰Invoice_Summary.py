@@ -1001,10 +1001,7 @@ with tab3:
 with tab4:
       # BAR CHART of BRAND Comparision
        st.subheader(":bar_chart: Main Brand Invoice Qty_:orange[Monthly]:")
-       brand_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND != "SOLDERSTAR"').query(
-                      'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHIMADZU"').query(
-                        'BRAND != "OTHERS"').query('BRAND != "SAKI"').query('BRAND != "SAKI"').query('BRAND != "NUTEK"').query(
-                        'BRAND != "DEK"').query('BRAND != "SHINWA"').query('BRAND != "SIGMA"').round(0).groupby(by=["Inv_Month",
+       brand_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND != "SOLDERSTAR"').round(0).groupby(by=["Inv_Month",
                             "BRAND_Details"], as_index=False)["Item Qty"].sum().sort_values(by="Item Qty", ascending=False)
         # 按照指定顺序排序
 #       brand_df["BRAND"] = pd.Categorical(brand_df["BRAND"], ["YAMAHA", "PEMTRON", "HELLER"])
