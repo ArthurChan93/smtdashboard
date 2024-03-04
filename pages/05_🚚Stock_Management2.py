@@ -79,7 +79,7 @@ with tab1:
 
 # 在柱形图内显示数值
           text = chart.mark_text(
-                  align='left',
+                  align='right',
                   baseline='middle',
                   dx=3,fontSize=18).encode(
                   text=alt.Text('Machine_QTY:Q', format='.0f'),
