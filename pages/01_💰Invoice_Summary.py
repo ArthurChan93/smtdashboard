@@ -74,7 +74,7 @@ df_sales_target = pd.read_excel(
 #                     "nav-link-selected": {"background-color":"orange"},
 
 ######################################################################################################
-st.sidebar.write(":orange[Default ALL if no selection]:")
+st.sidebar.write(":orange[Default ALL if no selection] :white_check_mark:")
 
 
 #Sidebar Filter
