@@ -991,7 +991,26 @@ with tab3:
 
 # 将图例放在底部
              df_brand.update_layout(legend=dict(orientation="h",font=dict(size=14), yanchor="bottom", y=1.02, xanchor="right", x=1))
-             st.plotly_chart(df_brand, use_container_width=True)            
+
+# 添加背景色
+             background_color2 = 'lightgrey'
+             x_range2 = len(brandinv_df["FY_INV"].unique())
+             background_shapes2 = [dict(
+              type='rect',
+              xref='x',
+              yref='paper',
+              x0=i - 0.5,
+              y0=0,
+              x1=i + 0.5,
+              y1=1,
+              fillcolor=background_color2,
+              opacity=0.1,
+              layer='below',
+              line=dict(width=5)) for i in range(x_range2)]
+             
+             df_brand.update_layout(shapes=background_shapes2, showlegend=True)
+# 绘制图表
+             st.plotly_chart(df_brand, use_container_width=True)                              
 ###################################################################
        with tab4_row2_col2:
              st.subheader(":round_pushpin: Main Brand Invoice Qty_:orange[Percentage]:")
