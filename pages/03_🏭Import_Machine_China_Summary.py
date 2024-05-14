@@ -16,6 +16,8 @@ from bs4 import BeautifulSoup
 import locale
 import re
 from lxml import etree
+import plotly.subplots as sp
+import plotly.colors as colors
 ######################################################################################################
  
 # emojis https://streamlit-emoji-shortcodes-streamlit-app-gwckff.streamlit.app/
@@ -45,7 +47,7 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 #st.dataframe(df)
 #唔show 17/18, cancel, tba資料
 #else:
-#os.chdir(r"/Users/arthurchan/Downloads/Sample")
+os.chdir(r"/Users/arthurchan/Downloads/Sample")
 #os.chdir(r"C:\Users\ArthurChan\OneDrive\VS Code\PythonProject_ESE\Sample Excel")
 
 
@@ -79,26 +81,18 @@ df_import = pd.read_excel(
 #if selected == "Invoice Summary":
  
 ######################################################################################################
-# Sidebar Slider
-st.sidebar.header(":point_down: Slider for China import data:")
-df_import["YEAR"] = df_import["YEAR"].astype(str)
- 
-#start_yr, end_yr
-df_yr= st.sidebar.select_slider('Select a range of year',
-            options=df_import["YEAR"].unique(), value=("2022","2023"))
-   
-#st.sidebar.write('You selected:', start_yr, 'to', end_yr)
- 
+
 #New Section      
 st.sidebar.divider()
 #Sidebar Filter
  
 # Create FY Invoice filter
+
 st.sidebar.header(":point_down: Filter for ESE data:")
 fy_yr_inv = st.sidebar.multiselect(
         "Select the Financial Year of Invoice",
          options=df["Inv_Yr"].unique(),
-         default=[2023,2022],
+         default=[2023,2022,2024],
          )
  
 if not fy_yr_inv:
@@ -198,51 +192,65 @@ button[data-baseweb="tab"] > div[data-testid="stMarkdownContainer"] > p {
 </style>
 """
 st.write(font_css, unsafe_allow_html=True)      
+
+tab1, tab2= st.tabs([":wedding: National(Monthly)",":earth_asia: Regional(Annually)"])
+
+#TAB 1: Overall category
+################################################################################################################################################
+with tab1: 
+
+# Sidebar Slider
+     df_import["YEAR"] = df_import["YEAR"].astype(str)
  
-#st.subheader(":eight_pointed_black_star: Mounter")
- 
+#start_yr, end_yr
+     slider_filter1, slider_filter2= st.columns(2)
+     with slider_filter1:
+      df_yr= st.select_slider(':point_down: Select a range of year for China import data:',
+            options=df_import["YEAR"].unique(), value=("2022","2023"))
+   
+#st.sidebar.write('You selected:', start_yr, 'to', end_yr)
+
 #Tab 1 MOUNTER
 #with tab1:
 #Set variable for slider result
-selected_df = df_import[df_import["YEAR"].between(df_yr[0], df_yr[1])]
+     selected_df = df_import[df_import["YEAR"].between(df_yr[0], df_yr[1])]
 #MOUNTER IMPORT LINE CHART
-row1_left_column, row1_right_column = st.columns(2)
-with row1_left_column:
+     row1_left_column, row1_right_column = st.columns(2)
+     with row1_left_column:
        st.subheader(":radio: :red[China Mounter Import Trend]_:orange[QTY]:")
-       df_mounter_import = selected_df.groupby(by = ["MONTH","YEAR"], as_index= False)["QTY"].sum()
+       df_mounter_import = selected_df.groupby(by=["MONTH", "YEAR"], as_index=False)[["QTY", "Import_Amount(RMB)"]].sum()
  # 确保 "Inv Month" 列中的所有值都出现
        sort_Month_order = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
        df_mounter_import = df_mounter_import.groupby(["YEAR", "MONTH"]).sum().reindex(pd.MultiIndex.from_product([df_mounter_import['YEAR'].unique(), sort_Month_order],
                                    names=['YEAR', 'MONTH'])).fillna(0).reset_index()
-       fig2 = go.Figure()      
-       years = df_mounter_import["YEAR"].unique().astype(str)  # 獲取唯一年份並轉換為字符串列表
-       for year in years:
-              df_year = df_mounter_import[df_mounter_import["YEAR"] == year]
-              fig2.add_trace(go.Scatter(
-                     x=df_year["MONTH"],
-                     y=df_year["QTY"],
-                     mode='lines+markers+text',
-                     marker=dict(size=9),
-                     text=df_year["QTY"].apply(lambda x: f'{x:.3f}'),
-                     textposition="bottom center",
-                     texttemplate='%{text:.3s}',
-                     name=year,
-                     showlegend=True))
-              fig2.update_layout(xaxis=dict(
-                     tickmode='linear',
-                     tick0=1,
-                     dtick=1,
-                     ),
-                     yaxis=dict(showticklabels=True), 
-                     font=dict(family="Arial, Arial", size=14, color="Black"),
-                     hovermode='x', showlegend=True,
-                     legend=dict(orientation="h",font=dict(size=14)),
-                     paper_bgcolor='rgba(255,182,193,0.2)')#圖紙背景色
-              fig2.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
        
-       st.plotly_chart(fig2.update_layout(yaxis_showticklabels = True), use_container_width=True)      
+# 創建 Subplots
+       fig = sp.make_subplots(rows=1, cols=1, specs=[[{"secondary_y": True}]])
+
+# 繪製柱形圖
+       years = df_mounter_import["YEAR"].unique().astype(str)
+       colors_mapped = {year: colors.qualitative.Plotly[i] for i, year in enumerate(years)}
+
+       for year in years:
+            df_year = df_mounter_import[df_mounter_import["YEAR"] == year]
+            fig.add_trace(go.Bar(x=df_year["MONTH"], y=df_year["Import_Amount(RMB)"], marker=dict(color=colors_mapped[year]), name=f"{year} Import_Amount(RMB)"), secondary_y=False)
+
+# 繪製折線圖
+       for year in years:
+            df_year = df_mounter_import[df_mounter_import["YEAR"] == year]
+            fig.add_trace(go.Scatter(x=df_year["MONTH"], y=df_year["QTY"], mode='lines+markers+text', text=df_year["QTY"].apply(lambda x: f'{int(x)}'), 
+            textposition="top center", marker=dict(color='black', size=6), line=dict(color=colors_mapped[year]), name=f"{year} QTY", textfont=dict(color='black', size=16)), 
+            secondary_y=True)
+# 調整布局
+       fig.update_layout(height=600, title_text="China Import Data", 
+                         hovermode='x', xaxis=dict(tickmode='linear', tick0=1, dtick=1),paper_bgcolor='rgba(255,182,193,0.2)')
+       fig.update_yaxes(title_text="<b>Import_Amount(RMB)</b>", secondary_y=True)
+       fig.update_yaxes(title_text="<b>QTY</b>", secondary_y=True)
+
+# 顯示圖形
+       st.plotly_chart(fig, use_container_width=True)  
 #####################################################################################################################################################
-with row1_right_column:
+     with row1_right_column:
        st.subheader(":radio: :blue[SMT Sales Trend]_:orange[QTY]:")
 #LINE CHART of Overall Invoice Qty
        smtqtyAmount_df2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('BRAND != "SOLDERSTAR"').query(
@@ -280,10 +288,10 @@ with row1_right_column:
        fig3.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
        st.plotly_chart(fig3.update_layout(yaxis_showticklabels = True), use_container_width=True)
 #####################################################
-row1data_left_column, row1data_right_column = st.columns(2)
+       row1data_left_column, row1data_right_column = st.columns(2)
 #with row1data_left_column:
-with row1data_left_column:
-       with st.expander(":point_right: Click to expand/ hide data"):
+       with row1data_left_column:
+        with st.expander(":point_right: Click to expand/ hide data"):
               pvt_qty = selected_df.round(0).pivot_table(
                  values=["QTY"],
                  index=["MONTH"],
@@ -323,8 +331,8 @@ with row1data_left_column:
               st.divider()
 
 ###############################################################################################################
-with row1data_right_column:
-       with st.expander(":point_right: Click to expand/ hide data"):
+       with row1data_right_column:
+        with st.expander(":point_right: Click to expand/ hide data"):
               filter_df["Inv_Month"] = pd.Categorical(filter_df["Inv_Month"], categories=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
               pvt14 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('BRAND != "SOLDERSTAR"').query(
                       'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHINWA"').query('BRAND != "SIGMA"').pivot_table(
@@ -385,19 +393,19 @@ with row1data_right_column:
 
 #加pivot table, column只用YAMAHA, PEMTRON, HELLER台數要match圖
 ################################################################################################################################# 
-st.divider()
+        st.divider()
 
-row2_left_column, row2_right_column = st.columns(2) 
-with row2_left_column:
-       st.subheader(":money_with_wings: :red[China Mounter Import Trend]_:green[AMOUNT]:")
-       df_mounter_import = selected_df.groupby(by = ["MONTH","YEAR"], as_index= False)["Import_Amount(RMB)"].sum()
+       row2_left_column, row2_right_column = st.columns(2) 
+       with row2_left_column:
+             st.subheader(":money_with_wings: :red[China Mounter Import Trend]_:green[AMOUNT]:")
+             df_mounter_import = selected_df.groupby(by = ["MONTH","YEAR"], as_index= False)["Import_Amount(RMB)"].sum()
  # 确保 "Inv Month" 列中的所有值都出现
-       sort_Month_order = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-       df_mounter_import = df_mounter_import.groupby(["YEAR", "MONTH"]).sum().reindex(pd.MultiIndex.from_product([df_mounter_import['YEAR'].unique(), sort_Month_order],
+             sort_Month_order = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+             df_mounter_import = df_mounter_import.groupby(["YEAR", "MONTH"]).sum().reindex(pd.MultiIndex.from_product([df_mounter_import['YEAR'].unique(), sort_Month_order],
                                    names=['YEAR', 'MONTH'])).fillna(0).reset_index()
-       fig2 = go.Figure()      
-       years = df_mounter_import["YEAR"].unique().astype(str)  # 獲取唯一年份並轉換為字符串列表
-       for year in years:
+             fig2 = go.Figure()      
+             years = df_mounter_import["YEAR"].unique().astype(str)  # 獲取唯一年份並轉換為字符串列表
+             for year in years:
               df_year = df_mounter_import[df_mounter_import["YEAR"] == year]
               fig2.add_trace(go.Scatter(
                      x=df_year["MONTH"],
@@ -424,19 +432,19 @@ with row2_left_column:
        st.plotly_chart(fig2.update_layout(yaxis_showticklabels = True), use_container_width=True)      
 
 ##########################################################################################################
-with row2_right_column:
-       st.subheader(":money_with_wings: :blue[SMT Sales Trend]_:green[AMOUNT]:")
+       with row2_right_column:
+        st.subheader(":money_with_wings: :blue[SMT Sales Trend]_:green[AMOUNT]:")
 #LINE CHART of Overall Invoice Qty
-       smtinvoiceAmount_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).groupby(by = ["Inv_Yr","Inv_Month"],
+        smtinvoiceAmount_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).groupby(by = ["Inv_Yr","Inv_Month"],
                             as_index= False)["Before tax Inv Amt (HKD)"].sum()
 # 确保 "Inv Month" 列中的所有值都出现
-       sort_Month_order = [1, 2, 3,4, 5, 6, 7, 8, 9, 10, 11, 12]
-       smtinvoiceAmount_df = smtinvoiceAmount_df.groupby(["Inv_Yr", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([smtinvoiceAmount_df['Inv_Yr'].unique(), sort_Month_order],
+        sort_Month_order = [1, 2, 3,4, 5, 6, 7, 8, 9, 10, 11, 12]
+        smtinvoiceAmount_df = smtinvoiceAmount_df.groupby(["Inv_Yr", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([smtinvoiceAmount_df['Inv_Yr'].unique(), sort_Month_order],
                                    names=['Inv_Yr', 'Inv_Month'])).fillna(0).reset_index()
-       fig3 = go.Figure()
+        fig3 = go.Figure()
 # 添加每个Inv_Yr的折线
-       fy_inv_values = smtinvoiceAmount_df['Inv_Yr'].unique()
-       for fy_inv in fy_inv_values:
+        fy_inv_values = smtinvoiceAmount_df['Inv_Yr'].unique()
+        for fy_inv in fy_inv_values:
          fy_inv_data = smtinvoiceAmount_df[smtinvoiceAmount_df['Inv_Yr'] == fy_inv]
          fig3.add_trace(go.Scatter(
               x=fy_inv_data['Inv_Month'],
@@ -460,11 +468,11 @@ with row2_right_column:
        fig3.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
        st.plotly_chart(fig3.update_layout(yaxis_showticklabels = True), use_container_width=True)
 ############################################################################################################################################################################################################
-row2data_left_column, row2data_right_column = st.columns(2) 
+       row2data_left_column, row2data_right_column = st.columns(2) 
 
 #with row2data_left_column:
-with row2data_left_column:
-       with st.expander(":point_right: Click to expand/ hide data"):
+       with row2data_left_column:
+        with st.expander(":point_right: Click to expand/ hide data"):
               pvt_amount = selected_df.round(0).pivot_table(
                      values=["Import_Amount(RMB)"],
                      index=["MONTH"],
@@ -504,8 +512,8 @@ with row2data_left_column:
               st.divider()
 
 ###################################################################
-with row2data_right_column:
-       with st.expander(":point_right: Click to expand/ hide data"):
+       with row2data_right_column:
+        with st.expander(":point_right: Click to expand/ hide data"):
               filter_df["Inv_Month"] = pd.Categorical(filter_df["Inv_Month"], categories=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
               pvt2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').pivot_table(
                       values="Before tax Inv Amt (HKD)",index=["Inv_Month"],columns=["Inv_Yr",],
