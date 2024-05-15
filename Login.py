@@ -13,7 +13,7 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 import json #不用pip install, show animation
 import streamlit.components.v1 as com #用frame show animation
 from streamlit_lottie import st_lottie  #pip install streamlit-lottie
-#
+
 hide_bar= """
     <style>
     [data-testid="stSidebar"][aria-expanded="true"] > div:first-child {
