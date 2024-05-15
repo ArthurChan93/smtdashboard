@@ -202,7 +202,7 @@ with tab1:
 # Sidebar Slider
      df_import["YEAR"] = df_import["YEAR"].astype(str)
  
-     st.subheader(":radio: :red[China Mounter Import Trend]:")
+     st.subheader(":radio: :orange[China Mounter Import Trend]:")
 #start_yr, end_yr
      slider_filter1, slider_filter2= st.columns(2)
      with slider_filter1:
@@ -292,49 +292,66 @@ with tab1:
 
 #####################################################################################################################################################
      st.subheader(":radio: :blue[SMT Sales Trend]_:orange[QTY]:")
-#LINE CHART of Overall Invoice Qty
-     smtqtyAmount_df2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('BRAND != "SOLDERSTAR"').query(
-                                  'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').round(0).groupby(by = ["Inv_Yr","Inv_Month"],
-                            as_index= False)["Item Qty"].sum()
-# 确保 "Inv Month" 列中的所有值都出现
-     sort_Month_order = [1, 2, 3,4, 5, 6, 7, 8, 9, 10, 11, 12]
-     smtqtyAmount_df2 = smtqtyAmount_df2.groupby(["Inv_Yr", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([smtqtyAmount_df2['Inv_Yr'].unique(), sort_Month_order],
-                                   names=['Inv_Yr', 'Inv_Month'])).fillna(0).reset_index()
-     fig3 = go.Figure()
-# 添加每个Inv_Yr的折线
+# 過濾數據並計算合計
+     import plotly.graph_objs as go
+     from plotly import subplots
+
+# 數據處理部分需要保留 "Before tax Inv Amt (HKD)" 列
+     smtqtyAmount_df2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('BRAND != "SOLDERSTAR"').query('BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').round(0).groupby(by=["Inv_Yr", "Inv_Month"], as_index=False)[["Item Qty", "Before tax Inv Amt (HKD)"]].sum()
+     sort_Month_order = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+     smtqtyAmount_df2 = smtqtyAmount_df2.groupby(["Inv_Yr", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([smtqtyAmount_df2['Inv_Yr'].unique(), sort_Month_order], names=['Inv_Yr', 'Inv_Month'])).fillna(0).reset_index()
+
+# 創建子圖
+     fig = subplots.make_subplots(rows=1, cols=1, shared_xaxes=True)
+
+# 繪製柱狀圖
      fy_inv_values = smtqtyAmount_df2['Inv_Yr'].unique()
      for fy_inv in fy_inv_values:
-         fy_inv_data = smtqtyAmount_df2[smtqtyAmount_df2['Inv_Yr'] == fy_inv]
-         fig3.add_trace(go.Scatter(
-              x=fy_inv_data['Inv_Month'],
-              y=fy_inv_data['Item Qty'],
-              mode='lines+markers+text',
-              name=str(fy_inv),
-              text=fy_inv_data['Item Qty'],
-              textposition="bottom center",
-              texttemplate='%{text:.3s}',
-              hovertemplate='%{x}<br>%{y:.2f}',
-              marker=dict(size=10)))
-         fig3.update_layout(xaxis=dict(
-              type='category',
-              categoryorder='array',
-              categoryarray=sort_Month_order),
-              yaxis=dict(showticklabels=True),
-              font=dict(family="Arial, Arial", size=14, color="Black"),
-              hovermode='x', showlegend=True, 
-              legend=dict(orientation="h",font=dict(size=14)),
-              paper_bgcolor='rgba(0,150,255,0.1)'
-              )
-     fig3.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
-     st.plotly_chart(fig3.update_layout(yaxis_showticklabels = True), use_container_width=True)
+           fy_inv_data = smtqtyAmount_df2[smtqtyAmount_df2['Inv_Yr'] == fy_inv]
+           fig.add_trace(go.Bar(
+                 x=fy_inv_data['Inv_Month'],
+                 y=fy_inv_data['Before tax Inv Amt (HKD)'],
+                 name=f"{fy_inv} Before tax Inv Amt (HKD)",
+                 marker_color=px.colors.qualitative.Plotly[fy_inv_values.tolist().index(fy_inv)]), row=1, col=1)
 
+# 繪製折線圖
+     for fy_inv in fy_inv_values:
+           fy_inv_data = smtqtyAmount_df2[smtqtyAmount_df2['Inv_Yr'] == fy_inv]
+           fig.add_trace(go.Scatter(
+                 x=fy_inv_data['Inv_Month'],
+                 y=fy_inv_data['Item Qty'],
+                 mode='lines+markers+text',
+                 name=f"{fy_inv} Item Qty",
+                 text=fy_inv_data['Item Qty'].astype(int),  # 將數值轉為整數
+                 textposition="bottom center",
+                 marker_color=px.colors.qualitative.Plotly[fy_inv_values.tolist().index(fy_inv)]), row=1, col=1)
 
+# 調整布局
+     fig.update_layout(
+           height=600,
+           xaxis=dict(
+                 type='category',
+                 categoryorder='array',
+                 categoryarray=sort_Month_order,
+                 tickangle=-45
+                 ),
+                 font=dict(family="Arial", size=14, color="Black"),
+                 hovermode='x',
+                 showlegend=True,
+                 legend=dict(orientation="h", font=dict(size=14)),
+                 paper_bgcolor='rgba(0,150,255,0.1)')
+     
+     fig.update_yaxes(title_text="<b>Before tax Inv Amt (HKD)</b>", secondary_y=False)
+     fig.update_yaxes(title_text="<b>Item Qty</b>", secondary_y=True)
+
+# 顯示圖形
+     st.plotly_chart(fig, use_container_width=True)
 ###############################################################################################################
      with st.expander(":point_right: Click to expand/ hide data"):
               filter_df["Inv_Month"] = pd.Categorical(filter_df["Inv_Month"], categories=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
               pvt14 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('BRAND != "SOLDERSTAR"').query(
                       'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHINWA"').query('BRAND != "SIGMA"').pivot_table(
-                      values="Item Qty",index=["Inv_Yr","Inv_Month"],columns=["BRAND"],
+                      values=["Item Qty","Before tax Inv Amt (HKD)"],index=["Inv_Yr","Inv_Month"],columns=["BRAND"],
                       aggfunc="sum",fill_value=0, margins=True,margins_name="Total").sort_index(axis=0, ascending=True)
               
               desired_order = ["YAMAHA", "PEMTRON", "HELLER","Total"]
@@ -391,93 +408,4 @@ with tab1:
 
 #加pivot table, column只用YAMAHA, PEMTRON, HELLER台數要match圖
 ################################################################################################################################# 
-     st.subheader(":money_with_wings: :blue[SMT Sales Trend]_:green[AMOUNT]:")
-#LINE CHART of Overall Invoice Qty
-     smtinvoiceAmount_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).groupby(by = ["Inv_Yr","Inv_Month"],
-                            as_index= False)["Before tax Inv Amt (HKD)"].sum()
-# 确保 "Inv Month" 列中的所有值都出现
-     sort_Month_order = [1, 2, 3,4, 5, 6, 7, 8, 9, 10, 11, 12]
-     smtinvoiceAmount_df = smtinvoiceAmount_df.groupby(["Inv_Yr", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([smtinvoiceAmount_df['Inv_Yr'].unique(), sort_Month_order],
-                                   names=['Inv_Yr', 'Inv_Month'])).fillna(0).reset_index()
-     fig3 = go.Figure()
-# 添加每个Inv_Yr的折线
-     fy_inv_values = smtinvoiceAmount_df['Inv_Yr'].unique()
-     for fy_inv in fy_inv_values:
-         fy_inv_data = smtinvoiceAmount_df[smtinvoiceAmount_df['Inv_Yr'] == fy_inv]
-         fig3.add_trace(go.Scatter(
-              x=fy_inv_data['Inv_Month'],
-              y=fy_inv_data['Before tax Inv Amt (HKD)'],
-              mode='lines+markers+text',
-              name=str(fy_inv),
-              text=fy_inv_data['Before tax Inv Amt (HKD)'],
-              textposition="bottom center",
-              texttemplate='%{text:.3s}',
-              hovertemplate='%{x}<br>%{y:.2f}',
-              marker=dict(size=10)))
-         fig3.update_layout(xaxis=dict(
-              type='category',
-              categoryorder='array',
-              categoryarray=sort_Month_order),
-              yaxis=dict(showticklabels=True),
-              font=dict(family="Arial, Arial", size=14, color="Black"),
-              hovermode='x', showlegend=True,
-              legend=dict(orientation="h",font=dict(size=14)),
-              paper_bgcolor='rgba(0,150,255,0.1)')
-     fig3.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
-     st.plotly_chart(fig3.update_layout(yaxis_showticklabels = True), use_container_width=True)
-############################################################################################################################################################################################################
-     with st.expander(":point_right: Click to expand/ hide data"):
-              filter_df["Inv_Month"] = pd.Categorical(filter_df["Inv_Month"], categories=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
-              pvt2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').pivot_table(
-                      values="Before tax Inv Amt (HKD)",index=["Inv_Month"],columns=["Inv_Yr",],
-                      aggfunc="sum",fill_value=0, margins=True,margins_name="Total")
-
-# 定义会计数字格式的格式化函数
-#              def format_currency(value):
-#                     return "{:,.0f}".format(value)
-# 计算小计行
-#              subtotal_row = pvt2.groupby(level=0).sum(numeric_only=True)
-#              subtotal_row.index = pd.MultiIndex.from_product([subtotal_row.index, [""]])
-#              subtotal_row.name = ("Subtotal", "")  # 小计行索引的名称
-# 去除千位數符號並轉換為浮點數
-              pvt2 = pvt2.applymap(lambda x: float(str(x).strip('').replace(',', '')))
-# 转换为字符串并添加样式
-#              pvt2 = pvt2.applymap(lambda x: "{:,.0f}".format(x))
-# 将小计行与pvt17连接，使用concat函数
-#              pvt14_concatenated = pd.concat([pvt2, subtotal_row])
-# 生成HTML表格
-              html_table = pvt2.to_html(classes='table table-bordered', justify='center')
-# 使用BeautifulSoup处理HTML表格
-              soup = BeautifulSoup(html_table, 'html.parser')
-
-# 找到所有的<td>标签，并为小于或等于0的值添加CSS样式
-              for td in soup.find_all('td'):
-                     value = float(td.text.replace('', '').replace(',', ''))
-              if value <= 0:
-                   td['style'] = 'color: red;'
-      
-# 找到所有的<td>标签，并将数值转换为会计数字格式的字符串
-              for td in soup.find_all('td'):
-                     value = float(td.text.strip('').replace(',', ''))
-                     formatted_value = "{:,.0f}".format(value)
-                     td.string.replace_with(formatted_value)
-# 找到最底部的<tr>标签，并为其添加CSS样式
-              last_row = soup.find_all('tr')[-1]
-              last_row['style'] = 'background-color: yellow; font-weight: bold;'
-
-# 在特定单元格应用其他样式           
-              soup = str(soup)
-#              soup = soup.replace('<th>YAMAHA</th>', '<th style="background-color: lightgreen">YAMAHA</th>')
-#              soup = soup.replace('<th>PEMTRON</th>', '<th style="background-color: lightblue">PEMTRON</th>')
-#              soup = soup.replace('<th>HELLER</th>', '<th style="background-color: orange">HELLER</th>')
-#              soup = soup.replace('<td>', '<td style="text-align: middle;">')
-              soup = soup.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
-
-# 在网页中显示HTML表格
-              html_with_style = str(f'<div style="zoom: 1.1;">{soup}</div>')
-              st.markdown(html_with_style, unsafe_allow_html=True)
-# 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
-              csv2 = pvt2.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
-              st.download_button(label='Download Table', data=csv2, file_name='SMT_invoice_Amount.csv', mime='text/csv')
-
-#########################################################################
+ 
