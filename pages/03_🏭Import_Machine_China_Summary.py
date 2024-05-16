@@ -18,6 +18,8 @@ import re
 from lxml import etree
 import plotly.subplots as sp
 import plotly.colors as colors
+import plotly.graph_objs as go
+from plotly import subplots
 ######################################################################################################
  
 # emojis https://streamlit-emoji-shortcodes-streamlit-app-gwckff.streamlit.app/
@@ -202,7 +204,7 @@ with tab1:
 # Sidebar Slider
      df_import["YEAR"] = df_import["YEAR"].astype(str)
  
-     st.subheader(":radio: :orange[China Mounter Import Trend]:")
+     st.subheader(":radio: :orange[China Mounter Import Trend:]")
 #start_yr, end_yr
      slider_filter1, slider_filter2= st.columns(2)
      with slider_filter1:
@@ -252,7 +254,7 @@ with tab1:
 #####################################################################################################################################################
      with st.expander(":point_right: Click to expand/ hide table with figures"):
               pvt_qty = selected_df.round(0).pivot_table(
-                 values=["台数","进口金额（人民币）"],
+                 values=["进口金额（人民币）","台数"],
                  index=["MONTH"],
                  columns=["YEAR"],
                  aggfunc="sum",
@@ -291,18 +293,15 @@ with tab1:
      st.divider()
 
 #####################################################################################################################################################
-     st.subheader(":radio: :blue[SMT Sales Trend]_:orange[QTY]:")
+     st.subheader(":radio: :blue[SMT Invoice Trend:]")
 # 過濾數據並計算合計
-     import plotly.graph_objs as go
-     from plotly import subplots
-
 # 數據處理部分需要保留 "Before tax Inv Amt (HKD)" 列
      smtqtyAmount_df2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('BRAND != "SOLDERSTAR"').query('BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').round(0).groupby(by=["Inv_Yr", "Inv_Month"], as_index=False)[["Item Qty", "Before tax Inv Amt (HKD)"]].sum()
      sort_Month_order = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
      smtqtyAmount_df2 = smtqtyAmount_df2.groupby(["Inv_Yr", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([smtqtyAmount_df2['Inv_Yr'].unique(), sort_Month_order], names=['Inv_Yr', 'Inv_Month'])).fillna(0).reset_index()
 
 # 創建子圖
-     fig = subplots.make_subplots(rows=1, cols=1, shared_xaxes=True)
+     fig = subplots.make_subplots(rows=1, cols=1, shared_xaxes=True, specs=[[{"secondary_y": True}]])
 
 # 繪製柱狀圖
      fy_inv_values = smtqtyAmount_df2['Inv_Yr'].unique()
@@ -312,7 +311,8 @@ with tab1:
                  x=fy_inv_data['Inv_Month'],
                  y=fy_inv_data['Before tax Inv Amt (HKD)'],
                  name=f"{fy_inv} Before tax Inv Amt (HKD)",
-                 marker_color=px.colors.qualitative.Plotly[fy_inv_values.tolist().index(fy_inv)]), row=1, col=1)
+                 marker_color=px.colors.qualitative.Plotly[fy_inv_values.tolist().index(fy_inv)]
+                 ), row=1, col=1, secondary_y=False)
 
 # 繪製折線圖
      for fy_inv in fy_inv_values:
@@ -322,9 +322,11 @@ with tab1:
                  y=fy_inv_data['Item Qty'],
                  mode='lines+markers+text',
                  name=f"{fy_inv} Item Qty",
-                 text=fy_inv_data['Item Qty'].astype(int),  # 將數值轉為整數
+                 text=fy_inv_data['Item Qty'].astype(int),
                  textposition="bottom center",
-                 marker_color=px.colors.qualitative.Plotly[fy_inv_values.tolist().index(fy_inv)]), row=1, col=1)
+                 marker=dict(color='black'),  # 設置marker顏色為黑色
+                 line=dict(color=px.colors.qualitative.Plotly[fy_inv_values.tolist().index(fy_inv)])  # 設置折線顏色
+                 ), row=1, col=1, secondary_y=True)
 
 # 調整布局
      fig.update_layout(
@@ -333,16 +335,17 @@ with tab1:
                  type='category',
                  categoryorder='array',
                  categoryarray=sort_Month_order,
-                 tickangle=-45
+                 tickangle=0 # 設置x軸數值不傾斜
                  ),
                  font=dict(family="Arial", size=14, color="Black"),
                  hovermode='x',
                  showlegend=True,
                  legend=dict(orientation="h", font=dict(size=14)),
-                 paper_bgcolor='rgba(0,150,255,0.1)')
-     
-     fig.update_yaxes(title_text="<b>Before tax Inv Amt (HKD)</b>", secondary_y=False)
-     fig.update_yaxes(title_text="<b>Item Qty</b>", secondary_y=True)
+                 paper_bgcolor='rgba(0,150,255,0.1)'
+                 )
+
+     fig.update_yaxes(title_text="<b>Before tax Inv Amt (HKD)</b>", secondary_y=False, position=0.1)
+     fig.update_yaxes(title_text="<b>Item Qty</b>", secondary_y=True, position=0.9)
 
 # 顯示圖形
      st.plotly_chart(fig, use_container_width=True)
@@ -351,9 +354,12 @@ with tab1:
               filter_df["Inv_Month"] = pd.Categorical(filter_df["Inv_Month"], categories=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
               pvt14 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('BRAND != "SOLDERSTAR"').query(
                       'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHINWA"').query('BRAND != "SIGMA"').pivot_table(
-                      values=["Item Qty","Before tax Inv Amt (HKD)"],index=["Inv_Yr","Inv_Month"],columns=["BRAND"],
+                      values=["Before tax Inv Amt (HKD)","Item Qty"],index=["Inv_Yr","Inv_Month"],columns=["BRAND"],
                       aggfunc="sum",fill_value=0, margins=True,margins_name="Total").sort_index(axis=0, ascending=True)
-              
+ 
+                  
+
+
               desired_order = ["YAMAHA", "PEMTRON", "HELLER","Total"]
               pvt14 = pvt14.reindex(columns=desired_order, level=1)
 
@@ -403,7 +409,7 @@ with tab1:
               st.markdown(html_with_style, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
               csv1 = pvt14.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
-              st.download_button(label='Download Table', data=csv1, file_name='SMT_invoice_Qty_Yr.csv', mime='text/csv')
+              st.download_button(label='Download Table', data=csv1, file_name='SMT_invoice_Table.csv', mime='text/csv')
      st.divider()
 
 #加pivot table, column只用YAMAHA, PEMTRON, HELLER台數要match圖
