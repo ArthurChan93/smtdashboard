@@ -51,7 +51,7 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 #os.chdir(r"C:\Users\ArthurChan\OneDrive\VS Code\PythonProject_ESE\Sample Excel")
 
 df = pd.read_excel(
-               io='Monthly_report_for_edit.xlsm',engine= 'openpyxl',sheet_name='raw_sheet', skiprows=0, usecols='A:AS',nrows=10000,).query(
+               io='Monthly_report_for_edit.xlsm',engine= 'openpyxl',sheet_name='raw_sheet', skiprows=0, usecols='A:AT',nrows=100000,).query(
                     'Region != "C66 N/A"').query('FY_Contract != "Cancel"').query('FY_INV != "TBA"').query('FY_INV != "FY 17/18"').query(
                          'FY_INV != "Cancel"').query('Inv_Yr != "TBA"').query('Inv_Yr != "Cancel"').query('Inv_Month != "TBA"').query('Inv_Month != "Cancel"')
 df_sales_target = pd.read_excel(
@@ -104,7 +104,7 @@ df_Ordered_Items = df[df["Ordered_Items"].isin(Ordered_Items_filter)]
 Customer_Name_filter = st.sidebar.multiselect("CUSTOMER", df["Customer_Name"].unique())
 df_Customer_Name = df[df["Customer_Name"].isin(Customer_Name_filter)]
 
-New_Customer_filter = st.sidebar.multiselect("New Customer, default all options options if no selection", df["New_Customer"].unique())
+New_Customer_filter = st.sidebar.multiselect("New Customer", df["New_Customer"].unique())
 df_New_Customer = df[df["New_Customer"].isin(New_Customer_filter)]
 
 # Handle different filter combinations
@@ -229,7 +229,7 @@ font-size: 28px;
 
  
 st.write(font_css, unsafe_allow_html=True)
-tab1, tab2, tab3 ,tab4,tab5= st.tabs([":wedding: Overview",":earth_asia: Region",":books: Brand",":handshake: Customer",":blue_book: Invoice Details"])
+tab1, tab2, tab3 ,tab4,tab5, tab6= st.tabs([":wedding: Overview",":earth_asia: Region",":books: Brand",":handshake: Customer",":alarm_clock: Invoice Leadtime",":blue_book: Invoice Details"])
 
 #TAB 1: Overall category
 ################################################################################################################################################
@@ -444,8 +444,8 @@ with tab1:
 ################################################################################
 #Pivot table2
        st.subheader(":point_down: Invoice Amount Subtotal_:orange[FQ]:clipboard: ")
-       with st.expander(":point_right: click to expand/hide"):
-             pvt17 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').round(0).pivot_table(
+       #with st.expander(":point_right: click to expand/hide"):
+       pvt17 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').round(0).pivot_table(
                      values="Before tax Inv Amt (HKD)",
                      index=["FY_INV","FQ(Invoice)"],
                      columns=["COST_CENTRE"],
@@ -454,69 +454,69 @@ with tab1:
                      margins=True,
                      margins_name="Total",
                      observed=True)  # This ensures subtotals are only calculated for existing values)
-             desired_order = ["C49", "C28", "C66","Total"]
-             pvt17 = pvt17.reindex(columns=desired_order, level=1)
+       desired_order = ["C49", "C28", "C66","Total"]
+       pvt17 = pvt17.reindex(columns=desired_order, level=1)
 
 # 定义会计数字格式的格式化函数
-             def format_currency(value):
+       def format_currency(value):
                    return "HKD{:,.0f}".format(value)
 
 # 计算小计行
-             subtotal_row = pvt17.groupby(level=0).sum(numeric_only=True)
-             subtotal_row.index = pd.MultiIndex.from_product([subtotal_row.index, [""]])
-             subtotal_row.name = ("Subtotal", "")  # 小计行索引的名称
+       subtotal_row = pvt17.groupby(level=0).sum(numeric_only=True)
+       subtotal_row.index = pd.MultiIndex.from_product([subtotal_row.index, [""]])
+       subtotal_row.name = ("Subtotal", "")  # 小计行索引的名称
 
 # 去除千位數符號並轉換為浮點數
-             pvt17 = pvt17.applymap(lambda x: float(str(x).strip('HKD').replace(',', '')))
+       pvt17 = pvt17.applymap(lambda x: float(str(x).strip('HKD').replace(',', '')))
 
 # 转换为字符串并添加样式
-             pvt17 = pvt17.applymap(lambda x: "HKD{:,.0f}".format(x))
+       pvt17 = pvt17.applymap(lambda x: "HKD{:,.0f}".format(x))
 
 # 将小计行与pvt17连接，使用concat函数
-             pvt17_concatenated = pd.concat([pvt17, subtotal_row])
+       pvt17_concatenated = pd.concat([pvt17, subtotal_row])
 
 # 生成HTML表格
-             html_table = pvt17_concatenated.to_html(classes='table table-bordered', justify='center')
+       html_table = pvt17_concatenated.to_html(classes='table table-bordered', justify='center')
 
 # 使用BeautifulSoup处理HTML表格
-             soup = BeautifulSoup(html_table, 'html.parser')
+       soup = BeautifulSoup(html_table, 'html.parser')
 
 # 找到所有的<td>标签，并为小于或等于0的值添加CSS样式
-             for td in soup.find_all('td'):
+       for td in soup.find_all('td'):
                    value = float(td.text.replace('HKD', '').replace(',', ''))
-             if value <= 0:
+       if value <= 0:
                    td['style'] = 'color: red;'
       
 # 找到所有的<td>标签，并将数值转换为会计数字格式的字符串
-             for td in soup.find_all('td'):
+       for td in soup.find_all('td'):
                    value = float(td.text.strip('HKD').replace(',', ''))
                    formatted_value = "HKD{:,.0f}".format(value)
                    td.string.replace_with(formatted_value)
 # 找到最底部的<tr>标签，并为其添加CSS样式
-             last_row = soup.find_all('tr')[-1]
-             last_row['style'] = 'background-color: yellow; font-weight: bold;'
+       last_row = soup.find_all('tr')[-1]
+       last_row['style'] = 'background-color: yellow; font-weight: bold;'
 
 # 在特定单元格应用其他样式           
-             soup = str(soup)
-             soup = soup.replace('<th>C66</th>', '<th style="background-color: orange">C66</th>')
-             soup = soup.replace('<th>C28</th>', '<th style="background-color: lightblue">C28</th>')
-             soup = soup.replace('<th>HKD0</th>', '<th style="background-color: Khaki">HKD0</th>')
-             soup = soup.replace('<th>C49</th>', '<th style="background-color: lightgreen">C49</th>')
-             soup = soup.replace('<td>', '<td style="text-align: middle;">')
-             soup = soup.replace('<th>Q1</th>', '<th style="background-color: lightgrey">Q1</th>')
-             soup = soup.replace('<th>Q2</th>', '<th style="background-color: pink">Q2</th>')
-             soup = soup.replace('<th>Q3</th>', '<th style="background-color: lightgrey">Q3</th>')
-             soup = soup.replace('<th>Q4</th>', '<th style="background-color: pink">Q4</th>')
-             soup = soup.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
+       soup = str(soup)
+       soup = soup.replace('<th>C66</th>', '<th style="background-color: orange">C66</th>')
+       soup = soup.replace('<th>C28</th>', '<th style="background-color: lightblue">C28</th>')
+       soup = soup.replace('<th>HKD0</th>', '<th style="background-color: Khaki">HKD0</th>')
+       soup = soup.replace('<th>C49</th>', '<th style="background-color: lightgreen">C49</th>')
+       soup = soup.replace('<td>', '<td style="text-align: middle;">')
+       soup = soup.replace('<th>Q1</th>', '<th style="background-color: lightgrey">Q1</th>')
+       soup = soup.replace('<th>Q2</th>', '<th style="background-color: pink">Q2</th>')
+       soup = soup.replace('<th>Q3</th>', '<th style="background-color: lightgrey">Q3</th>')
+       soup = soup.replace('<th>Q4</th>', '<th style="background-color: pink">Q4</th>')
+       soup = soup.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 
 # 在网页中显示HTML表格
-             html_with_style = str(f'<div style="zoom: 1.2;">{soup}</div>')
-             st.markdown(html_with_style, unsafe_allow_html=True)       
+       html_with_style = str(f'<div style="zoom: 1.2;">{soup}</div>')
+       st.markdown(html_with_style, unsafe_allow_html=True)       
        
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
-             csv6 = pvt17.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
-             st.download_button(label='Download Table', data=csv6, file_name='Cost_Centre_Quarter_Sales.csv', mime='text/csv')
-             st.divider()
+       csv6 = pvt17.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
+       st.download_button(label='Download Table', data=csv6, file_name='Cost_Centre_Quarter_Sales.csv', mime='text/csv')
+       st.divider()
 ############################################################################################################################################################################################################
 #TAB 2: Region Category
 with tab2:
@@ -599,7 +599,7 @@ with tab2:
         with one_column:
 # LINE CHART of SOUTH CHINA FY/FY
               st.divider()
-              st.subheader(":chart_with_upwards_trend: :orange[SOUTH CHINA] Inv Amt Trend_FQ(Available to Show :orange[Multiple FY]):")
+              st.subheader(":chart_with_upwards_trend: :orange[SOUTH CHINA] Inv Amt Trend_FY to FY:")
               df_Single_south = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Region == "SOUTH"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV",
                                  "Inv_Month"], as_index= False)["Before tax Inv Amt (HKD)"].sum()
 # 确保 "FQ(Invoice)" 列中的所有值都出现在 df_Single_region 中
@@ -663,7 +663,7 @@ with tab2:
         with two_column:
 # LINE CHART of EAST CHINA FY/FY
               st.divider()
-              st.subheader(":chart_with_upwards_trend: :orange[EAST CHINA] Inv Amt Trend_FQ(Available to Show :orange[Multiple FY)]:")
+              st.subheader(":chart_with_upwards_trend: :orange[EAST CHINA] Inv Amt Trend_FY to FY:")
               df_Single_region = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Region == "EAST"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","Inv_Month"], as_index= False)["Before tax Inv Amt (HKD)"].sum()
 # 确保 "FQ(Invoice)" 列中的所有值都出现在 df_Single_region 中
               all_fq_invoice_values = ["4", "5", "6", "7", "8", "9", "10", "11", "12", "1", "2", "3"]
@@ -726,7 +726,7 @@ with tab2:
   
         with three_column:
 # LINE CHART of NORTH CHINA FY/FY
-             st.subheader(":chart_with_upwards_trend: :orange[NORTH CHINA] Inv Amt Trend_FQ(Available to Show :orange[Multiple FY]):")
+             st.subheader(":chart_with_upwards_trend: :orange[NORTH CHINA] Inv Amt Trend_FY to FY:")
 
              df_Single_north = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Region == "NORTH"').query('FY_INV != "TBA"').round(0).groupby(by=["FY_INV", "Inv_Month"],
                                 as_index=False)["Before tax Inv Amt (HKD)"].sum()
@@ -788,7 +788,7 @@ with tab2:
 ##################################################
         with four_column:
 # LINE CHART of WEST CHINA FY/FY
-             st.subheader(":chart_with_upwards_trend: :orange[WEST CHINA] Inv Amt Trend_FQ(Available to Show :orange[Multiple FY]):")
+             st.subheader(":chart_with_upwards_trend: :orange[WEST CHINA] Inv Amt Trend_FY to FY:")
              df_Single_west = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Region == "WEST"').query('FY_INV != "TBA"').round(0).groupby(by=["FY_INV", "Inv_Month"],
                                 as_index=False)["Before tax Inv Amt (HKD)"].sum()
 # 确保 "FQ(Invoice)" 列中的所有值都出现在 df_Single_region 中
@@ -976,6 +976,10 @@ with tab3:
 #             brandinv_df["BRAND"] = pd.Categorical(brandinv_df["BRAND"], ["YAMAHA", "PEMTRON", "HELLER"])
 #             brandinv_df = brandinv_df.sort_values("BRAND")
              df_brand = px.bar(brandinv_df, x="FY_INV", y="Item Qty", color="BRAND_Details", text_auto='.3s')
+
+# Update the traces to display the text above the bars
+#             df_brand.update_traces(textposition='inside')
+
 # 更改顏色
              colors = {"PEMTRON": "lightblue","HELLER": "orange","YAMAHA_Mounter": "lightgreen","YAMAHA_Non_Mounter": "khaki",}
              for trace in df_brand.data:
@@ -1819,8 +1823,93 @@ with tab4:
              aggfunc="sum",fill_value=0,).sort_values(by="Item Qty",ascending=False)
              st.dataframe(pvt11.style.format("{:,}"), use_container_width=True)
 #############################################################################################################################################################################################################
-#TAB 5 Invocie Details
-with tab5:
+with tab5:      
+      tab5_row1_col1, tab5_row1_col2= st.columns(2)      
+      with tab5_row1_col1:
+             st.subheader(":hourglass_flowing_sand: INV Leadtime Qty_:orange[FY]:")
+             brandinv_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query(
+                      'BRAND != "C66 SERVICE"').round(0).groupby(by=["FY_INV","Inv_LeadTime_MonthGroup"],
+                            as_index=False)["Item Qty"].sum().sort_values(by="Item Qty", ascending=False)
+        # 按照指定顺序排序
+#             brandinv_df["BRAND"] = pd.Categorical(brandinv_df["BRAND"], ["YAMAHA", "PEMTRON", "HELLER"])
+#             brandinv_df = brandinv_df.sort_values("BRAND")
+             df_brand = px.bar(brandinv_df, x="FY_INV", y="Item Qty", color="Inv_LeadTime_MonthGroup", text_auto='.3s')
+
+# Update the traces to display the text above the bars
+#             df_brand.update_traces(textposition='inside')
+
+# 更改顏色
+             colors = {"> 6 months": "red","0-3 months": "green","4-6 months": "khaki",}
+             for trace in df_brand.data:
+              region = trace.name.split("=")[-1]
+              trace.marker.color = colors.get(region, "blue")
+
+# 更改字體
+             df_brand.update_layout(font=dict(family="Arial", size=18))
+             df_brand.update_traces(marker_line_color='black', marker_line_width=2,opacity=1)
+
+# 將barmode設置為"group"以顯示多條棒形圖
+             df_brand.update_layout(barmode='group')
+
+# 将图例放在底部
+             df_brand.update_layout(legend=dict(orientation="h",font=dict(size=14), yanchor="bottom", y=1.02, xanchor="right", x=1))
+
+# 添加背景色
+             background_color2 = 'lightgrey'
+             x_range2 = len(brandinv_df["FY_INV"].unique())
+             background_shapes2 = [dict(
+              type='rect',
+              xref='x',
+              yref='paper',
+              x0=i - 0.5,
+              y0=0,
+              x1=i + 0.5,
+              y1=1,
+              fillcolor=background_color2,
+              opacity=0.1,
+              layer='below',
+              line=dict(width=5)) for i in range(x_range2)]
+             
+             df_brand.update_layout(shapes=background_shapes2, showlegend=True)
+# 绘制图表
+             st.plotly_chart(df_brand, use_container_width=True) 
+###############################################################################################            
+      with tab5_row1_col2:
+             st.subheader(":round_pushpin: Main Brand Invoice Qty_:orange[Percentage]:")
+
+# 创建示例数据框
+             brand_data = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query(
+                      'BRAND != "C66 SERVICE"').round(0).groupby(by=["FY_INV","Inv_LeadTime_MonthGroup"],
+                     as_index=False)["Item Qty"].sum().sort_values(by="Item Qty", ascending=False)
+      
+             brandinvpie_df = pd.DataFrame(brand_data)
+
+# 按照指定順序排序
+             brandinvpie_df["Inv_LeadTime_MonthGroup"] = brandinvpie_df["Inv_LeadTime_MonthGroup"].replace(to_replace=[x for x in brandinvpie_df["Inv_LeadTime_MonthGroup"
+                                       ].unique() if x not in ["> 6 months","0-3 months","4-6 months"]], value="OTHERS")
+             brandinvpie_df["Inv_LeadTime_MonthGroup"] = pd.Categorical(brandinvpie_df["Inv_LeadTime_MonthGroup"], ["> 6 months","0-3 months","4-6 months","OTHERS"])
+
+# 创建饼状图
+             df_pie = px.pie(brandinvpie_df, values="Item Qty", names="Inv_LeadTime_MonthGroup", color="Inv_LeadTime_MonthGroup", color_discrete_map={
+                      "> 6 months": "red","0-3 months": "green","4-6 months": "khaki"})
+
+#             df_pie = px.pie(brandinvpie_df, values="Item Qty", names="BRAND", color="BRAND", color_discrete_map={
+#                      "PEMTRON": "lightblue", "HELLER": "orange", "YAMAHA": "lightgreen", "OTHERS":"purple"})
+
+# 设置字体和样式
+             df_pie.update_layout(
+                   font=dict(family="Arial", size=14, color="black"),
+                   legend=dict(orientation="v", yanchor="bottom", y=1.02, xanchor="right", x=1))
+
+# 显示百分比标签
+             df_pie.update_traces(textposition='outside', textinfo='label+percent', marker_line_width=2,opacity=1)
+
+# 在Streamlit中显示图表
+             st.plotly_chart(df_pie, use_container_width=True)
+       
+############################################################################################################################################
+#TAB 6 Invocie Details
+with tab6:
      tab3_col1, tab3_col2 = st.columns(2)
 
      with tab3_col1:
