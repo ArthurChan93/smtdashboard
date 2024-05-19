@@ -1928,7 +1928,38 @@ with tab5:
 # 在Streamlit中显示图表
              st.plotly_chart(df_pie, use_container_width=True)
 
+###############################################################################################  
+#Table of > 6 months data
+      st.subheader(":ledger: Invoice Details_:orange[Monthly]:point_down::")
+      filter_df["G.P. %"] = (filter_df["G.P. %"] * 100).round(2).astype(str) + "%"
+      pvt21 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Inv_LeadTime_MonthGroup == "> 6 months"').query('FY_INV != "TBA"').round(0).pivot_table(
+           values=["Item Qty","Before tax Inv Amt (HKD)","G.P.  (HKD)"],
+           index=["Inv_LeadTime_MonthGroup","FY_INV","Inv_Yr","Inv_Month","Contract_No.","Customer_Name","Ordered_Items","G.P. %"],
+           aggfunc={"Item Qty":"sum","Before tax Inv Amt (HKD)": "sum", "G.P.  (HKD)": "sum"},
+           fill_value=0, margins=True,margins_name="Total")
+            
+      # 按"Inv_Yr","Inv_Month"以大到小排序
+      pvt21 = pvt21.sort_values(by=["Inv_Yr","Inv_Month"], ascending=False)
 
+# 将"Before tax Inv Amt (HKD)"和"G.P. (HKD)"格式化为会计单位
+      pvt21["Before tax Inv Amt (HKD)"] = "HKD " + pvt21["Before tax Inv Amt (HKD)"].astype(int).apply(lambda x: "{:,}".format(x))
+      pvt21["G.P.  (HKD)"] = "HKD " + pvt21["G.P.  (HKD)"].astype(int).apply(lambda x: "{:,}".format(x))
+
+# 将"Item Qty"前的"HKD"字眼去掉
+      pvt21 = pvt21.rename(columns={"Item Qty": "Item Qty"})
+
+# 调整values部分的显示顺序
+      pvt21 = pvt21[["Item Qty", "Before tax Inv Amt (HKD)", "G.P.  (HKD)"]]
+      html146 = pvt21.to_html(classes='table table-bordered', justify='center')
+      html147 = html146.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
+      html148 = html147.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
+      html149 = f'<div style="zoom: 0.85;">{html148}</div>'
+      st.markdown(html149, unsafe_allow_html=True)
+
+
+# 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
+      csv19 = pvt21.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
+      st.download_button(label='Download Table', data=csv19, file_name='Projects_INV Leadtime > 6 months.csv', mime='text/csv')      
 
 
 ############################################################################################################################################
@@ -1974,7 +2005,7 @@ with tab6:
 ###############################################      
        #FY to FY Quarter Invoice Details:
     st.subheader(":ledger: Invoice Details_:orange[Monthly]:point_down::")
-    filter_df["G.P. %"] = (filter_df["G.P. %"] * 100).round(2).astype(str) + "%"
+
     pvt21 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).pivot_table(
            values=["Item Qty","Before tax Inv Amt (HKD)","G.P.  (HKD)"],
            index=["FY_INV","Inv_Yr","Inv_Month","Contract_No.","Customer_Name","Ordered_Items","G.P. %"],
