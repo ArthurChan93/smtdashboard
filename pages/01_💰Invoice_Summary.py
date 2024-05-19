@@ -229,7 +229,7 @@ font-size: 28px;
 
  
 st.write(font_css, unsafe_allow_html=True)
-tab1, tab2, tab3 ,tab4,tab5, tab6= st.tabs([":wedding: Overview",":earth_asia: Region",":books: Brand",":handshake: Customer",":alarm_clock: Invoice Leadtime",":blue_book: Invoice Details"])
+tab1, tab2, tab3 ,tab4,tab5, tab6= st.tabs([":wedding: Overview",":earth_asia: Region",":books: Brand",":handshake: Customer by item",":alarm_clock: Invoice Leadtime",":blue_book: Invoice Details"])
 
 #TAB 1: Overall category
 ################################################################################################################################################
@@ -269,6 +269,9 @@ with tab1:
                          hovermode='x', showlegend=True,
                          legend=dict(orientation="h",font=dict(size=14)))
              fig3.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+
+# 绘制图表
+
              st.plotly_chart(fig3.update_layout(yaxis_showticklabels = True), use_container_width=True)
 #############################################################################################################
 #FY to FY Quarter Invoice Details:
@@ -541,11 +544,28 @@ with tab2:
 
 # 將barmode設置為"group"以顯示多條棒形圖
               df_contract_vs_invoice.update_layout(barmode='group')
-
 # 将图例放在底部
               df_contract_vs_invoice.update_layout(legend=dict(orientation="h",font=dict(size=14), yanchor="bottom", y=1.03, xanchor="right", x=1))
-              st.plotly_chart(df_contract_vs_invoice, use_container_width=True) 
 
+# 添加背景色
+              background_color2 = 'lightgrey'
+              x_range2 = len(category2_df["FY_INV"].unique())
+              background_shapes2 = [dict(
+              type='rect',
+              xref='x',
+              yref='paper',
+              x0=i - 0.5,
+              y0=0,
+              x1=i + 0.5,
+              y1=1,
+              fillcolor=background_color2,
+              opacity=0.1,
+              layer='below',
+              line=dict(width=5)) for i in range(x_range2)]
+             
+              df_contract_vs_invoice.update_layout(shapes=background_shapes2, showlegend=True)
+          
+              st.plotly_chart(df_contract_vs_invoice, use_container_width=True) 
 
 ####All Region PIE CHART
         with two_column:
@@ -1906,7 +1926,79 @@ with tab5:
 
 # 在Streamlit中显示图表
              st.plotly_chart(df_pie, use_container_width=True)
+
+###############
+#Pivot table2
+      st.subheader(":point_down: Invoice Amount Subtotal_:orange[FQ]:clipboard: ")
+      
+      pvt17 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').round(0).pivot_table(
+                 index=["FY_INV","FQ(Invoice)","Inv_Yr","Inv_Month","Customer_Name","Ordered_Items"],
+                 values=["Item Qty","Before tax Inv Amt (HKD)"],
+                 aggfunc="sum",
+                 fill_value=0,
+                 margins=True,
+                 margins_name="Total",
+                 observed=True)  
+
+      pvt17 = pvt17.reindex(pvt17.index.unique(), fill_value=0)
+
+# 定义会计数字格式的格式化函数
+      def format_currency(value):
+             return "{:,.0f}".format(value)
+#"FY_INV","FQ(Invoice)"
+# 计算小计行
+      subtotal_row = pvt17.groupby(level=[0,1,2,3,4]).sum(numeric_only=True)
+
+# 创建一个新的MultiIndex
+      new_index = pd.MultiIndex.from_product([subtotal_row.index.levels[0], subtotal_row.index.levels[1], subtotal_row.index.levels[2], 
+              subtotal_row.index.levels[3], subtotal_row.index.levels[4], ["Subtotal"]], names=["FY_INV","FQ(Invoice)","Inv_Yr","Inv_Month","Customer_Name",""])
+      subtotal_row = subtotal_row.reindex(new_index, fill_value=0)
+
+# 转换为字符串并添加样式
+      pvt17["Before tax Inv Amt (HKD)"] = pvt17["Before tax Inv Amt (HKD)"].apply(format_currency)
+      pvt17["Item Qty"] = pvt17["Item Qty"].apply(format_currency)
+
+# 将小计行与pvt17连接，使用concat函数
+      pvt17_concatenated = pd.concat([pvt17, subtotal_row])
+
+# 生成HTML表格
+      html_table = pvt17_concatenated.to_html(classes='table table-bordered', justify='center')
+
+# 使用BeautifulSoup处理HTML表格
+      soup = BeautifulSoup(html_table, 'html.parser')
+
+# 找到所有的<td>标签，并为小于或等于0的值添加CSS样式
+      for td in soup.find_all('td'):
+             value = float(td.text.replace(',', ''))
+             if value <= 0:
+                     td['style'] = 'color: red;'
+
+# 找到最底部的<tr>标签，并为其添加CSS样式
+      last_row = soup.find_all('tr')[-1]
+      last_row['style'] = 'background-color: yellow; font-weight: bold;'
+
+# 在特定单元格应用其他样式           
+      soup = str(soup)
+      soup = soup.replace('<th>C66</th>', '<th style="background-color: orange">C66</th>')
+      soup = soup.replace('<th>C28</th>', '<th style="background-color: lightblue">C28</th>')
+      soup = soup.replace('<th>HKD0</th>', '<th style="background-color: Khaki">HKD0</th>')
+      soup = soup.replace('<th>C49</th>', '<th style="background-color: lightgreen">C49</th>')
+      soup = soup.replace('<td>', '<td style="text-align: middle;">')
+      soup = soup.replace('<th>Q1</th>', '<th style="background-color: lightgrey">Q1</th>')
+      soup = soup.replace('<th>Q2</th>', '<th style="background-color: pink">Q2</th>')
+      soup = soup.replace('<th>Q3</th>', '<th style="background-color: lightgrey">Q3</th>')
+      soup = soup.replace('<th>Q4</th>', '<th style="background-color: pink">Q4</th>')
+      soup = soup.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
+
+# 在网页中显示HTML表格
+      html_with_style = str(f'<div style="zoom: 1.2;">{soup}</div>')
+      st.markdown(html_with_style, unsafe_allow_html=True)       
        
+# 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
+      csv6 = pvt17_concatenated.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
+      st.download_button(label='Download Table', data=csv6, file_name='Cost_Centre_Quarter_Sales.csv', mime='text/csv')
+      st.divider()
+
 ############################################################################################################################################
 #TAB 6 Invocie Details
 with tab6:
