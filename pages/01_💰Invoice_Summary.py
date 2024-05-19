@@ -230,7 +230,7 @@ font-size: 28px;
 
  
 st.write(font_css, unsafe_allow_html=True)
-tab1, tab2, tab3 ,tab4,tab5, tab6= st.tabs([":wedding: Overview",":earth_asia: Region",":books: Brand",":handshake: Customer by item",":alarm_clock: Invoice Leadtime",":blue_book: Invoice Details"])
+tab1, tab2, tab3 ,tab4,tab5, tab6= st.tabs([":wedding: Overview",":earth_asia: Region",":books: Brand",":handshake: Customer by item",":alarm_clock: INV Leadtime",":blue_book: INV Details"])
 
 #TAB 1: Overall category
 ################################################################################################################################################
@@ -1934,6 +1934,7 @@ with tab5:
 ############################################################################################################################################
 #TAB 6 Invocie Details
 with tab6:
+    st.divider()
     filter_df["GP%_of_month"] = (filter_df["GP%_of_month"] * 100).round(2).astype(str) + "%"
     st.subheader(":closed_book: Invoice Amount Subtotal_:orange[Monthly]:point_down:: ")
     with st.expander(":point_right: :closed_book: click to expand/ hide the tabe"):
