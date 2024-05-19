@@ -1965,11 +1965,10 @@ with tab5:
 ############################################################################################################################################
 #TAB 6 Invocie Details
 with tab6:
-    st.divider()
     filter_df["GP%_of_month"] = (filter_df["GP%_of_month"] * 100).round(2).astype(str) + "%"
     st.subheader(":closed_book: Invoice Amount Subtotal_:orange[Monthly]:point_down:: ")
-    with st.expander(":point_right: :closed_book: click to expand/ hide the tabe"):
-      pvt2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Inv_Yr != "TBA"').query('Inv_Month != "TBA"').query('Inv_Month != "Cancel"').round(0).pivot_table(
+#    with st.expander(":point_right: :closed_book: click to expand/ hide the tabe"):
+    pvt2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Inv_Yr != "TBA"').query('Inv_Month != "TBA"').query('Inv_Month != "Cancel"').round(0).pivot_table(
               index=["FY_INV","Inv_Yr","FQ(Invoice)", "Inv_Month","GP%_of_month"],
               values=["Before tax Inv Amt (HKD)","G.P.  (HKD)"],
               aggfunc="sum",
@@ -1978,28 +1977,28 @@ with tab6:
               margins_name="Total",
               observed=True)
       
-      pvt2 = pvt2.reindex(level=1)
+    pvt2 = pvt2.reindex(level=1)
 # 按"Inv_Yr","Inv_Month"以大到小排序
-      pvt2 = pvt2.sort_values(by=["FY_INV","Inv_Yr","FQ(Invoice)","Inv_Month"], ascending=False)
+    pvt2 = pvt2.sort_values(by=["FY_INV","Inv_Yr","FQ(Invoice)","Inv_Month"], ascending=False)
 
        #使用applymap方法應用格式化
-      pvt2 = pvt2.applymap('{:,.0f}'.format)
-      html3 = pvt2.to_html(classes='table table-bordered', justify='center')
+    pvt2 = pvt2.applymap('{:,.0f}'.format)
+    html3 = pvt2.to_html(classes='table table-bordered', justify='center')
 
 # 把total值的那行的背景顏色設為黃色，並將字體設為粗體
-      html8 = html3.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
+    html8 = html3.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
 # 把每個數值置中
-      html9 = html8.replace('<td>', '<td style="text-align: middle;">')
+    html9 = html8.replace('<td>', '<td style="text-align: middle;">')
 
 # 把所有數值等於或少於0的數值的顏色設為紅色
-      html14 = html9.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
+    html14 = html9.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
 # 放大pivot table
-      html15 = f'<div style="zoom: 1.1;">{html14}</div>'
-      st.markdown(html15, unsafe_allow_html=True)           
+    html15 = f'<div style="zoom: 1.1;">{html14}</div>'
+    st.markdown(html15, unsafe_allow_html=True)           
 
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
-      csv1 = pvt2.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
-      st.download_button(label='Download Table', data=csv1, file_name='SMT_Monthly_Sales.csv', mime='text/csv')
+    csv1 = pvt2.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
+    st.download_button(label='Download Table', data=csv1, file_name='SMT_Monthly_Sales.csv', mime='text/csv')
     st.divider()
 
 ###############################################      
