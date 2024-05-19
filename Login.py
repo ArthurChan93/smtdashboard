@@ -4,7 +4,7 @@ import yaml #pip install yaml
 from yaml.loader import SafeLoader
 import os
 # pip install pipreqs -->再去 terminal 入pipreqs
-#
+
 # emojis: https://www.webfx.com/tools/emoji-cheat-sheet/
 st.set_page_config(page_title="streamlit Dashboard", page_icon=":bar_chart:", layout="wide")#
 #Move the title higher
