@@ -210,6 +210,7 @@ st.divider()
 filter_df["Inv_Month"] = filter_df["Inv_Month"].astype(str)
 filter_df["Inv_Yr"] = filter_df["Inv_Yr"].astype(str)
 filter_df["Contract_No."] = filter_df["Contract_No."].astype(str)
+
 # add subtotal
 # https://morioh.com/a/17278219952b/tutorial-on-data-analysis-with-python-and-pivot-tables-with-pandas
 
@@ -1927,171 +1928,14 @@ with tab5:
 # 在Streamlit中显示图表
              st.plotly_chart(df_pie, use_container_width=True)
 
-###############
-#Pivot table2
-      st.subheader(":point_down: Invoice Amount Subtotal_:orange[FQ]:clipboard: ")
-      
-      pvt17 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').round(0).pivot_table(
-                 index=["FY_INV","FQ(Invoice)","Inv_Yr","Inv_Month","Customer_Name","Ordered_Items"],
-                 values=["Item Qty","Before tax Inv Amt (HKD)"],
-                 aggfunc="sum",
-                 fill_value=0,
-                 margins=True,
-                 margins_name="Total",
-                 observed=True)  
 
-      pvt17 = pvt17.reindex(pvt17.index.unique(), fill_value=0)
 
-# 定义会计数字格式的格式化函数
-      def format_currency(value):
-             return "{:,.0f}".format(value)
-#"FY_INV","FQ(Invoice)"
-# 计算小计行
-      subtotal_row = pvt17.groupby(level=[0,1,2,3,4]).sum(numeric_only=True)
-
-# 创建一个新的MultiIndex
-      new_index = pd.MultiIndex.from_product([subtotal_row.index.levels[0], subtotal_row.index.levels[1], subtotal_row.index.levels[2], 
-              subtotal_row.index.levels[3], subtotal_row.index.levels[4], ["Subtotal"]], names=["FY_INV","FQ(Invoice)","Inv_Yr","Inv_Month","Customer_Name",""])
-      subtotal_row = subtotal_row.reindex(new_index, fill_value=0)
-
-# 转换为字符串并添加样式
-      pvt17["Before tax Inv Amt (HKD)"] = pvt17["Before tax Inv Amt (HKD)"].apply(format_currency)
-      pvt17["Item Qty"] = pvt17["Item Qty"].apply(format_currency)
-
-# 将小计行与pvt17连接，使用concat函数
-      pvt17_concatenated = pd.concat([pvt17, subtotal_row])
-
-# 生成HTML表格
-      html_table = pvt17_concatenated.to_html(classes='table table-bordered', justify='center')
-
-# 使用BeautifulSoup处理HTML表格
-      soup = BeautifulSoup(html_table, 'html.parser')
-
-# 找到所有的<td>标签，并为小于或等于0的值添加CSS样式
-      for td in soup.find_all('td'):
-             value = float(td.text.replace(',', ''))
-             if value <= 0:
-                     td['style'] = 'color: red;'
-
-# 找到最底部的<tr>标签，并为其添加CSS样式
-      last_row = soup.find_all('tr')[-1]
-      last_row['style'] = 'background-color: yellow; font-weight: bold;'
-
-# 在特定单元格应用其他样式           
-      soup = str(soup)
-      soup = soup.replace('<th>C66</th>', '<th style="background-color: orange">C66</th>')
-      soup = soup.replace('<th>C28</th>', '<th style="background-color: lightblue">C28</th>')
-      soup = soup.replace('<th>HKD0</th>', '<th style="background-color: Khaki">HKD0</th>')
-      soup = soup.replace('<th>C49</th>', '<th style="background-color: lightgreen">C49</th>')
-      soup = soup.replace('<td>', '<td style="text-align: middle;">')
-      soup = soup.replace('<th>Q1</th>', '<th style="background-color: lightgrey">Q1</th>')
-      soup = soup.replace('<th>Q2</th>', '<th style="background-color: pink">Q2</th>')
-      soup = soup.replace('<th>Q3</th>', '<th style="background-color: lightgrey">Q3</th>')
-      soup = soup.replace('<th>Q4</th>', '<th style="background-color: pink">Q4</th>')
-      soup = soup.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
-
-# 在网页中显示HTML表格
-      html_with_style = str(f'<div style="zoom: 1.2;">{soup}</div>')
-      st.markdown(html_with_style, unsafe_allow_html=True)       
-       
-# 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
-      csv6 = pvt17_concatenated.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
-      st.download_button(label='Download Table', data=csv6, file_name='Cost_Centre_Quarter_Sales.csv', mime='text/csv')
-      st.divider()
 
 ############################################################################################################################################
 #TAB 6 Invocie Details
+
 with tab6:
-     tab3_col1, tab3_col2 = st.columns(2)
-
-     with tab3_col1:
-#FY to FY Quarter Invoice Details:
-      st.subheader(":blue_book: Invoice Amount Subtotal_:orange[FQ]:")    
-
-      pvt19 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).pivot_table(values=["Before tax Inv Amt (HKD)", "G.P.  (HKD)"],
-                     index=["FY_INV","FQ(Invoice)","Inv_Yr","Inv_Month"],aggfunc={"Before tax Inv Amt (HKD)": "sum", "G.P.  (HKD)": "sum"},fill_value=0, 
-                     margins=False,margins_name="Total").sort_index(axis=0, ascending=False)
-      
-      html55 = pvt19.applymap('HKD{:,.0f}'.format).to_html(classes='table table-bordered', justify='center')
-
-      html56 = html55.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
-             #改column color
-      html57 = html56.replace('<th>Inv_Month</th>', '<th style="background-color: orange">Inv_Month</th>')
-      html58 = html57.replace('<th>Inv_Yr</th>', '<th style="background-color: orange">Inv_Yr</th>')
-      html59 = html58.replace('<th>FQ(Invoice)</th>', '<th style="background-color: orange">FQ(Invoice)</th>')
-      html60 = html59.replace('<th>FY_INV</th>', '<th style="background-color: orange">FY_INV</th>')
-      html61 = html60.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
-      html61 = html61.replace('<th>G.P.  (HKD)</th>', '<th style="background-color: lightblue">G.P.  (HKD)</th>')
-      html61 = html61.replace('<th>Before tax Inv Amt (HKD)</th>', '<th style="background-color: yellow">Before tax Inv Amt (HKD)</th>')
-
-      
-      html611= f'<div style="zoom: 1.1;">{html61}</div>'
-      st.markdown(html611, unsafe_allow_html=True)
-             
-# 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
-      csv8 = pvt19.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
-      st.download_button(label='Download Table', data=csv8, file_name='Monthly_Sales_Total.csv', mime='text/csv')
-      st.divider()
-
-#############################################
-     st.subheader(":point_down: Invoice Details_:orange[Monthly] :green_book:")
-     with st.expander(":point_right: click to expand/hide data"):
-#with st.expander("Click to expand"):
-             pvt3 = filter_df.query('FY_INV != "TBA"').query('Inv_Month != "TBA"').query('FY_INV != "Cancel"').round(0).pivot_table(
-                  index=["FY_INV","FQ(Invoice)","Inv_Yr","Inv_Month","COST_CENTRE","Region","Contract_No.","Customer_Name",
-                         "Ordered_Items"],values=["Item Qty","Before tax Inv Amt (HKD)","G.P.  (HKD)"],
-                         aggfunc="sum",
-                         fill_value=0,
-                         margins=False,
-                         margins_name="Total",
-                         observed=True).sort_index(axis=0, ascending=False)  # This ensures subtotals are only calculated for existing values)
-    
-# 调整值的顺
-             pvt3 = pvt3[["Item Qty", "Before tax Inv Amt (HKD)", "G.P.  (HKD)"]]
-# 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按
-             csv7 = pvt3.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
-             st.download_button(label='Download Table', data=csv7, file_name='Invoice_details.csv', mime='text/csv')
-
-
-# 使用map方法應用格式化
-             pvt3_formatted = pvt3.copy()
-
-# 定義格式化函數
-             def format_item_qty(value):
-                  return "{:.1f}".format(value)
-
-# 使用 apply() 將格式化函數應用於 "Item Qty" 列的每個元素
-             pvt3_formatted["Item Qty"] = pvt3_formatted["Item Qty"].apply(format_item_qty)
-
-# 使用 applymap() 將格式化函數應用於 "Before tax Inv Amt (HKD)" 和 "G.P.  (HKD)" 列的每個元素
-             pvt3_formatted[["Before tax Inv Amt (HKD)", "G.P.  (HKD)"]] = pvt3_formatted[["Before tax Inv Amt (HKD)", "G.P.  (HKD)"]].applymap('HKD{:,.0f}'.format)
-             html46 = pvt3_formatted.to_html(classes='table table-bordered', justify='center')
-
-# 放大pivot table
-             html46 = f'<div style="zoom: 0.9;">{html46}</div>'
-# 將你想要變色的column header找出來，並加上顏色
-             html47 = html46.replace('<th>Before tax Inv Amt (HKD)</th>', '<th style="background-color: yellow">Before tax Inv Amt (HKD)</th>')
-             html48 = html47.replace('<th>Inv_Month</th>', '<th style="background-color: orange">Inv_Month</th>')
-             html48 = html48.replace('<th>Inv_Yr</th>', '<th style="background-color: orange">Inv_Yr</th>')
-             html48 = html48.replace('<th>FQ(Invoice)</th>', '<th style="background-color: orange">FQ(Invoice)</th>')
-             html48 = html48.replace('<th>FY_INV</th>', '<th style="background-color: orange">FY_INV</th>')
-             html49 = html48.replace('<th>G.P. (HKD)</th>', '<th style="background-color: Khaki">G.P. (HKD)</th>')
-             html50 = html49.replace('<th>Item Qty</th>', '<th style="background-color: lightgreen">Item Qty</th>')
-             html50 = html50.replace('<th>G.P.  (HKD)</th>', '<th style="background-color: lightblue">G.P.  (HKD)</th>')
-# 把total值的那行的背景顏色設為黃色，並將字體設為粗體
-             html51 = html50.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
-# 把每個數值置中
-             html52 = html51.replace('<td>', '<td style="text-align: middle;">')
-# 把total值的那列的字設為黃色
-             html53 = html52.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
-# 把所有數值等於或少於0的數值的顏色設為紅色
-             html54 = html53.replace('<td>-', '<td style="color: red;">-')
-# 使用Streamlit的markdown來顯示HTML表格
-             st.markdown(html54, unsafe_allow_html=True)
- ###################################################################################################################   
-     with tab3_col2:
-      
-            #FY to FY Quarter Invoice Details:
+                  #FY to FY Quarter Invoice Details:
       st.subheader(":ledger: Invoice Amount Subtotal_:orange[FY]:")
       with st.subheader("Click to expand"):
              pvt21 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).pivot_table(
@@ -2108,11 +1952,77 @@ with tab6:
              csv19 = pvt21.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
       st.download_button(label='Download Table', data=csv19, file_name='FY_Sales_Total.csv', mime='text/csv') 
 
-#############################################################################################################      
-
-
-     
+###################################################################################################################   
+     #Pivot table
+      filter_df["G.P. %"] = filter_df["G.P. %"].astype(float)
+      st.subheader(":point_down: Invoice Details_:orange[Monthly]:clipboard: ")
       
+      pvt17 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').round(0).pivot_table(
+         index=["Inv_Yr", "Inv_Month", "Customer_Name", "Ordered_Items"],
+         values=["Item Qty", "Before tax Inv Amt (HKD)", "G.P.  (HKD)", "G.P. %"],
+         aggfunc={"Item Qty": "sum", "Before tax Inv Amt (HKD)": "sum", "G.P.  (HKD)": "sum", "G.P. %": "mean"},
+         fill_value=0,
+         margins=True,
+         margins_name="Total",
+         observed=True)
+      
+      pvt17 = pvt17.reindex(pvt17.index.unique(), fill_value=0)
+
+# 定义会计数字格式的格式化函数
+      def format_currency(value):
+           return "{:,.0f}".format(value)
+      
+      def format_percent(value):
+           return "{:.2%}".format(value)
+
+# 计算小计行
+      subtotal_row = pvt17.loc[:, ["Item Qty", "Before tax Inv Amt (HKD)", "G.P.  (HKD)", "G.P. %"]].groupby(level=[0, 1, 2, 3]).sum()
+      subtotal_row["G.P. %"] = subtotal_row["G.P. %"].mean(level=[0, 1, 2, 3])
+
+# 创建一个新的MultiIndex
+      new_index = pd.MultiIndex.from_product([pvt17.index.unique(level=lvl) for lvl in range(pvt17.index.nlevels)] + [["Subtotal"]], 
+                                      names=pvt17.index.names + [""])
+      subtotal_row = subtotal_row.reindex(new_index, fill_value=0)
+
+# 将小计行与pvt17连接，使用concat函数
+      pvt17_concatenated = pd.concat([pvt17, subtotal_row])
+
+# 转换为字符串并添加样式
+      pvt17_concatenated["Item Qty"] = pvt17_concatenated["Item Qty"].apply(format_currency)
+      pvt17_concatenated["Before tax Inv Amt (HKD)"] = pvt17_concatenated["Before tax Inv Amt (HKD)"].apply(format_currency)
+      pvt17_concatenated["G.P.  (HKD)"] = pvt17_concatenated["G.P.  (HKD)"].apply(format_currency)
+      pvt17_concatenated["G.P. %"] = pvt17_concatenated["G.P. %"].apply(format_percent)
+
+# 生成HTML表格
+      html_table = pvt17_concatenated.sort_index(level=[0, 1]).to_html(classes='table table-bordered', justify='center')
+
+# 使用BeautifulSoup处理HTML表格
+      soup = BeautifulSoup(html_table, 'html.parser')
+
+# 找到所有的<td>标签，并为小于或等于0的值添加CSS样式
+      for td in soup.find_all('td'):
+           value = float(td.text.replace(',', ''))
+           if value <= 0:
+                td['style'] = 'color: red;'
+
+# 找到最底部的<tr>标签，并为其添加CSS样式
+      last_row = soup.find_all('tr')[-1]
+      last_row['style'] = 'background-color: yellow; font-weight: bold;'
+
+# 在特定单元格应用其他样式           
+      soup = str(soup)
+      soup = soup.replace('<th>HKD0</th>', '<th style="background-color: Khaki">HKD0</th>')
+      soup = soup.replace('<td>', '<td style="text-align: middle;">')
+      soup = soup.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
+
+# 在网页中显示HTML表格
+      html_with_style = str(f'<div style="zoom: 1.2;">{soup}</div>')
+      st.markdown(html_with_style, unsafe_allow_html=True)         
+       
+# 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
+      csv_Invoice_Details = pvt17_concatenated.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
+      st.download_button(label='Download Table', data=csv_Invoice_Details, file_name='SMT_Monthly_Sales.csv', mime='text/csv')
+
 ############################################################################################################################################################################################################
 #success info
 #st.success("Executed successfully")
