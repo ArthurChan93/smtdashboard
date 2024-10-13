@@ -1580,8 +1580,8 @@ with tab3:
 #Line Chart FY to FY YRM Invoice Details:
        with left_column:
              st.divider()
-             st.subheader(":red[YAMAHA:] YRM")
-             df_YRM = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Ordered_Items == "YRM"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","Inv_Month"],
+             st.subheader(":red[YAMAHA:] YRM20")
+             df_YRM = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Ordered_Items == "YRM20"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","Inv_Month"],
                                   as_index= False)["Item Qty"].sum()
 # 确保 "Inv Month" 列中的所有值都出现
              sort_Month_order = ["4", "5", "6", "7", "8", "9", "10", "11", "12", "1", "2", "3"]
@@ -1618,7 +1618,7 @@ with tab3:
 
 #FY to FY YRM Invoice Details:
              filter_df["FQ(Invoice)"] = pd.Categorical(filter_df["FQ(Invoice)"], categories=["Q1", "Q2", "Q3", "Q4"])
-             pvt20 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YSM10"').pivot_table(values="Item Qty",
+             pvt20 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YRM20"').pivot_table(values="Item Qty",
                      index=["FY_INV"],columns=["FQ(Invoice)"], aggfunc="sum",fill_value=0, margins=True,margins_name="Total").sort_index(axis=0, ascending=True)
              html122 = pvt20.applymap('{:,.0f}'.format).to_html(classes='table table-bordered', justify='center')
              # 把total值的那行的背景顏色設為黃色，並將字體設為粗體
@@ -1634,7 +1634,7 @@ with tab3:
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
              csv16 = pvt20.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
             
-             st.download_button(label='Download Table', data=csv16, file_name='YRM Invocie Qty.csv', mime='text/csv')          
+             st.download_button(label='Download Table', data=csv16, file_name='YRM20 Invocie Qty.csv', mime='text/csv')          
 #############################################################################################################################    
        left_column, right_column = st.columns(2) 
 #Line Chart FY to FY PEMTRON Invoice Details:
