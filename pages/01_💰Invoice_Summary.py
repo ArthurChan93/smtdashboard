@@ -1767,7 +1767,7 @@ with tab4:
              customer_line = (filter_df.query('BRAND != "C66 SERVICE"').query('Inv_Yr != "TBA"').query('Inv_Month != "TBA"').query(
                              'Inv_Month != "Cancel"').query('BRAND != "SOLDERSTAR"').query('BRAND != "C66 SERVICE"').query(
                              'BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHINWA"').query('BRAND != "SIGMA"').groupby(
-                             by=["Customer_Name"])[["Item Qty"]].sum().sort_values(by="Item Qty", ascending=False).head(10))
+                             by=["Customer_Name"])[["Item Qty"]].sum().sort_values(by="Item Qty", ascending=False).head(11))
 # 生成颜色梯度
              colors = px.colors.sequential.Blues[::-1]  # 将颜色顺序反转为从深到浅
 # 创建条形图
