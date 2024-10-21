@@ -1801,9 +1801,9 @@ with tab4:
              customer_qty_line = (filter_df.query('BRAND != "C66 SERVICE"').query('Inv_Yr != "TBA"').query(
                                  'Inv_Month != "TBA"').query('Inv_Month != "Cancel"').groupby(
                                  by=["Customer_Name"])[["Before tax Inv Amt (HKD)"]].sum().sort_values(
-                                 by="Before tax Inv Amt (HKD)", ascending=False).head(10))
+                                 by="Before tax Inv Amt (HKD)", ascending=False).head(11))
 # 生成颜色梯度
-             colors = px.colors.sequential.Oranges[::-1]  # 将颜色顺序反转为从深到浅
+             colors = px.colors.sequential.Blues[::-1]  # 将颜色顺序反转为从深到浅
 # 创建条形图
              fig_customer_inv_qty = px.bar(
                   customer_qty_line,
