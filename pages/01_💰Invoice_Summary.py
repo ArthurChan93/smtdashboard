@@ -230,7 +230,7 @@ font-size: 28px;
 
  
 st.write(font_css, unsafe_allow_html=True)
-tab1, tab2, tab3 ,tab4,tab5, tab6= st.tabs([":wedding: Overview",":earth_asia: Region",":books: Brand",":handshake: Customer by item",":alarm_clock: INV Leadtime",":blue_book: INV Details"])
+tab1, tab2, tab3 ,tab4,tab5, tab6= st.tabs([":wedding: Overview",":earth_asia: Region",":books: Brand",":handshake: Customer",":alarm_clock: INV Leadtime",":blue_book: INV Details"])
 
 #TAB 1: Overall category
 ################################################################################################################################################
@@ -1577,22 +1577,22 @@ with tab3:
              st.download_button(label='Download Table', data=csv15, file_name='YSi-V(AOI) Invocie Qty.csv', mime='text/csv')
 ##############################################################################################################
        left_column, right_column = st.columns(2)
-#Line Chart FY to FY YRM Invoice Details:
+#Line Chart FY to FY YRM10 Invoice Details:
        with left_column:
              st.divider()
-             st.subheader(":red[YAMAHA:] YRM20")
-             df_YRM = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Ordered_Items == "YRM20"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","Inv_Month"],
+             st.subheader(":red[YAMAHA:] YRM10")
+             df_YRM10 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Ordered_Items == "YRM10"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","Inv_Month"],
                                   as_index= False)["Item Qty"].sum()
 # 确保 "Inv Month" 列中的所有值都出现
              sort_Month_order = ["4", "5", "6", "7", "8", "9", "10", "11", "12", "1", "2", "3"]
-             df_YRM = df_YRM.groupby(["FY_INV", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([df_YRM['FY_INV'].unique(), sort_Month_order],
+             df_YRM10 = df_YRM10.groupby(["FY_INV", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([df_YRM10['FY_INV'].unique(), sort_Month_order],
                                    names=['FY_INV', 'Inv_Month'])).fillna(0).reset_index()
 #建立圖表         
              fig13 = go.Figure()
 # 添加每个FY_INV的折线
-             fy_inv_values = df_YRM['FY_INV'].unique()
+             fy_inv_values = df_YRM10['FY_INV'].unique()
              for fy_inv in fy_inv_values:
-                  fy_inv_data = df_YRM[df_YRM['FY_INV'] == fy_inv]
+                  fy_inv_data = df_YRM10[df_YRM10['FY_INV'] == fy_inv]
                   fig13.add_trace(go.Scatter(
                        x=fy_inv_data['Inv_Month'],
                        y=fy_inv_data["Item Qty"],
@@ -1616,7 +1616,66 @@ with tab3:
              fig13.update_traces(marker_size=9, textposition="top center", texttemplate='%{text:.2s}')
              st.plotly_chart(fig13.update_layout(yaxis_showticklabels = True), use_container_width=True)
 
-#FY to FY YRM Invoice Details:
+#FY to FY YRM10 Invoice Details:
+             filter_df["FQ(Invoice)"] = pd.Categorical(filter_df["FQ(Invoice)"], categories=["Q1", "Q2", "Q3", "Q4"])
+             pvt20 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YRM10"').pivot_table(values="Item Qty",
+                     index=["FY_INV"],columns=["FQ(Invoice)"], aggfunc="sum",fill_value=0, margins=True,margins_name="Total").sort_index(axis=0, ascending=True)
+             html122 = pvt20.applymap('{:,.0f}'.format).to_html(classes='table table-bordered', justify='center')
+             # 把total值的那行的背景顏色設為黃色，並將字體設為粗體
+             html123 = html122.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
+             #改column color
+             html124 = html123.replace('<th>Q1</th>', '<th style="background-color: pink">Q1</th>')
+             html125 = html124.replace('<th>Q2</th>', '<th style="background-color: lightgrey">Q2</th>')
+             html126 = html125.replace('<th>Q3</th>', '<th style="background-color: pink">Q3</th>')
+             html127 = html126.replace('<th>Q4</th>', '<th style="background-color: lightgrey">Q4</th>')
+             html128 = html127.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
+             html129 = f'<div style="zoom: 1.2;">{html128}</div>'
+             st.markdown(html129, unsafe_allow_html=True)
+# 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
+             csv16 = pvt20.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
+            
+             st.download_button(label='Download Table', data=csv16, file_name='YRM10 Invocie Qty.csv', mime='text/csv')  
+       
+       #Line Chart FY to FY YRM20 Invoice Details:
+       with right_column:
+             st.divider()
+             st.subheader(":red[YAMAHA:] YRM20")
+             df_YRM20 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Ordered_Items == "YRM20"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","Inv_Month"],
+                                  as_index= False)["Item Qty"].sum()
+# 确保 "Inv Month" 列中的所有值都出现
+             sort_Month_order = ["4", "5", "6", "7", "8", "9", "10", "11", "12", "1", "2", "3"]
+             df_YRM20 = df_YRM20.groupby(["FY_INV", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([df_YRM20['FY_INV'].unique(), sort_Month_order],
+                                   names=['FY_INV', 'Inv_Month'])).fillna(0).reset_index()
+#建立圖表         
+             fig13 = go.Figure()
+# 添加每个FY_INV的折线
+             fy_inv_values = df_YRM20['FY_INV'].unique()
+             for fy_inv in fy_inv_values:
+                  fy_inv_data = df_YRM20[df_YRM20['FY_INV'] == fy_inv]
+                  fig13.add_trace(go.Scatter(
+                       x=fy_inv_data['Inv_Month'],
+                       y=fy_inv_data["Item Qty"],
+                       mode='lines+markers+text',
+                       name=fy_inv,
+                       text=fy_inv_data["Item Qty"],
+                       textposition="bottom center",
+                       texttemplate='%{text:.3s}',
+                       hovertemplate='%{x}<br>%{y:.2f}',
+                       marker=dict(size=10)))
+                  fig13.update_layout(xaxis=dict(
+                       type='category',
+                       categoryorder='array',
+                       categoryarray=sort_Month_order),
+                       yaxis=dict(showticklabels=True),
+                       font=dict(family="Arial, Arial", size=13, color="Black"),
+                       hovermode='x', showlegend=True,
+                       legend=dict(orientation="h",font=dict(size=14)))
+                 
+             fig13.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+             fig13.update_traces(marker_size=9, textposition="top center", texttemplate='%{text:.2s}')
+             st.plotly_chart(fig13.update_layout(yaxis_showticklabels = True), use_container_width=True)
+
+#FY to FY YRM20 Invoice Details:
              filter_df["FQ(Invoice)"] = pd.Categorical(filter_df["FQ(Invoice)"], categories=["Q1", "Q2", "Q3", "Q4"])
              pvt20 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').query('Ordered_Items == "YRM20"').pivot_table(values="Item Qty",
                      index=["FY_INV"],columns=["FQ(Invoice)"], aggfunc="sum",fill_value=0, margins=True,margins_name="Total").sort_index(axis=0, ascending=True)
@@ -1700,18 +1759,18 @@ with tab3:
        with right_column:
              st.divider()
              st.subheader(":orange[HELLER:]")
-             df_YRM = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND == "HELLER"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","Inv_Month"],
+             df_YRM10 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND == "HELLER"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","Inv_Month"],
                                   as_index= False)["Item Qty"].sum()
 # 确保 "Inv Month" 列中的所有值都出现
              sort_Month_order = ["4", "5", "6", "7", "8", "9", "10", "11", "12", "1", "2", "3"]
-             df_YRM = df_YRM.groupby(["FY_INV", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([df_YRM['FY_INV'].unique(), sort_Month_order],
+             df_YRM10 = df_YRM10.groupby(["FY_INV", "Inv_Month"]).sum().reindex(pd.MultiIndex.from_product([df_YRM10['FY_INV'].unique(), sort_Month_order],
                                    names=['FY_INV', 'Inv_Month'])).fillna(0).reset_index()
 #建立圖表         
              fig15 = go.Figure()
 # 添加每个FY_INV的折线
-             fy_inv_values = df_YRM['FY_INV'].unique()
+             fy_inv_values = df_YRM10['FY_INV'].unique()
              for fy_inv in fy_inv_values:
-                  fy_inv_data = df_YRM[df_YRM['FY_INV'] == fy_inv]
+                  fy_inv_data = df_YRM10[df_YRM10['FY_INV'] == fy_inv]
                   fig15.add_trace(go.Scatter(
                        x=fy_inv_data['Inv_Month'],
                        y=fy_inv_data["Item Qty"],
@@ -1767,7 +1826,7 @@ with tab4:
              customer_line = (filter_df.query('BRAND != "C66 SERVICE"').query('Inv_Yr != "TBA"').query('Inv_Month != "TBA"').query(
                              'Inv_Month != "Cancel"').query('BRAND != "SOLDERSTAR"').query('BRAND != "C66 SERVICE"').query(
                              'BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHINWA"').query('BRAND != "SIGMA"').groupby(
-                             by=["Customer_Name"])[["Item Qty"]].sum().sort_values(by="Item Qty", ascending=False).head(11))
+                             by=["Customer_Name"])[["Item Qty"]].sum().sort_values(by="Item Qty", ascending=False).head(10))
 # 生成颜色梯度
              colors = px.colors.sequential.Blues[::-1]  # 将颜色顺序反转为从深到浅
 # 创建条形图
@@ -1801,9 +1860,9 @@ with tab4:
              customer_qty_line = (filter_df.query('BRAND != "C66 SERVICE"').query('Inv_Yr != "TBA"').query(
                                  'Inv_Month != "TBA"').query('Inv_Month != "Cancel"').groupby(
                                  by=["Customer_Name"])[["Before tax Inv Amt (HKD)"]].sum().sort_values(
-                                 by="Before tax Inv Amt (HKD)", ascending=False).head(11))
+                                 by="Before tax Inv Amt (HKD)", ascending=False).head(10))
 # 生成颜色梯度
-             colors = px.colors.sequential.Blues[::-1]  # 将颜色顺序反转为从深到浅
+             colors = px.colors.sequential.Oranges[::-1]  # 将颜色顺序反转为从深到浅
 # 创建条形图
              fig_customer_inv_qty = px.bar(
                   customer_qty_line,
@@ -1931,7 +1990,7 @@ with tab5:
 ###############################################################################################  
 #Table of > 6 months data
       st.subheader(":ledger: Invoice Details_:orange[Monthly]:point_down::")
-      filter_df["G.P. %"] = (filter_df["G.P. %"] * 100).round(2).astype(str) + "%"
+      filter_df["G.P. %"] = (filter_df["G.P. %"].astype(float) * 100).round(2).astype(str) + "%"
       pvt21 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Inv_LeadTime_MonthGroup == "> 6 months"').query('FY_INV != "TBA"').round(0).pivot_table(
            values=["Item Qty","Before tax Inv Amt (HKD)","G.P.  (HKD)"],
            index=["Inv_LeadTime_MonthGroup","FY_INV","Inv_Yr","Inv_Month","Contract_No.","Customer_Name","Ordered_Items","G.P. %"],
