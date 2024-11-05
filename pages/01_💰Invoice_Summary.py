@@ -57,54 +57,64 @@ df = pd.read_excel(
 df_sales_target = pd.read_excel(
                io='Monthly_report_for_edit.xlsm',engine= 'openpyxl',sheet_name='YAMAHA_Sales_Target', skiprows=0, usecols='A:D',nrows=10000,)
 ######################################################################################################
-# https://icons.getbootstrap.com/
-#Top menu bar
-#with st.sidebar:
-#      selected = option_menu(
-#              menu_title=None,
-#              options=["Invoice Summary","Contract Summary","Mounter & Non-Mounter"],
-#              icons=["database-fill-check","pen-fill","house-fill"],
-#              menu_icon="chat-text-fill",
-#              default_index=0,
-#              orientation="vertical",
-#              styles={
-#                     "container":{"padding":"0!important","background-color": "navy"},
-#                     "icon":{"color":"white", "font-size":"15px"},
-#                     "nav-link":{"color":"white","font-size":"18px","text-align":"left","margin":"0px","--hover-color":"orange",},
-#                     "nav-link-selected": {"background-color":"orange"},
-
-######################################################################################################
 st.sidebar.write(":orange[Default ALL if no selection] :white_check_mark:")
 
 
-#Sidebar Filter
+# Sidebar Filter
 # Create FY Invoice filter
 # Define sidebar filters and create corresponding DataFrames for each filter
-fy_inv_filter = st.sidebar.multiselect("FY_INV", df["FY_INV"].unique(), default=["FY 24/25", "FY 23/24"])
+# Function to sort values by frequency and then value
+def sort_options(series):
+    # Drop NaN values, convert to string, count frequencies, and sort
+    series = series.dropna().astype(str)
+    freq = series.value_counts()
+    sorted_options = freq.sort_values(ascending=False).index
+    return sorted_options
+
+# Sidebar Filter
+fy_inv_filter = st.sidebar.multiselect(
+    "FY_INV", sort_options(df["FY_INV"]), default=["FY 24/25", "FY 23/24"]
+)
 df_fy_inv = df[df["FY_INV"].isin(fy_inv_filter)]
 
-fq_invoice_filter = st.sidebar.multiselect("FQ_INV", df["FQ(Invoice)"].unique())
+fq_invoice_filter = st.sidebar.multiselect(
+    "FQ_INV", sort_options(df["FQ(Invoice)"])
+)
 df_fq_invoice = df[df["FQ(Invoice)"].isin(fq_invoice_filter)]
 
-inv_month_filter = st.sidebar.multiselect("INV MONTH", df["Inv_Month"].unique())
+inv_month_filter = st.sidebar.multiselect(
+    "INV MONTH", sort_options(df["Inv_Month"])
+)
 df_inv_month = df[df["Inv_Month"].isin(inv_month_filter)]
 
-Region_filter = st.sidebar.multiselect("REGION", df["Region"].unique())
+Region_filter = st.sidebar.multiselect(
+    "REGION", sort_options(df["Region"])
+)
 df_Region = df[df["Region"].isin(Region_filter)]
 
-cost_centre_filter = st.sidebar.multiselect("COST CENTRE", df["COST_CENTRE"].unique())
+cost_centre_filter = st.sidebar.multiselect(
+    "COST CENTRE", sort_options(df["COST_CENTRE"])
+)
 df_cost_centre = df[df["COST_CENTRE"].isin(cost_centre_filter)]
 
-brand_filter = st.sidebar.multiselect("BRAND", df["BRAND"].unique())
+brand_filter = st.sidebar.multiselect(
+    "BRAND", sort_options(df["BRAND"])
+)
 df_brand = df[df["BRAND"].isin(brand_filter)]
 
-Ordered_Items_filter = st.sidebar.multiselect("MODEL", df["Ordered_Items"].unique())
+Ordered_Items_filter = st.sidebar.multiselect(
+    "MODEL", sort_options(df["Ordered_Items"])
+)
 df_Ordered_Items = df[df["Ordered_Items"].isin(Ordered_Items_filter)]
 
-Customer_Name_filter = st.sidebar.multiselect("CUSTOMER", df["Customer_Name"].unique())
+Customer_Name_filter = st.sidebar.multiselect(
+    "CUSTOMER", sort_options(df["Customer_Name"])
+)
 df_Customer_Name = df[df["Customer_Name"].isin(Customer_Name_filter)]
 
-New_Customer_filter = st.sidebar.multiselect("New Customer", df["New_Customer"].unique())
+New_Customer_filter = st.sidebar.multiselect(
+    "New Customer", sort_options(df["New_Customer"])
+)
 df_New_Customer = df[df["New_Customer"].isin(New_Customer_filter)]
 
 # Handle different filter combinations
@@ -183,7 +193,22 @@ else:
 left_column, middle_column, right_column = st.columns(3)
 total_invoice_amount = int(filter_df["Before tax Inv Amt (HKD)"].sum())
 with left_column:
-      st.subheader((f":dollar: Total INV AMT before tax: :orange[HKD{total_invoice_amount:,}]"))
+      #st.subheader((f":dollar: Total INV AMT before tax: :orange[HKD{total_invoice_amount:,}]"))
+      st.markdown(f"""
+                  <style>
+                  .subheader-neumorphism {{
+                  background-color: #e0f7fa;
+                  padding: 10px;
+                  border-radius: 12px;
+                  box-shadow: 5px 5px 15px #b0bec5, -5px -5px 15px #ffffff;
+                  text-align: center;
+                  font-size: 1.5em;
+                  }}
+                  </style>
+                  <div class="subheader-neumorphism">
+                  <strong>💵 Total INV AMT before tax: <span style="color: orange;">HKD{total_invoice_amount:,}</span></strong>
+                  </div>
+                  """, unsafe_allow_html=True)
 
 
 total_gp = int(filter_df["G.P.  (HKD)"].sum())
@@ -234,6 +259,7 @@ tab1, tab2, tab3 ,tab4,tab5, tab6= st.tabs([":wedding: Overview",":earth_asia: R
 
 #TAB 1: Overall category
 ################################################################################################################################################
+
 with tab1:
 
        col_1, col_2= st.columns(2)
@@ -2150,4 +2176,3 @@ with tab6:
  
  
  
-
