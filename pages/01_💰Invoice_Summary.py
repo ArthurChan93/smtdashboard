@@ -48,7 +48,7 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 #唔show 17/18, cancel, tba資料
 #else:
 #os.chdir(r"/Users/arthurchan/Library/CloudStorage/OneDrive-個人/Monthly Report")
-#os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
+os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
 #
 df = pd.read_excel(
                io='Monthly_report_for_edit.xlsm',engine= 'openpyxl',sheet_name='raw_sheet', skiprows=0, usecols='A:AT',nrows=100000,).query(
@@ -1060,6 +1060,9 @@ with tab2:
 ################################################################################
 #Regional inv amount subtotal FQ
         st.subheader(":point_down: Invoice Amount Subtotal_:orange[FQ]:clipboard:")
+        # 定义CSS样式
+
+ 
         with st.expander(":point_right: Click to expand/hide"):
               pvt7 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').round(0).pivot_table(
                      values="Before tax Inv Amt (HKD)",
@@ -2275,7 +2278,22 @@ with tab5:
 ############################################################################################################################################
 #TAB 6 Invocie Details
 with tab6:
-    filter_df["GP%_of_month"] = (filter_df["GP%_of_month"] * 100).round(2).astype(str) + "%"
+   filter_df["GP%_of_month"] = (filter_df["GP%_of_month"] * 100).round(2).astype(str) + "%"
+   # 定义CSS样式
+   st.markdown(
+             """
+             <style>
+             .st-expander > div:first-child {
+             font-size: 100px;
+             background-color: yellow;
+             border: 3px solid black;
+             padding: 10px;
+             }
+             </style>
+             """,
+             unsafe_allow_html=True)
+   with st.expander(":point_right: 打开subtotal明细"): 
+    
     st.subheader(":closed_book: Invoice Amount Subtotal_:orange[Monthly]:point_down:: ")
 #    with st.expander(":point_right: :closed_book: click to expand/ hide the tabe"):
     pvt2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Inv_Yr != "TBA"').query('Inv_Month != "TBA"').query('Inv_Month != "Cancel"').round(0).pivot_table(
@@ -2286,7 +2304,7 @@ with tab6:
               margins=True,
               margins_name="Total",
               observed=True)
-      
+
     pvt2 = pvt2.reindex(level=1)
 # 按"Inv_Yr","Inv_Month"以大到小排序
     pvt2 = pvt2.sort_values(by=["FY_INV","Inv_Yr","FQ(Invoice)","Inv_Month"], ascending=False)
@@ -2310,7 +2328,7 @@ with tab6:
     csv1 = pvt2.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
     st.download_button(label='Download Table', data=csv1, file_name='SMT_Monthly_Sales.csv', mime='text/csv')
     #st.divider()
-    st.markdown(
+   st.markdown(
             """
             <hr style="border: 3px solid lightblue;">
             """,
@@ -2319,37 +2337,36 @@ with tab6:
 
 ###############################################      
        #FY to FY Quarter Invoice Details:
-    st.subheader(":ledger: Invoice Details_:orange[Monthly]:point_down::")
-
-    pvt21 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).pivot_table(
+   st.subheader(":ledger: Invoice Details_:orange[Monthly]:point_down::")
+   pvt21 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).pivot_table(
            values=["Item Qty","Before tax Inv Amt (HKD)","G.P.  (HKD)"],
            index=["FY_INV","Inv_Yr","Inv_Month","Contract_No.","Customer_Name","Ordered_Items","G.P. %"],
            aggfunc={"Item Qty":"sum","Before tax Inv Amt (HKD)": "sum", "G.P.  (HKD)": "sum"},
            fill_value=0, margins=True,margins_name="Total")
             
       # 按"Inv_Yr","Inv_Month"以大到小排序
-    pvt21 = pvt21.sort_values(by=["Inv_Yr","Inv_Month"], ascending=False)
+   pvt21 = pvt21.sort_values(by=["Inv_Yr","Inv_Month"], ascending=False)
 
 # 将"Before tax Inv Amt (HKD)"和"G.P. (HKD)"格式化为会计单位
-    pvt21["Before tax Inv Amt (HKD)"] = "HKD " + pvt21["Before tax Inv Amt (HKD)"].astype(int).apply(lambda x: "{:,}".format(x))
-    pvt21["G.P.  (HKD)"] = "HKD " + pvt21["G.P.  (HKD)"].astype(int).apply(lambda x: "{:,}".format(x))
+   pvt21["Before tax Inv Amt (HKD)"] = "HKD " + pvt21["Before tax Inv Amt (HKD)"].astype(int).apply(lambda x: "{:,}".format(x))
+   pvt21["G.P.  (HKD)"] = "HKD " + pvt21["G.P.  (HKD)"].astype(int).apply(lambda x: "{:,}".format(x))
 
 # 将"Item Qty"前的"HKD"字眼去掉
-    pvt21 = pvt21.rename(columns={"Item Qty": "Item Qty"})
+   pvt21 = pvt21.rename(columns={"Item Qty": "Item Qty"})
 
 # 调整values部分的显示顺序
-    pvt21 = pvt21[["Item Qty", "Before tax Inv Amt (HKD)", "G.P.  (HKD)"]]
+   pvt21 = pvt21[["Item Qty", "Before tax Inv Amt (HKD)", "G.P.  (HKD)"]]
     
-    html146 = pvt21.to_html(classes='table table-bordered', justify='center')
-    html147 = html146.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
-    html148 = html147.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
-    html149 = f'<div style="zoom: 0.9;">{html148}</div>'
-    st.markdown(html149, unsafe_allow_html=True)
+   html146 = pvt21.to_html(classes='table table-bordered', justify='center')
+   html147 = html146.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
+   html148 = html147.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
+   html149 = f'<div style="zoom: 0.9;">{html148}</div>'
+   st.markdown(html149, unsafe_allow_html=True)
 
 
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
-    csv19 = pvt21.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
-    st.download_button(label='Download Table', data=csv19, file_name='SMT_Monthly_Sales_Details.csv', mime='text/csv') 
+   csv19 = pvt21.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
+   st.download_button(label='Download Table', data=csv19, file_name='SMT_Monthly_Sales_Details.csv', mime='text/csv') 
 
 ###################################################################################################################   
  
