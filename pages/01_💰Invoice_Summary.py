@@ -48,8 +48,8 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 #唔show 17/18, cancel, tba資料
 #else:
 #os.chdir(r"/Users/arthurchan/Library/CloudStorage/OneDrive-個人/Monthly Report")
-#os.chdir(r"C:\Users\ArthurChan\OneDrive\VS Code\PythonProject_ESE\Sample Excel")
-#
+#os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
+
 df = pd.read_excel(
                io='Monthly_report_for_edit.xlsm',engine= 'openpyxl',sheet_name='raw_sheet', skiprows=0, usecols='A:AT',nrows=100000,).query(
                     'Region != "C66 N/A"').query('FY_Contract != "Cancel"').query('FY_INV != "TBA"').query('FY_INV != "FY 17/18"').query(
@@ -213,7 +213,22 @@ with left_column:
 
 total_gp = int(filter_df["G.P.  (HKD)"].sum())
 with middle_column:
-      st.subheader(f":moneybag: Total G.P AMT: :orange[HKD{total_gp:,}]")
+     #st.subheader(f":moneybag: Total G.P AMT: :orange[HKD{total_gp:,}]")
+      st.markdown(f"""
+                  <style>
+                  .subheader-neumorphism {{
+                  background-color: #e0f7fa;
+                  padding: 10px;
+                  border-radius: 12px;
+                  box-shadow: 5px 5px 15px #b0bec5, -5px -5px 15px #ffffff;
+                  text-align: center;
+                  font-size: 1.5em;
+                  }}
+                  </style>
+                  <div class="subheader-neumorphism">
+                  <strong>💰 Total G.P AMT: <span style="color: orange;">HKD{total_gp:,}</span></strong>
+                  </div>
+                  """, unsafe_allow_html=True)
 
 
 invoice_qty = filter_df[(filter_df['BRAND'] != 'LOCAL SUPPLIER') & (filter_df['BRAND'] != 'SOLDERSTAR')& 
@@ -227,9 +242,30 @@ header_qty = int(OnlyYAMAHA_HELLER_PEMTRON_qty)  # 使用字符串格式化将�
 total_unit_qty = int(header_qty)
 
 with right_column:
-      st.subheader(f":factory: INV Qty(YAMAHA, PEMTRON, HELLER): :orange[{total_unit_qty:,}]")
+     #st.subheader(f":factory: INV Qty(YAMAHA, PEMTRON, HELLER): :orange[{total_unit_qty:,}]")
+      st.markdown(f"""
+                  <style>
+                  .subheader-neumorphism {{
+                  background-color: #e0f7fa;
+                  padding: 10px;
+                  border-radius: 12px;
+                  box-shadow: 5px 5px 15px #b0bec5, -5px -5px 15px #ffffff;
+                  text-align: center;
+                  font-size: 1.5em;
+                  }}
+                  </style>
+                  <div class="subheader-neumorphism">
+                  <strong>🏭 INV Qty: <span style="color: orange;">{total_unit_qty:,}</strong>(YAMAHA, PEMTRON, HELLER)</span></strong>
+                  </div>
+                  """, unsafe_allow_html=True)
 
-st.divider()
+##st.divider()
+st.markdown(
+    """
+    <hr style="border: 3px solid lightblue;">
+    """,
+    unsafe_allow_html=True
+)
 ############################################################################################################################################################################################################
 #Pivot table, 差sub-total, GP%
 filter_df["Inv_Month"] = filter_df["Inv_Month"].astype(str)
@@ -255,7 +291,20 @@ font-size: 28px;
 
  
 st.write(font_css, unsafe_allow_html=True)
-tab1, tab2, tab3 ,tab4,tab5, tab6= st.tabs([":wedding: Overview",":earth_asia: Region",":books: Brand",":handshake: Customer",":alarm_clock: INV Leadtime",":blue_book: INV Details"])
+st.markdown(
+    """
+    <style>
+    .stTabs [data-baseweb="tab"] {
+        border: 5px solid lightblue;
+        padding: 10px;
+        border-radius: 10px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+tab1, tab2, tab3 ,tab4,tab5, tab6= st.tabs([":wedding: 概览",":earth_asia: 地区",":books: 品牌",":handshake: 客户",":alarm_clock: INVOICE 交付周期",":blue_book: INVOICE明細"])
 
 #TAB 1: Overall category
 ################################################################################################################################################
@@ -265,7 +314,7 @@ with tab1:
        col_1, col_2= st.columns(2)
        with col_1:
 #LINE CHART of Overall Invoice Amount
-             st.subheader(":chart_with_upwards_trend: Invoice Amount Trend_:orange[Monthly]:")
+             st.subheader(":chart_with_upwards_trend: invoice趋势_:orange[月份]:")
              InvoiceAmount_df2 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","FQ(Invoice)","Inv_Month"
                           ], as_index= False)["Before tax Inv Amt (HKD)"].sum()
 # 确保 "Inv Month" 列中的所有值都出现
@@ -315,14 +364,14 @@ with tab1:
              html15 = html14.replace('<th>Q3</th>', '<th style="background-color: lightgrey">Q3</th>')
              html16 = html15.replace('<th>Q4</th>', '<th style="background-color: pink">Q4</th>')
              html117 = html16.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
-             html_with_style = str(f'<div style="zoom: 0.7;">{html117}</div>')
+             html_with_style = str(f'<div style="zoom: 0.8;">{html117}</div>')
              st.markdown(html_with_style, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
              csv2 = pvt6.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
              st.download_button(label='Download Table', data=csv2, file_name='FQ_Sales.csv', mime='text/csv')
 ################################################################################################################################################
        with col_2:
-             st.subheader(":round_pushpin: Invoice Percentage_:orange[Accumulate]:")
+             st.subheader(":round_pushpin: Invoice 百分比:")
 # 创建示例数据框
              brand_data = filter_df.round(0).groupby(by=["FY_INV","COST_CENTRE"],
                      as_index=False)["Before tax Inv Amt (HKD)"].sum().sort_values(by="Before tax Inv Amt (HKD)", ascending=False)         
@@ -337,13 +386,28 @@ with tab1:
 # 设置字体和样式
              df_pie.update_layout(
                    font=dict(family="Arial", size=14, color="black"),
-                   legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+                   legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                   paper_bgcolor='lightgrey',  # 设置背景颜色为浅灰色
+                   plot_bgcolor='lightgrey',   # 设置绘图区域背景颜色为浅灰色
+                   margin=dict(l=10, r=10, t=10, b=30),  # 设置图表的边距
+                   autosize=False,
+                   width=600,
+                   height=400)
 # 显示百分比标签
-             df_pie.update_traces(textposition='outside', textinfo='label+percent', marker_line_width=2,opacity=1)
+             df_pie.update_traces(textposition='outside', textinfo='label+percent', marker_line=dict(color='black', width=2))
              
 # 在Streamlit中显示图表
              st.plotly_chart(df_pie, use_container_width=True)    
-       st.divider()        
+
+
+
+       ##st.divider() 用以下markdown 框線代替divider用以下markdown 框線代替divider
+       st.markdown(
+            """
+            <hr style="border: 3px solid lightblue;">
+            """,
+            unsafe_allow_html=True
+            )        
 
 ################################################################################################################################################
 #New Section 
@@ -396,14 +460,14 @@ with tab1:
              html21 = html20.replace('<th>Q3</th>', '<th style="background-color: lightgreen">Q3</th>')
              html22 = html21.replace('<th>Q4</th>', '<th style="background-color: lightgrey">Q4</th>')
              html23 = html22.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
-             html_with_style = str(f'<div style="zoom: 0.7;">{html23}</div>')
+             html_with_style = str(f'<div style="zoom: 0.8;">{html23}</div>')
              st.markdown(html_with_style, unsafe_allow_html=True)
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
              csv3 = pvt16.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
              st.download_button(label='Download Table', data=csv3, file_name='G.P Amount.csv', mime='text/csv')
 ################################################################################################################################################
        with col_4:
-             st.subheader(":round_pushpin: Invoice Percentage_:green[Accumulate]:")
+             st.subheader(":round_pushpin: Invoice 百分比:")
 # 创建示例数据框
              brand_data = filter_df.round(0).groupby(by=["FY_INV","COST_CENTRE"],
                      as_index=False)["G.P.  (HKD)"].sum().sort_values(by="G.P.  (HKD)", ascending=False)         
@@ -418,14 +482,27 @@ with tab1:
 # 设置字体和样式
              df_pie.update_layout(
                    font=dict(family="Arial", size=14, color="black"),
-                   legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+                   legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                   paper_bgcolor='lightgrey',  # 设置背景颜色为浅灰色
+                   plot_bgcolor='lightgrey',   # 设置绘图区域背景颜色为浅灰色
+                   margin=dict(l=10, r=10, t=10, b=30),  # 设置图表的边距
+                   autosize=False,
+                   width=600,
+                   height=400)
 # 显示百分比标签
-             df_pie.update_traces(textposition='outside', textinfo='label+percent', marker_line_width=2,opacity=1)
+             df_pie.update_traces(textposition='outside', textinfo='label+percent', marker_line=dict(color='black', width=2))
+           
 # 在Streamlit中显示图表
              st.plotly_chart(df_pie, use_container_width=True)    
        
        
-       st.divider()
+       ##st.divider()
+       st.markdown(
+            """
+            <hr style="border: 3px solid lightblue;">
+            """,
+            unsafe_allow_html=True
+            )
 ####################################################   
        st.subheader(""":globe_with_meridians: Invoice Amount Table_:orange[Monthly]:""")
 
@@ -547,7 +624,14 @@ with tab1:
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
        csv6 = pvt17.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
        st.download_button(label='Download Table', data=csv6, file_name='Cost_Centre_Quarter_Sales.csv', mime='text/csv')
-       st.divider()
+       ##st.divider()
+       st.markdown(
+            """
+            <hr style="border: 3px solid lightblue;">
+            """,
+            unsafe_allow_html=True
+            )
+       
 ############################################################################################################################################################################################################
 #TAB 2: Region Category
 with tab2:
@@ -597,7 +681,7 @@ with tab2:
 
 ####All Region PIE CHART
         with two_column:
-             st.subheader(":round_pushpin: Invoice Percentage_:orange[Accumulate]:")
+             st.subheader(":round_pushpin: Invoice 百分比:")
 # 创建示例数据框
              brand_data = filter_df.round(0).groupby(by=["FY_INV","Region"],
                      as_index=False)["Before tax Inv Amt (HKD)"].sum().sort_values(by="Before tax Inv Amt (HKD)", ascending=False)         
@@ -612,9 +696,15 @@ with tab2:
 # 设置字体和样式
              df_pie.update_layout(
                    font=dict(family="Arial", size=14, color="black"),
-                   legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+                   legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                   paper_bgcolor='lightgrey',  # 设置背景颜色为浅灰色
+                   plot_bgcolor='lightgrey',   # 设置绘图区域背景颜色为浅灰色
+                   margin=dict(l=10, r=10, t=10, b=30),  # 设置图表的边距
+                   autosize=False,
+                   width=600,
+                   height=400)
 # 显示百分比标签
-             df_pie.update_traces(textposition='outside', textinfo='label+percent', marker_line_width=2,opacity=1)
+             df_pie.update_traces(textposition='outside', textinfo='label+percent', marker_line=dict(color='black', width=2))
 # 在Streamlit中显示图表
              st.plotly_chart(df_pie, use_container_width=True)
 ##############################################################################################################################          
@@ -646,7 +736,13 @@ with tab2:
         one_column, two_column= st.columns(2)
         with one_column:
 # LINE CHART of SOUTH CHINA FY/FY
-              st.divider()
+              #st.divider()
+              st.markdown(
+                   """
+                   <hr style="border: 3px solid lightblue;">
+                   """,
+                   unsafe_allow_html=True
+                   )
               st.subheader(":chart_with_upwards_trend: :orange[SOUTH CHINA] Inv Amt Trend_FY to FY:")
               df_Single_south = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Region == "SOUTH"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV",
                                  "Inv_Month"], as_index= False)["Before tax Inv Amt (HKD)"].sum()
@@ -704,13 +800,24 @@ with tab2:
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
               csv11 = pvt8.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
               st.download_button(label='Download Table', data=csv11, file_name='South_Sales.csv', mime='text/csv')
-              st.divider()
+              #st.divider()
+              st.markdown(
+                   """
+                   <hr style="border: 3px solid lightblue;">
+                   """,
+                   unsafe_allow_html=True
+                   )
 
  
- 
+
         with two_column:
 # LINE CHART of EAST CHINA FY/FY
-              st.divider()
+              #st.divider()
+              st.markdown(
+                   """
+                   <hr style="border: 3px solid lightblue;">
+                   """,
+                   unsafe_allow_html=True)
               st.subheader(":chart_with_upwards_trend: :orange[EAST CHINA] Inv Amt Trend_FY to FY:")
               df_Single_region = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Region == "EAST"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","Inv_Month"], as_index= False)["Before tax Inv Amt (HKD)"].sum()
 # 确保 "FQ(Invoice)" 列中的所有值都出现在 df_Single_region 中
@@ -768,7 +875,12 @@ with tab2:
               csv12 = pvt9.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
               st.download_button(label='Download Table', data=csv12, file_name='East_Sales.csv', mime='text/csv')
 
-              st.divider()
+              #st.divider()
+              st.markdown(
+                   """
+                   <hr style="border: 3px solid lightblue;">
+                   """,
+                   unsafe_allow_html=True)
 ################################################# 
         three_column, four_column= st.columns(2)
   
@@ -832,7 +944,13 @@ with tab2:
              csv9 = pvt10.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
              st.download_button(label='Download Table', data=csv9, file_name='North_Sales.csv', mime='text/csv')
 
-             st.divider()
+             ##st.divider()
+             st.markdown(
+                  """
+                  <hr style="border: 3px solid lightblue;">
+                  """,
+                  unsafe_allow_html=True)
+             
 ##################################################
         with four_column:
 # LINE CHART of WEST CHINA FY/FY
@@ -891,7 +1009,12 @@ with tab2:
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
              csv10 = pvt18.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
              st.download_button(label='Download Table', data=csv10, file_name='West_Sales.csv', mime='text/csv')
-             st.divider()
+             ##st.divider()
+             st.markdown(
+                  """
+                  <hr style="border: 3px solid lightblue;">
+                  """,
+                  unsafe_allow_html=True)
 
         st.subheader(":sunrise: FY Invoice Details_:orange[Monthly]:")
 # 計算"FQ(Invoice)"的subtotal數值
@@ -1014,7 +1137,7 @@ with tab3:
 
        tab4_row2_col1, tab4_row2_col2= st.columns(2)      
        with tab4_row2_col1:
-             st.subheader(":sports_medal: Main Brand Invoice Qty_:orange[FY]:")
+             st.subheader(":sports_medal: 主要品牌 Invoice 台数_:orange[FY]:")
              brandinv_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND != "SOLDERSTAR"').query(
                       'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHIMADZU"').query(
                         'BRAND != "OTHERS"').query('BRAND != "SAKI"').query('BRAND != "SAKI"').query('BRAND != "NUTEK"').query(
@@ -1065,7 +1188,7 @@ with tab3:
              st.plotly_chart(df_brand, use_container_width=True)                              
 ###################################################################
        with tab4_row2_col2:
-             st.subheader(":round_pushpin: Main Brand Invoice Qty_:orange[Percentage]:")
+             st.subheader(":round_pushpin: 主要品牌 Invoice 台数_:orange[百分比]:")
 
 # 创建示例数据框
             
@@ -1095,10 +1218,16 @@ with tab3:
 # 设置字体和样式
              df_pie.update_layout(
                    font=dict(family="Arial", size=14, color="black"),
-                   legend=dict(orientation="v", yanchor="bottom", y=1.02, xanchor="right", x=1))
+                   legend=dict(orientation="v", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                   paper_bgcolor='lightgrey',  # 设置背景颜色为浅灰色
+                   plot_bgcolor='lightgrey',   # 设置绘图区域背景颜色为浅灰色
+                   margin=dict(l=10, r=10, t=10, b=30),  # 设置图表的边距
+                   autosize=False,
+                   width=600,
+                   height=400)
 
 # 显示百分比标签
-             df_pie.update_traces(textposition='outside', textinfo='label+percent', marker_line_width=2,opacity=1)
+             df_pie.update_traces(textposition='outside', textinfo='label+percent', marker_line=dict(color='black', width=2))
 
 # 在Streamlit中显示图表
              st.plotly_chart(df_pie, use_container_width=True)
@@ -1107,7 +1236,12 @@ with tab3:
        one_column, two_column= st.columns(2)
        with one_column:
 # LINE CHART of YAMAHA MOUNTER
-              st.divider()
+              ##st.divider()
+              st.markdown(
+                   """
+                   <hr style="border: 3px solid lightblue;">
+                   """,
+                   unsafe_allow_html=True)
               st.subheader(":chart_with_upwards_trend: :green[YAMAHA Mounter] Inv Qty_:orange[Monthly]:")
               df_Single_south = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND_Details == "YAMAHA_Mounter"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV",
                                  "Inv_Month"], as_index= False)["Item Qty"].sum()
@@ -1165,11 +1299,22 @@ with tab3:
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
               csv_mounter = pvt8.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
               st.download_button(label='Download Table', data=csv_mounter, file_name='YAMAHA_Mounter_Sales.csv', mime='text/csv')
-              st.divider()
+              ##st.divider()
+              st.markdown(
+                   """
+                   <hr style="border: 3px solid lightblue;">
+                   """,
+                   unsafe_allow_html=True)
 
        with two_column:
 # LINE CHART of YAMAHA_Non_Mounter
-              st.divider()
+              #st.divider()
+              st.markdown(
+                   """
+                   <hr style="border: 3px solid lightblue;">
+                   """,
+                   unsafe_allow_html=True)
+
               st.subheader(":chart_with_upwards_trend: :blue[YAMAHA Non-Mounter] Inv Qty Trend_:orange[Monthly]:")
               df_Single_south = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND_Details == "YAMAHA_Non_Mounter"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV",
                                  "Inv_Month"], as_index= False)["Item Qty"].sum()
@@ -1226,10 +1371,15 @@ with tab3:
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
               csv_non_mounter = pvt8.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
               st.download_button(label='Download Table', data=csv_non_mounter, file_name='YAMAHA_Non_Mounter.csv', mime='text/csv')
-              st.divider()          
+              #st.divider() 
+              st.markdown(
+                   """
+                   <hr style="border: 3px solid lightblue;">
+                   """,
+                   unsafe_allow_html=True)         
 ###########################################################################################################
       # BAR CHART of BRAND Comparision
-       st.subheader(":bar_chart: Main Brand Invoice Qty_:orange[Quarterly]:")
+       st.subheader(":bar_chart: 主要品牌 Invoice 台数_:orange[Quarterly]:")
        brand_df = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND != "SOLDERSTAR"').query(
                       'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHIMADZU"').query(
                         'BRAND != "OTHERS"').query('BRAND != "SAKI"').query('BRAND != "SAKI"').query('BRAND != "NUTEK"').query(
@@ -1287,7 +1437,7 @@ with tab3:
 # 绘制图表
 #       st.plotly_chart(brand_qty, use_container_width=True)
 ########################################################################################################
-       st.subheader(":point_down: Main Brand Invoice Qty_:orange[FQ Subtotal]:clipboard:")          
+       st.subheader(":point_down: 主要品牌 Invoice 台数_:orange[FQ Subtotal]:clipboard:")          
        with st.expander(":point_right: click to expand/hide data"):
 #Brand Inv Qty by Inv Month:
              #with st.expander("Click to expand"):
@@ -1353,7 +1503,13 @@ with tab3:
              csv13 = pvt6.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
              st.download_button(label='Download Table', data=csv13, file_name='Brand_invoice_qty.csv', mime='text/csv')
 
-       st.divider()
+       #st.divider()
+       st.markdown(
+            """
+            <hr style="border: 3px solid lightblue;">
+            """,
+            unsafe_allow_html=True
+            )
 ############################################################################################################################################
 #Top Product line chart invoice qty trend
        
@@ -1487,7 +1643,13 @@ with tab3:
        left_column, right_column = st.columns(2)
 #Line Chart FY to FY YSM40R Invoice Details:
        with left_column:
-             st.divider()
+             #st.divider()
+             st.markdown(
+                  """
+                  <hr style="border: 3px solid lightblue;">
+                  """,
+                  unsafe_allow_html=True
+                  )
              st.subheader(":red[YAMAHA:] YSM40R")
              df_YSM40 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Ordered_Items == "YSM40R"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","Inv_Month"],
                                   as_index= False)["Item Qty"].sum()
@@ -1545,7 +1707,12 @@ with tab3:
 ###############################################################################################################################
 #Line Chart FY to FY YSi-V Invoice Details:
        with right_column:
-             st.divider()
+             #st.divider()
+             st.markdown(
+                  """
+                  <hr style="border: 3px solid lightblue;">
+                  """,
+                  unsafe_allow_html=True)
              st.subheader(":red[YAMAHA:] YSi-V(AOI)")
              df_YSIV = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Ordered_Items == "YSi-V"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","Inv_Month"],
                                   as_index= False)["Item Qty"].sum()
@@ -1606,7 +1773,12 @@ with tab3:
        left_column, right_column = st.columns(2)
 #Line Chart FY to FY YRM10 Invoice Details:
        with left_column:
-             st.divider()
+             #st.divider()
+             st.markdown(
+                  """
+                  <hr style="border: 3px solid lightblue;">
+                  """,
+                  unsafe_allow_html=True)
              st.subheader(":red[YAMAHA:] YRM10")
              df_YRM10 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Ordered_Items == "YRM10"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","Inv_Month"],
                                   as_index= False)["Item Qty"].sum()
@@ -1665,7 +1837,12 @@ with tab3:
        
        #Line Chart FY to FY YRM20 Invoice Details:
        with right_column:
-             st.divider()
+             #st.divider()
+             st.markdown(
+                  """
+                  <hr style="border: 3px solid lightblue;">
+                  """,
+                  unsafe_allow_html=True)
              st.subheader(":red[YAMAHA:] YRM20")
              df_YRM20 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('Ordered_Items == "YRM20"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","Inv_Month"],
                                   as_index= False)["Item Qty"].sum()
@@ -1725,7 +1902,12 @@ with tab3:
        left_column, right_column = st.columns(2) 
 #Line Chart FY to FY PEMTRON Invoice Details:
        with left_column:
-             st.divider()
+             #st.divider()
+             st.markdown(
+                  """
+                  <hr style="border: 3px solid lightblue;">
+                  """,
+                  unsafe_allow_html=True)
              st.subheader(":blue[PEMTRON:]")
              df_PEMTRON = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND == "PEMTRON"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","Inv_Month"],
                                   as_index= False)["Item Qty"].sum()
@@ -1784,7 +1966,12 @@ with tab3:
 ########################################################################################################################
 #Line Chart FY to FY HELLER Invoice Details:
        with right_column:
-             st.divider()
+             #st.divider()
+             st.markdown(
+                  """
+                  <hr style="border: 3px solid lightblue;">
+                  """,
+                  unsafe_allow_html=True)
              st.subheader(":orange[HELLER:]")
              df_YRM10 = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query('BRAND == "HELLER"').query('FY_INV != "TBA"').round(0).groupby(by = ["FY_INV","Inv_Month"],
                                   as_index= False)["Item Qty"].sum()
@@ -1849,7 +2036,7 @@ with tab4:
       left_column, right_column= st.columns(2)
 #BAR CHART Customer List
       with left_column:
-              st.subheader(":money_with_wings: :orange[Top Customer Invoice金額]_Bar Chart:")            
+              st.subheader(":money_with_wings: :orange[十大客戶 Invoice金額]_排行图:")            
               customer_qty_line = (filter_df.query('BRAND != "C66 SERVICE"').query('Inv_Yr != "TBA"').query(
                                  'Inv_Month != "TBA"').query('Inv_Month != "Cancel"').groupby(
                                  by=["Customer_Name"])[["Before tax Inv Amt (HKD)"]].sum().sort_values(
@@ -1869,10 +2056,10 @@ with tab4:
 
 # 更新图表布局和样式
               fig_customer_inv_qty.update_layout(
-                  height=400,
+                  height=600,
                   yaxis=dict(title="Customer_Name"),
                   xaxis=dict(title="Before tax Inv Amt (HKD)"),)
-              fig_customer_inv_qty.update_layout(font=dict(family="Arial", size=15))
+              fig_customer_inv_qty.update_layout(font=dict(family="Arial", size=20))
               fig_customer_inv_qty.update_traces(
                   textposition="inside",
                   marker_line_color="black",
@@ -1884,7 +2071,7 @@ with tab4:
 
 ##################################################    
       with right_column:
-              st.subheader(":medal: :orange[Top Customer Invoice金額]_Breakdown:")
+              st.subheader(":medal: :orange[十大客戶 Invoice金額]_明細:")
     # Create a pivot table with the required filters
               pvt21 = filter_df.query('BRAND != "C66 SERVICE"').query('Inv_Yr != "TBA"').query(
                      'Inv_Month not in ["TBA", "Cancel"]').round(0).pivot_table(
@@ -1893,34 +2080,23 @@ with tab4:
                             aggfunc={"Item Qty": "sum", "Before tax Inv Amt (HKD)": "sum"},
                             fill_value=0)
 
-# Calculate total by Customer_Name
+# Concatenate and sort
+              pvt21 = pd.concat([pvt21]).sort_values(by=("Before tax Inv Amt (HKD)"), ascending=False)
               customer_totals = pvt21.groupby(level='Customer_Name').sum()
 
-    # Select top 10 customers based on "Before tax Inv Amt (HKD)"
+# Select top 10 customers based on "Before tax Inv Amt (HKD)"
               top_customers = customer_totals.nlargest(10, "Before tax Inv Amt (HKD)")
 
-    # Filter original pivot table to include only top customers
+# Filter original pivot table to include only top customers
               pvt21_top10 = pvt21.loc[top_customers.index]
 
-    # 为每个 Customer_Name 添加小计
-              subtotals = pvt21_top10.groupby(level='Customer_Name').sum()
-              subtotals['Region'] = 'Subtotal'
-              subtotals['BRAND'] = ''
-              subtotals['Ordered_Items'] = ''
-              subtotals = subtotals.set_index(['Region', 'BRAND', 'Ordered_Items'], append=True)
+# Format the "Before tax Inv Amt (HKD)"
+              pvt21_top10["Before tax Inv Amt (HKD)"] = pvt21_top10["Before tax Inv Amt (HKD)"].apply(lambda x: f"HKD {x:,.0f}")
 
-    # 与小计合并
-              pvt21_with_subtotals = pd.concat([pvt21_top10, subtotals])
-
-    # 按 Customer_Name 总计排序并确保每个客户的原始顺序
-              sorted_index = top_customers.index
-              pvt21_sorted = pd.concat([pvt21_with_subtotals.loc[customer] for customer in sorted_index])
-
-    # 将 "Before tax Inv Amt (HKD)" 格式化
-              pvt21_sorted["Before tax Inv Amt (HKD)"] = pvt21_sorted["Before tax Inv Amt (HKD)"].apply(lambda x: f"HKD {x:,.0f}")
-
-# 渲染为 HTML
-              st.markdown(pvt21_sorted.to_html(), unsafe_allow_html=True)
+# Render as HTML
+              st.markdown(pvt21_top10.to_html(), unsafe_allow_html=True)
+      
+      
 
 
 
@@ -2024,7 +2200,7 @@ with tab5:
              st.plotly_chart(df_brand, use_container_width=True) 
 ###############################################################################################            
       with tab5_row1_col2:
-             st.subheader(":round_pushpin: Main Brand Invoice Qty_:orange[Percentage]:")
+             st.subheader(":round_pushpin: 主要品牌 Invoice 台数_:orange[百分比]:")
 
 # 创建示例数据框
              brand_data = filter_df.query('FY_INV != "TBA"').query('FY_INV != "Cancel"').query(
@@ -2048,10 +2224,16 @@ with tab5:
 # 设置字体和样式
              df_pie.update_layout(
                    font=dict(family="Arial", size=14, color="black"),
-                   legend=dict(orientation="v", yanchor="bottom", y=1.02, xanchor="right", x=1))
+                   legend=dict(orientation="v", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                   paper_bgcolor='lightgrey',  # 设置背景颜色为浅灰色
+                   plot_bgcolor='lightgrey',   # 设置绘图区域背景颜色为浅灰色
+                   margin=dict(l=10, r=10, t=10, b=30),  # 设置图表的边距
+                   autosize=False,
+                   width=600,
+                   height=400)
 
 # 显示百分比标签
-             df_pie.update_traces(textposition='outside', textinfo='label+percent', marker_line_width=2,opacity=1)
+             df_pie.update_traces(textposition='outside', textinfo='label+percent', marker_line=dict(color='black', width=2))
 
 # 在Streamlit中显示图表
              st.plotly_chart(df_pie, use_container_width=True)
@@ -2127,7 +2309,13 @@ with tab6:
 # 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
     csv1 = pvt2.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
     st.download_button(label='Download Table', data=csv1, file_name='SMT_Monthly_Sales.csv', mime='text/csv')
-    st.divider()
+    #st.divider()
+    st.markdown(
+            """
+            <hr style="border: 3px solid lightblue;">
+            """,
+            unsafe_allow_html=True
+            )
 
 ###############################################      
        #FY to FY Quarter Invoice Details:
