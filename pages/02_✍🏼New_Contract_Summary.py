@@ -295,7 +295,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-tab1, tab2, tab3 ,tab4,tab5, tab6= st.tabs([":wedding: 概览",":earth_asia: 地区",":books: 品牌",":handshake: 客户",":alarm_clock: Contract 交付周期",":blue_book: INVOICE明細"])
+tab1, tab2, tab3 ,tab4,tab5, tab6= st.tabs([":wedding: 概览",":earth_asia: 地区",":books: 品牌",":handshake: 客户",":alarm_clock: Contract 交付周期",":blue_book: 合同明細"])
 
 #TAB 1: Overall category
 ################################################################################################################################################
