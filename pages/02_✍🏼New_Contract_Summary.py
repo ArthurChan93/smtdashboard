@@ -48,7 +48,7 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 #唔show 17/18, cancel, tba資料
 #else:
 #os.chdir(r"/Users/arthurchan/Library/CloudStorage/OneDrive-個人/Monthly Report")
-#os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
+os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
 #
 df = pd.read_excel(
                io='Monthly_report_for_edit.xlsm',engine= 'openpyxl',sheet_name='raw_sheet', skiprows=0, usecols='A:AT',nrows=100000,).query(
@@ -233,7 +233,7 @@ header_qty = int(OnlyYAMAHA_HELLER_PEMTRON_qty)  # 使用字符串格式化将�
 total_unit_qty = int(header_qty)
 
 with right_column:
-     #st.subheader(f":factory: INV Qty(YAMAHA, PEMTRON, HELLER): :orange[{total_unit_qty:,}]")
+     #st.subheader(f":factory: 合同数量(YAMAHA, PEMTRON, HELLER): :orange[{total_unit_qty:,}]")
       st.markdown(f"""
             <style>
             .subheader-neumorphism {{
@@ -246,7 +246,7 @@ with right_column:
             }}
             </style>
             <div class="subheader-neumorphism">
-            <strong>🏭 INV Qty: <span style="color: orange;">{total_unit_qty:,}</strong>(YAMAHA, PEMTRON, HELLER)</span></strong>
+            <strong>🏭 合同数量: <span style="color: orange;">{total_unit_qty:,}</strong>(YAMAHA, PEMTRON, HELLER)</span></strong>
             </div>
             """, unsafe_allow_html=True)
 
@@ -304,7 +304,7 @@ with tab1:
 
        col_1, col_2= st.columns(2)
        with col_1:
-#LINE CHART of Overall Contract Amount
+#LINE CHART of Overall 合同金额
              st.subheader(":chart_with_upwards_trend: New Contract趋势_:orange[月份]:")
              InvoiceAmount_df2 = filter_df.query('FY_Contract != "TBA"').query('FY_Contract != "Cancel"').query('FY_Contract != "TBA"').round(0).groupby(by = ["FY_Contract","FQ(Contract)","Contract_Month"
                           ], as_index= False)["Before tax Inv Amt (HKD)"].sum()
@@ -405,7 +405,7 @@ with tab1:
 #LINE CHART of GP Amount      
        col_3, col_4= st.columns(2)
        with col_3:
-             st.subheader(":chart_with_upwards_trend: :green[G.P Amount Trend]_FQ:")
+             st.subheader(":chart_with_upwards_trend: :green[G.P Amount 趋势]_FQ:")
              InvoiceAmount_df2 = filter_df.query('FY_Contract != "TBA"').query('FY_Contract != "Cancel"').query('FY_Contract != "TBA"').round(0).groupby(by =
                      ["Contract_Month","FY_Contract"], as_index= False)["G.P.  (HKD)"].sum()
 # 确保 "Inv Month" 列中的所有值都出现
@@ -495,7 +495,7 @@ with tab1:
             unsafe_allow_html=True
             )
 ####################################################   
-       st.subheader(""":globe_with_meridians: Contract Amount Table_:orange[Monthly]:""")
+       st.subheader(""":globe_with_meridians: 合同金额 Table_:orange[月份]:""")
 
        pvt2 = filter_df.query('FY_Contract != "TBA"').query('FY_Contract != "Cancel"').query('Contract_Yr != "TBA"').query('Contract_Month != "TBA"').query('Contract_Month != "Cancel"').round(0).pivot_table(
               index=["FY_Contract","FQ(Contract)","Contract_Yr", "Contract_Month"],
@@ -542,7 +542,7 @@ with tab1:
 
 ################################################################################
 #Pivot table2
-       st.subheader(":point_down: Contract Amount Subtotal_:orange[FQ]:clipboard: ")
+       st.subheader(":point_down: 合同金额 Subtotal_:orange[FQ]:clipboard: ")
        #with st.expander(":point_right: click to expand/hide"):
        pvt17 = filter_df.query('FY_Contract != "TBA"').query('FY_Contract != "Cancel"').round(0).pivot_table(
                      values="Before tax Inv Amt (HKD)",
@@ -700,7 +700,7 @@ with tab2:
              st.plotly_chart(df_pie, use_container_width=True)
 ##############################################################################################################################          
 # LINE CHART of Regional Comparision
-        st.subheader(":chart_with_upwards_trend: Contract Amount Trend_:orange[All Region in one]:")
+        st.subheader(":chart_with_upwards_trend: 合同金额 趋势_:orange[All Region in one]:")
         InvoiceAmount_df2 = filter_df.query('FY_Contract != "TBA"').query('FY_Contract != "Cancel"').round(0).groupby(by = ["FQ(Contract)","Region"], as_index= False)["Before tax Inv Amt (HKD)"].sum()
         # 使用pivot_table函數來重塑數據，使每個Region成為一個列
         InvoiceAmount_df2 = InvoiceAmount_df2.pivot_table(index="FQ(Contract)", columns="Region", values="Before tax Inv Amt (HKD)", fill_value=0).reset_index()
@@ -1007,7 +1007,7 @@ with tab2:
                   """,
                   unsafe_allow_html=True)
 
-        st.subheader(":sunrise: FY Contract Details_:orange[Monthly]:")
+        st.subheader(":sunrise: FY Contract Details_:orange[月份]:")
 # 計算"FQ(Contract)"的subtotal數值
 #              filter_df = df.query('FY_Contract != "TBA"').query('FY_Contract != "Cancel"')
         pvt = filter_df.query('FY_Contract != "TBA"').query('FY_Contract != "Cancel"').round(0).pivot_table(
@@ -1050,7 +1050,7 @@ with tab2:
         st.download_button(label='Download Table', data=csv4, file_name='Regional_Sales.csv', mime='text/csv')
 ################################################################################
 #Regional inv amount subtotal FQ
-        st.subheader(":point_down: Contract Amount Subtotal_:orange[FQ]:clipboard:")
+        st.subheader(":point_down: 合同金额 Subtotal_:orange[FQ]:clipboard:")
         # 定义CSS样式
 
  
@@ -1236,7 +1236,7 @@ with tab3:
                    <hr style="border: 3px solid lightblue;">
                    """,
                    unsafe_allow_html=True)
-              st.subheader(":chart_with_upwards_trend: :green[YAMAHA Mounter] Inv Qty_:orange[Monthly]:")
+              st.subheader(":chart_with_upwards_trend: :green[YAMAHA Mounter] 合同数量_:orange[月份]:")
               df_Single_south = filter_df.query('FY_Contract != "TBA"').query('FY_Contract != "Cancel"').query('BRAND_Details == "YAMAHA_Mounter"').query('FY_Contract != "TBA"').round(0).groupby(by = ["FY_Contract",
                                  "Contract_Month"], as_index= False)["Item Qty"].sum()
 # 确保 "Contract_Month" 列中的所有值都出现在 df_Single_region 中
@@ -1309,7 +1309,7 @@ with tab3:
                    """,
                    unsafe_allow_html=True)
 
-              st.subheader(":chart_with_upwards_trend: :blue[YAMAHA Non-Mounter] Inv Qty Trend_:orange[Monthly]:")
+              st.subheader(":chart_with_upwards_trend: :blue[YAMAHA Non-Mounter] 合同数量 趋势_:orange[月份]:")
               df_Single_south = filter_df.query('FY_Contract != "TBA"').query('FY_Contract != "Cancel"').query('BRAND_Details == "YAMAHA_Non_Mounter"').query('FY_Contract != "TBA"').round(0).groupby(by = ["FY_Contract",
                                  "Contract_Month"], as_index= False)["Item Qty"].sum()
 # 确保 "Contract_Month" 列中的所有值都出现在 df_Single_region 中
@@ -1433,7 +1433,7 @@ with tab3:
 ########################################################################################################
        st.subheader(":point_down: 主要品牌 Contract 台数_:orange[FQ Subtotal]:clipboard:")          
        with st.expander(":point_right: click to expand/hide data"):
-#Brand Inv Qty by Inv Month:
+#Brand 合同数量 by Inv Month:
              #with st.expander("Click to expand"):
              pvt6 = filter_df.query('FY_Contract != "TBA"').query('FY_Contract != "Cancel"').query('BRAND != "SOLDERSTAR"').query(
                       'BRAND != "C66 SERVICE"').query('BRAND != "LOCAL SUPPLIER"').query('BRAND != "SHIMADZU"').query(
@@ -1505,11 +1505,11 @@ with tab3:
             unsafe_allow_html=True
             )
 ############################################################################################################################################
-#Top Product line chart Contract qty trend
+#Top Product line chart Contract qty 趋势
        
        left_column, right_column = st.columns(2)
        with left_column:
-             st.header(":chart_with_upwards_trend: Main Unit Contract Qty_:orange[Monthly]:")
+             st.header(":chart_with_upwards_trend: Main Unit Contract Qty_:orange[月份]:")
 ###########################################################################################################
        left_column, right_column = st.columns(2)
 #Line Chart FY to FY YSM20R Contract Details:
@@ -1633,7 +1633,7 @@ with tab3:
              st.download_button(label='Download Table', data=csv14, file_name='YSM10 Invocie Qty.csv', mime='text/csv')
             
 #############################################################################################################################################################
-#Second row for Top product trend
+#Second row for Top product 趋势
        left_column, right_column = st.columns(2)
 #Line Chart FY to FY YSM40R Contract Details:
        with left_column:
@@ -2036,7 +2036,7 @@ with tab4:
                                  by=["Customer_Name"])[["Before tax Inv Amt (HKD)"]].sum().sort_values(
                                  by="Before tax Inv Amt (HKD)", ascending=False).head(10))
 # 生成颜色梯度
-              colors = px.colors.sequential.Blues[::-1]  # 将颜色顺序反转为从深到浅
+              colors = px.colors.sequential.Greens[::-1]  # 将颜色顺序反转为从深到浅
 # 创建条形图
               fig_customer_inv_qty = px.bar(
                   customer_qty_line,
@@ -2234,7 +2234,7 @@ with tab5:
 
 ###############################################################################################  
 #Table of > 6 months data
-      st.subheader(":ledger: Contract Details_:orange[Monthly]:point_down::")
+      st.subheader(":ledger: Contract Details_:orange[月份]:point_down::")
       filter_df["G.P. %"] = (filter_df["G.P. %"].astype(float) * 100).round(2).astype(str) + "%"
       pvt21 = filter_df.query('FY_Contract != "TBA"').query('FY_Contract != "Cancel"').query('Inv_LeadTime_MonthGroup == "> 6 months"').query('FY_Contract != "TBA"').round(0).pivot_table(
            values=["Item Qty","Before tax Inv Amt (HKD)","G.P.  (HKD)"],
@@ -2285,7 +2285,7 @@ with tab6:
              unsafe_allow_html=True)
    with st.expander(":point_right: 打开subtotal明细"): 
     
-    st.subheader(":closed_book: Contract Amount Subtotal_:orange[Monthly]:point_down:: ")
+    st.subheader(":closed_book: 合同金额 Subtotal_:orange[月份]:point_down:: ")
 #    with st.expander(":point_right: :closed_book: click to expand/ hide the tabe"):
     pvt2 = filter_df.query('FY_Contract != "TBA"').query('FY_Contract != "Cancel"').query('Contract_Yr != "TBA"').query('Contract_Month != "TBA"').query('Contract_Month != "Cancel"').round(0).pivot_table(
               index=["FY_Contract","Contract_Yr","FQ(Contract)", "Contract_Month","GP%_of_month"],
@@ -2328,7 +2328,7 @@ with tab6:
 
 ###############################################      
        #FY to FY Quarter Contract Details:
-   st.subheader(":ledger: Contract Details_:orange[Monthly]:point_down::")
+   st.subheader(":ledger: Contract Details_:orange[月份]:point_down::")
    pvt21 = filter_df.query('FY_Contract != "TBA"').query('FY_Contract != "Cancel"').query('FY_Contract != "TBA"').round(0).pivot_table(
            values=["Item Qty","Before tax Inv Amt (HKD)","G.P.  (HKD)"],
            index=["FY_Contract","Contract_Yr","Contract_Month","Contract_No.","Customer_Name","Ordered_Items","G.P. %"],
