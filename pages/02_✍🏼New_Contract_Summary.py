@@ -2030,7 +2030,7 @@ with tab4:
       left_column, right_column= st.columns(2)
 #BAR CHART Customer List
       with left_column:
-              st.subheader(":money_with_wings: :orange[十大客戶 Invoice金額]_排行图:")            
+              st.subheader(":money_with_wings: :orange[十大客戶 合同金額]_排行图:")            
               customer_qty_line = (filter_df.query('BRAND != "C66 SERVICE"').query('Contract_Yr != "TBA"').query(
                                  'Contract_Month != "TBA"').query('Contract_Month != "Cancel"').groupby(
                                  by=["Customer_Name"])[["Before tax Inv Amt (HKD)"]].sum().sort_values(
@@ -2065,7 +2065,7 @@ with tab4:
 
 ##################################################    
       with right_column:
-              st.subheader(":medal: :orange[十大客戶 Invoice金額]_明細:")
+              st.subheader(":medal: :orange[十大客戶 合同金額]_明細:")
     # Create a pivot table with the required filters
               pvt21 = filter_df.query('BRAND != "C66 SERVICE"').query('Contract_Yr != "TBA"').query(
                      'Contract_Month not in ["TBA", "Cancel"]').round(0).pivot_table(
