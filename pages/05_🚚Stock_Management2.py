@@ -1,141 +1,150 @@
-import streamlit as st
-from streamlit_option_menu import option_menu
-import plotly.express as px
-import pandas as pd
-from pandas import Series, DataFrame
-import numpy as np
-import os
-import plotly.graph_objects as go
-import matplotlib.pyplot as plt
-from streamlit_extras.metric_cards import style_metric_cards
-import seaborn as sns
-import base64
-from io import BytesIO
-import plotly.graph_objects as go
-from bs4 import BeautifulSoup
-import locale
-import re
-from lxml import etree
-from PIL import Image
-import altair as alt
-######################################################################################################
-# emojis https://streamlit-emoji-shortcodes-streamlit-app-gwckff.streamlit.app/
-#Webpage config& tab name& Icon
-st.set_page_config(page_title="Sales Dashboard",page_icon=":rainbow:",layout="wide")
+import selenium
+from selenium import webdriver
+import time
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from pywinauto import application
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
-st.title("🌱 Stock Management")
-#Text Credit
-st.write("by Arthur Chan")
+execution_count = 0
+success_count = 0
+failure_count = 0
+email_interval = 14,400  # 每小時發送一次郵件
 
-#Move the title higher
-st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow_html=True)
+def send_email(execution_count, success_count, failure_count):
+    sender_email = "arthurchan@ese.com.hk"
+    receiver_email = "arthurchan@ese.com.hk"
+    password = "s1winner**82793"
 
-#Move the title higher
-st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow_html=True)
-######################################################################################################
-#os.chdir(r"/Users/arthurchan/Downloads/Sample")
-#SOUTH STOCK DATA BASE
-#os.chdir(r"/Users/arthurchan/Downloads/Sample")
-#os.chdir(r"C:\Users\ArthurChan\OneDrive\VS Code\PythonProject_ESE\Sample Excel")
+    subject = "Selenium- Autoupload-Monthly report& C66 report Streamlit"
+    body = f"已執行{execution_count}次，成功{success_count}次；失敗{failure_count}次"
 
-df_south = pd.read_excel(
-               io='stock_list.xlsx',engine= 'openpyxl',sheet_name='Stock_list', skiprows=0, usecols='A:AV',nrows=10000,)
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = receiver_email
+    msg['Subject'] = subject
 
-# Make the tab font bigger
-font_css = """
-<style>
-button[data-baseweb="tab"] > div[data-testid="stMarkdownContainer"] > p {
-font-size: 28px;
-}
-</style>
-"""
+    msg.attach(MIMEText(body, 'plain'))
 
-st.write(font_css, unsafe_allow_html=True)
-tab1, tab2, tab3= st.tabs(["📙 SOUTH","📘 EAST","📗 NORTH"])
-#########################################################################################
-with tab1:
-          df_stockstatus = df_south.query('Stock_Status != "Shipped_Stock"').groupby(by=["Stock_Status",
-                    "Item"], as_index=False)["Machine_QTY"].sum().sort_values(by=["Machine_QTY"], ascending=[False])
+    try:
+        server = smtplib.SMTP('arthurchan@ese.com.hk', 587)
+        server.starttls()
+        server.login(sender_email, password)
+        text = msg.as_string()
+        server.sendmail(sender_email, receiver_email, text)
+        server.quit()
+        print(f"郵件已發送給 {receiver_email}")
+    except Exception as e:
+        print(f"發送郵件失敗: {e}")
 
-          df_stockstatus1 = pd.DataFrame(df_stockstatus)
-# 过滤和排序数据
-          df_filtered = df_stockstatus1[df_stockstatus1['Stock_Status'] != 'Shipped_Stock']
-          df_filtered = df_filtered.groupby(['Stock_Status', 'Item'], as_index=False)['Machine_QTY'].sum()
-          df_filtered = df_filtered.sort_values(by='Machine_QTY', ascending=False)
+def automate_task():
+    global execution_count, success_count, failure_count
+    execution_count += 1
+    print(f"第{execution_count}次執行")
 
-# 设置颜色和标签
-          color_scale = alt.Scale(domain=['Incoming_Stock_With_YAMAHA_Schedule', 'Incoming_Stock_No_YAMAHA_Schedule', 'Instock'],
-                        range=['orange', 'lightblue', 'lightgreen'])
-          legend_title = 'Stock Status'
+    try:
+        # 設置無頭模式
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
 
-# 创建Altair图表
-          chart = alt.Chart(df_filtered).mark_bar().encode(
-                  x=alt.X('Machine_QTY:Q', title='Machine Quantity'),
-                  y=alt.Y('Item:N', sort='-x'), 
-                  color=alt.Color('Stock_Status:N', scale=color_scale, legend=alt.Legend(title=legend_title, orient ='top')),
-                  tooltip=alt.Tooltip('Machine_QTY:Q')).properties(
-                          width=500,
-                          height=300)
+        # 開啟瀏覽器視窗
+        driver = webdriver.Chrome(options=chrome_options)
 
-# 在柱形图内显示数值
-          text = chart.mark_text(
-                  align='right',
-                  baseline='middle',
-                  dx=3,fontSize=18).encode(
-                  text=alt.Text('Machine_QTY:Q', format='.0f'),
-                  color=alt.value('black'))
+        # 前往SMT monthly report網頁
+        driver.get("https://github.com/ArthurChan93/smtdashboard") 
 
-# 设置图表的布局
-          chart_with_text = chart + text
+        driver.find_elements(By.CSS_SELECTOR,".HeaderMenu-link--sign-in")[0].click() # 點擊登入按鈕
 
-# 将图表和文本合并，并在Streamlit中显示
-          st.altair_chart(chart_with_text, use_container_width=True)
+        time.sleep(2)  # 等待登入頁面載入
 
+        # 使用name屬性在LOGIN輸入
+        username_input = driver.find_element(By.NAME, "login")
+        username_input.send_keys("sing0017@gmail.com")
 
+        # 使用name屬性在password輸入
+        username_input = driver.find_element(By.NAME, "password")
+        username_input.send_keys("chansingsing93*")
 
+        # LOGIN GIT HUB
+        driver.find_elements(By.CSS_SELECTOR,"input.btn")[0].click() 
 
+        # 導航到SMT monthly report存儲庫並上傳文件
+        driver.get('https://github.com/ArthurChan93/smtdashboard/upload/main')
+        time.sleep(2)  # 等待登入頁面載入
+        upload_input = driver.find_element(By.ID, 'upload-manifest-files-input')
+        upload_input.send_keys('D:\\ArthurChan\\OneDrive - Electronic Scientific Engineering Ltd\\Monthly report(one drive)\\Monthly_report_for_edit.xlsm')
+        time.sleep(6)
 
+        commit_button = driver.find_element(By.CSS_SELECTOR, '.js-blob-submit')
+        commit_button.click()
+        time.sleep(5)
 
+        driver.get('https://github.com/ArthurChan93/smtdashboard/upload/main')
+        time.sleep(2)  # 等待登入頁面載入
+        upload_input = driver.find_element(By.ID, 'upload-manifest-files-input')
+        upload_input.send_keys('D:\\ArthurChan\\OneDrive - Electronic Scientific Engineering Ltd\\Monthly report(one drive)\\Machine_Import_data.xlsm')
+        time.sleep(6)
 
+        commit_button = driver.find_element(By.CSS_SELECTOR, '.js-blob-submit')
+        commit_button.click()
+        time.sleep(5)
 
+        # 導航到C66 report存儲庫並上傳文件(hk stock information)
+        driver.get('https://github.com/ArthurChan93/C66_Dashboard/upload/main')
+        time.sleep(2)  # 等待登入頁面載入
+        upload_input2 = driver.find_element(By.ID, 'upload-manifest-files-input')
+        upload_input2.send_keys('D:\\ArthurChan\\OneDrive - Electronic Scientific Engineering Ltd\\C66\\HK_Stock_Summary.xlsm')
+        time.sleep(6)
 
+        commit_button = driver.find_element(By.CSS_SELECTOR, '.js-blob-submit')
+        commit_button.click()
+        time.sleep(5)
 
+        # 導航到C66 report存儲庫並上傳文件(AR summary all region)
+        driver.get('https://github.com/ArthurChan93/C66_Dashboard/upload/main')
+        upload_input3 = driver.find_element(By.ID, 'upload-manifest-files-input')
+        upload_input3.send_keys('D:\\ArthurChan\\OneDrive - Electronic Scientific Engineering Ltd\\C66 REPORT\\C66_All_AR_Summary-new_version.xlsm')
+        time.sleep(6)
 
+        commit_button = driver.find_element(By.CSS_SELECTOR, '.js-blob-submit')
+        commit_button.click()
+        time.sleep(5)
 
+        urls = ['https://smtsalesdashboard.streamlit.app/Invoice_Summary','https://smtc66salesdashboard.streamlit.app/Service_Income']
 
+        for i in range(2):
+            driver.execute_script("window.open('"+ str(urls[i]) +"');")
+            time.sleep(10)
+            driver.switch_to.window(driver.window_handles[1]) # switch to new tab1
+            time.sleep(5)
+            driver.switch_to.window(driver.window_handles[1]) # switch to new tab2
+            time.sleep(5)
+        
+        # 關閉所有瀏覽器窗口
+        driver.quit()
 
+        success_count += 1
+    except Exception as e:
+        print(f"執行失敗: {e}")
+        failure_count += 1
 
+# 每一段時間自動執行一次
+start_time = time.time()
+while True:
+    automate_task()
+    time.sleep(7200)  # 等待2小時
+    if time.time() - start_time >= email_interval:
+        send_email(execution_count, success_count, failure_count)
+        start_time = time.time()
 
-
-          st.subheader("表格明細:")                
-          pvt = df_south.query('Stock_Status != "Shipped_Stock"').round(0).pivot_table(
-                              index=["Item"],
-                              columns=["Stock_Status"], 
-                              values=["Machine_QTY"],
-                              aggfunc="sum",
-                              fill_value=0,
-                              margins=True,
-                              margins_name="Total",
-                              observed=True)
-
-       #使用applymap方法應用格式化
-          pvt = pvt.applymap('{:,.0f}'.format)
-          html = pvt.to_html(classes='table table-bordered', justify='center')
-          html = html.replace('<th>-</th>', '<th style="background-color: lightgreen">-</th>')
-
-
-# 把total值的那行的背景顏色設為黃色，並將字體設為粗體
-          html = html.replace('<tr>\n      <th>Total</th>', '<tr style="background-color: yellow;">\n      <th style="font-weight: bold;">Total</th>')
-# 把所有數值等於或少於0的數值的顏色設為紅色
-          html = html.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
-          html = html.replace('<th>Total</th>', '<th style="background-color: yellow">Total</th>')
-
-# 放大pivot table
-          html = f'<div style="zoom: 0.9;">{html}</div>'
-          st.markdown(html, unsafe_allow_html=True)           
- 
-# 使用streamlit的download_button方法提供一個下載數據框為CSV檔的按鈕
-          csv1 = pvt.to_csv(index=True,float_format='{:,.0f}'.format).encode('utf-8')
-          st.download_button(label='Download Table', data=csv1, file_name='Instock_Machine.csv', mime='text/csv')
-             
-          st.divider()
+# 在VS Code啟動時自動執行此代碼
+if __name__ == "__main__":
+    automate_task()
