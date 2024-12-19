@@ -25,7 +25,7 @@ def process_files(south_file, east_file):
 
     # Standardize the 'Model' column
     combined_df['Model'] = combined_df['Model'].replace({'YSi-V(DL)': 'YSi-V', 'YSi-V(SL)': 'YSi-V', 
-                                                         'YSM20R-2': 'YSM20R', 'YSM20R(PV)-2': 'YSM20R', 
+                                                         'YSM20R-2': 'YSM20R', 'YSM20R(PV)-2': 'YSM20R', 'YSM20R-1': 'YSM20R', 
                                                          'YSM20R(SV)-2': 'YSM20R', 'YSM20R(PV)-1': 'YSM20R',
                                                          'YSM10 96': 'YSM10'})
 
