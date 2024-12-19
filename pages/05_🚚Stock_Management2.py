@@ -1,150 +1,142 @@
-import selenium
-from selenium import webdriver
-import time
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.keys import Keys
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-from pywinauto import application
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-#
-execution_count = 0
-success_count = 0
-failure_count = 0
-email_interval = 14,400  # 每小時發送一次郵件
+import streamlit as st
+import pandas as pd
 
-def send_email(execution_count, success_count, failure_count):
-    sender_email = "arthurchan@ese.com.hk"
-    receiver_email = "arthurchan@ese.com.hk"
-    password = "s1winner**82793"
+# Function to process the uploaded files
+def process_files(south_file, east_file):
+    # Read the sheets from the uploaded files
+    south_df = pd.read_excel(south_file, sheet_name='Stock_list', usecols=['ETA_Month', 'Item', 'Customer Reserved', 'Machine_QTY', 'ETA HK'])
+    stk_df = pd.read_excel(east_file, sheet_name='STK', usecols=['ETA ', 'MACHINE TYPE', 'QTY', 'Customer', '到货情况'])
+    ind_df = pd.read_excel(east_file, sheet_name='IND', usecols=['ETA ', 'MACHINE TYPE', 'QTY', 'Customer', 'ETA '])
 
-    subject = "Selenium- Autoupload-Monthly report& C66 report Streamlit"
-    body = f"已執行{execution_count}次，成功{success_count}次；失敗{failure_count}次"
+    # Process the data according to the rules provided
+    south_df.rename(columns={'ETA_Month': 'Status', 'Item': 'Model', 'Customer Reserved': 'Customer', 'Machine_QTY': 'QTY', 'ETA HK': 'Incoming'}, inplace=True)
+    stk_df.rename(columns={'到货情况': 'Status', 'MACHINE TYPE': 'Model', 'ETA ': 'Incoming'}, inplace=True)
+    ind_df.rename(columns={'ETA ': 'Incoming', 'MACHINE TYPE': 'Model'}, inplace=True)
 
-    msg = MIMEMultipart()
-    msg['From'] = sender_email
-    msg['To'] = receiver_email
-    msg['Subject'] = subject
+    # Combine the dataframes
+    combined_df = pd.concat([south_df, stk_df, ind_df], ignore_index=True)
 
-    msg.attach(MIMEText(body, 'plain'))
+    # Standardize the 'Status' column
+    combined_df['Status'] = combined_df['Status'].replace({'已到货': 'STOCK', '已经到货': 'STOCK', '已发货': None})
+    combined_df.dropna(subset=['Status'], inplace=True)
 
-    try:
-        server = smtplib.SMTP('arthurchan@ese.com.hk', 587)
-        server.starttls()
-        server.login(sender_email, password)
-        text = msg.as_string()
-        server.sendmail(sender_email, receiver_email, text)
-        server.quit()
-        print(f"郵件已發送給 {receiver_email}")
-    except Exception as e:
-        print(f"發送郵件失敗: {e}")
+    # Standardize the 'Incoming' column
+    combined_df['Incoming'] = combined_df['Incoming'].apply(lambda x: 'TBA' if 'TBA' in str(x) else pd.to_datetime(x, errors='coerce').strftime('%b-%y') if pd.notnull(pd.to_datetime(x, errors='coerce')) else x)
 
-def automate_task():
-    global execution_count, success_count, failure_count
-    execution_count += 1
-    print(f"第{execution_count}次執行")
+    # Standardize the 'Model' column
+    combined_df['Model'] = combined_df['Model'].replace({'YSi-V(DL)': 'YSi-V', 'YSi-V(SL)': 'YSi-V', 
+                                                         'YSM20R-2': 'YSM20R', 'YSM20R(PV)-2': 'YSM20R', 
+                                                         'YSM20R(SV)-2': 'YSM20R', 'YSM20R(PV)-1': 'YSM20R',
+                                                         'YSM10 96': 'YSM10'})
 
-    try:
-        # 設置無頭模式
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
+    return combined_df
 
-        # 開啟瀏覽器視窗
-        driver = webdriver.Chrome(options=chrome_options)
+# Function to add subtotals and grand total
+def add_totals(df):
+    subtotals = df.groupby('Status')['QTY'].sum().reset_index()
+    subtotals['Model'] = "Subtotal"
+    
+    grand_total = pd.DataFrame([['Grand Total', 'Subtotal', df['QTY'].sum()]], columns=['Status', 'Model', 'QTY'])
+    
+    df_with_totals = pd.concat([df, subtotals], ignore_index=True)
+    
+    return pd.concat([df_with_totals, grand_total], ignore_index=True)
 
-        # 前往SMT monthly report網頁
-        driver.get("https://github.com/ArthurChan93/smtdashboard") 
+# Function to style the dataframe
+def style_dataframe(df):
+    def highlight_cells(val):
+        color = ''
+        if val == 'STOCK':
+            color = 'background-color: lightgreen'
+        elif val == 'Subtotal' or val == 'Grand Total':
+            color = 'background-color: yellow'
+        elif val == 'TBA':
+            color = 'background-color: lightcoral'  # Light orange color
+        return color
 
-        driver.find_elements(By.CSS_SELECTOR,".HeaderMenu-link--sign-in")[0].click() # 點擊登入按鈕
+    # Apply highlight and remove decimal places for QTY
+    styled_df = df.style.applymap(highlight_cells, subset=['Status', 'Model'])
+    styled_df.format({'QTY': '{:.0f}'})  # Remove decimal points for QTY
+    return styled_df
 
-        time.sleep(2)  # 等待登入頁面載入
+# Streamlit app layout
+st.title('Machine Inventory and Incoming Status')
 
-        # 使用name屬性在LOGIN輸入
-        username_input = driver.find_element(By.NAME, "login")
-        username_input.send_keys("sing0017@gmail.com")
+# Custom CSS for styling
+st.markdown("""
+    <style>
+    .south-uploader {
+        background-color: #FFE4B5;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .east-uploader {
+        background-color: #ADD8E6;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .combine-button {
+        color: red !important;
+        border: 2px solid red !important;
+        background: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .download-button {
+        color: blue !important;
+        border: 2px solid blue !important;
+        background: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .report-title {
+        font-size: 20px;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-        # 使用name屬性在password輸入
-        username_input = driver.find_element(By.NAME, "password")
-        username_input.send_keys("chansingsing93*")
+# File uploaders with custom background colors
+st.markdown('<div class="south-uploader">', unsafe_allow_html=True)
+st.subheader('South STK info')
+south_file = st.file_uploader('Upload South Stock List Excel file', type='xlsx', key='south')
+st.markdown('</div>', unsafe_allow_html=True)
 
-        # LOGIN GIT HUB
-        driver.find_elements(By.CSS_SELECTOR,"input.btn")[0].click() 
+st.markdown('<div class="east-uploader">', unsafe_allow_html=True)
+st.subheader('EAST & WEST & NORTH STK info')
+east_file = st.file_uploader('Upload East China-STK Machine IND Order info Excel file', type='xlsx', key='east')
+st.markdown('</div>', unsafe_allow_html=True)
 
-        # 導航到SMT monthly report存儲庫並上傳文件
-        driver.get('https://github.com/ArthurChan93/smtdashboard/upload/main')
-        time.sleep(2)  # 等待登入頁面載入
-        upload_input = driver.find_element(By.ID, 'upload-manifest-files-input')
-        upload_input.send_keys('D:\\ArthurChan\\OneDrive - Electronic Scientific Engineering Ltd\\Monthly report(one drive)\\Monthly_report_for_edit.xlsm')
-        time.sleep(6)
-
-        commit_button = driver.find_element(By.CSS_SELECTOR, '.js-blob-submit')
-        commit_button.click()
-        time.sleep(5)
-
-        driver.get('https://github.com/ArthurChan93/smtdashboard/upload/main')
-        time.sleep(2)  # 等待登入頁面載入
-        upload_input = driver.find_element(By.ID, 'upload-manifest-files-input')
-        upload_input.send_keys('D:\\ArthurChan\\OneDrive - Electronic Scientific Engineering Ltd\\Monthly report(one drive)\\Machine_Import_data.xlsm')
-        time.sleep(6)
-
-        commit_button = driver.find_element(By.CSS_SELECTOR, '.js-blob-submit')
-        commit_button.click()
-        time.sleep(5)
-
-        # 導航到C66 report存儲庫並上傳文件(hk stock information)
-        driver.get('https://github.com/ArthurChan93/C66_Dashboard/upload/main')
-        time.sleep(2)  # 等待登入頁面載入
-        upload_input2 = driver.find_element(By.ID, 'upload-manifest-files-input')
-        upload_input2.send_keys('D:\\ArthurChan\\OneDrive - Electronic Scientific Engineering Ltd\\C66\\HK_Stock_Summary.xlsm')
-        time.sleep(6)
-
-        commit_button = driver.find_element(By.CSS_SELECTOR, '.js-blob-submit')
-        commit_button.click()
-        time.sleep(5)
-
-        # 導航到C66 report存儲庫並上傳文件(AR summary all region)
-        driver.get('https://github.com/ArthurChan93/C66_Dashboard/upload/main')
-        upload_input3 = driver.find_element(By.ID, 'upload-manifest-files-input')
-        upload_input3.send_keys('D:\\ArthurChan\\OneDrive - Electronic Scientific Engineering Ltd\\C66 REPORT\\C66_All_AR_Summary-new_version.xlsm')
-        time.sleep(6)
-
-        commit_button = driver.find_element(By.CSS_SELECTOR, '.js-blob-submit')
-        commit_button.click()
-        time.sleep(5)
-
-        urls = ['https://smtsalesdashboard.streamlit.app/Invoice_Summary','https://smtc66salesdashboard.streamlit.app/Service_Income']
-
-        for i in range(2):
-            driver.execute_script("window.open('"+ str(urls[i]) +"');")
-            time.sleep(10)
-            driver.switch_to.window(driver.window_handles[1]) # switch to new tab1
-            time.sleep(5)
-            driver.switch_to.window(driver.window_handles[1]) # switch to new tab2
-            time.sleep(5)
+# Combine button
+if st.button('Combine', key='combine_button'):
+    if south_file and east_file:
+        combined_df = process_files(south_file, east_file)
         
-        # 關閉所有瀏覽器窗口
-        driver.quit()
-
-        success_count += 1
-    except Exception as e:
-        print(f"執行失敗: {e}")
-        failure_count += 1
-
-# 每一段時間自動執行一次
-start_time = time.time()
-while True:
-    automate_task()
-    time.sleep(7200)  # 等待2小時
-    if time.time() - start_time >= email_interval:
-        send_email(execution_count, success_count, failure_count)
-        start_time = time.time()
-
-# 在VS Code啟動時自動執行此代碼
-if __name__ == "__main__":
-    automate_task()
+        # Generate the summary report
+        stock_summary = combined_df[combined_df['Status'] == "STOCK"].groupby(['Model']).agg({'QTY': 'sum'}).reset_index()
+        stock_summary['Status'] = "STOCK"
+        stock_summary = stock_summary.sort_values(by='QTY', ascending=False)
+        
+        incoming_summary = combined_df[(combined_df['Status'] != "STOCK") & (combined_df['Incoming'] != "TBA")].groupby(['Incoming', 'Model']).agg({'QTY': 'sum'}).reset_index()
+        incoming_summary.rename(columns={'Incoming': 'Status'}, inplace=True)
+        incoming_summary = incoming_summary.sort_values(by='QTY', ascending=False)
+        
+        tba_summary = combined_df[combined_df['Incoming'] == "TBA"].groupby(['Model']).agg({'QTY': 'sum'}).reset_index()
+        tba_summary['Status'] = "TBA"
+        tba_summary = tba_summary.sort_values(by='QTY', ascending=False)
+        
+        summary = pd.concat([stock_summary, incoming_summary, tba_summary], ignore_index=True)
+        summary = summary[['Status', 'Model', 'QTY']]
+        
+        summary_with_totals = add_totals(summary)
+        
+        # Display the summary report
+        st.markdown('<div class="report-title">Summary Report</div>', unsafe_allow_html=True)
+        st.markdown(style_dataframe(summary_with_totals).to_html(index=False), unsafe_allow_html=True)
+        st.download_button('Download Summary Report', summary_with_totals.to_csv(index=False), file_name='summary_report.csv', 
+                           key='download_button', help='Download the summary report')
+    else:
+        st.warning('Please upload both files to proceed.')
