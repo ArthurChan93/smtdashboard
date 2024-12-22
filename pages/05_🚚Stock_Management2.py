@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import os
 
 # Function to process the uploaded files
 def process_files(south_file, east_file):
@@ -70,13 +71,24 @@ def pivot_data(df):
     grand_total['Status'] = 'Grand Total'
     pivot = pd.concat([pivot.reset_index(), grand_total], ignore_index=True)
 
-    # Ensure 'STOCK' is the first row and remove duplicates in categories
-    unique_statuses = pivot['Status'].dropna().unique().tolist()
-    if 'STOCK' in unique_statuses:
-        unique_statuses.remove('STOCK')
-    ordered_statuses = ['STOCK'] + unique_statuses
-    pivot['Status'] = pd.Categorical(pivot['Status'], categories=ordered_statuses, ordered=True)
-    pivot.sort_values(by='Status', inplace=True)
+    # Custom sort function for Status
+    def sort_status(status):
+        if status == 'STOCK':
+            return (0, None)  # STOCK always first
+        if status == 'Grand Total':
+            return (float('inf'), None)  # Grand Total always last
+        if status == 'TBA':
+            return (2, None)  # TBA second to last
+        if 'Incoming' in status or 'OUT' in status:
+            parts = status.split(' ')[0]  # Extract MM-YY part
+            date = pd.to_datetime(parts, format='%b-%y', errors='coerce')
+            if pd.notnull(date):
+                return (1, date)  # Sort by date
+        return (3, None)  # Other statuses
+
+    # Add a custom sort key and sort
+    pivot['SortKey'] = pivot['Status'].apply(sort_status)
+    pivot = pivot.sort_values(by='SortKey').drop(columns=['SortKey'])
     pivot.reset_index(drop=True, inplace=True)
 
     return pivot
@@ -98,17 +110,6 @@ def style_dataframe(df):
         
     # Apply highlight styling to all relevant columns
     styled_df = df.style.applymap(highlight_cells)  # Apply to all cells
-    # Format numeric columns
-    for col in df.columns[1:]:
-        styled_df.format({col: '{:.0f}'})  # Remove decimal points for QTY
-    return styled_df
-
-
-
-    # Apply highlight styling to the 'Status' and 'Subtotal' columns
-    styled_df = df.style.applymap(highlight_cells, subset=['Status'])
-    styled_df.applymap(highlight_cells, subset=['Subtotal'])
-
     # Format numeric columns
     for col in df.columns[1:]:
         styled_df.format({col: '{:.0f}'})  # Remove decimal points for QTY
@@ -166,15 +167,127 @@ east_file = st.file_uploader('Upload East China-STK Machine IND Order info Excel
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Combine button
-if st.button('Combine', key='combine_button'):
-    if south_file and east_file:
-        combined_df = process_files(south_file, east_file)
-        pivoted_df = pivot_data(combined_df)
+left_column, right_column = st.columns(2)
+with left_column:
+    if st.button('Combine', key='combine_button'):
+        if south_file and east_file:
+            combined_df = process_files(south_file, east_file)
+            pivoted_df = pivot_data(combined_df)
 
-        # Display the summary report
-        st.markdown('<div class="report-title">Summary Report</div>', unsafe_allow_html=True)
-        st.markdown(style_dataframe(pivoted_df).to_html(index=False), unsafe_allow_html=True)
-        st.download_button('Download Summary Report', pivoted_df.to_csv(index=False), file_name='summary_report.csv', 
-                           key='download_button', help='Download the summary report')
-    else:
-        st.warning('Please upload both files to proceed.')
+            # Display the summary report
+            st.markdown('<div class="report-title">Summary Report</div>', unsafe_allow_html=True)
+            st.markdown(style_dataframe(pivoted_df).to_html(index=False), unsafe_allow_html=True)
+            st.download_button('Download Summary Report', pivoted_df.to_csv(index=False), file_name='summary_report.csv', 
+                               key='download_button', help='Download the summary report')
+        else:
+            st.warning('Please upload both files to proceed.')
+
+
+with right_column:
+    # 添加文件上傳器
+    monthly_report_file = st.file_uploader('Upload Monthly Report Excel file (xlsx or xlsm)', type=['xlsx', 'xlsm'], key='monthly_report')
+
+    if monthly_report_file:
+        # 當文件已成功上傳後，重新執行“Combine”功能
+        if south_file and east_file:
+            combined_df = process_files(south_file, east_file)
+            pivoted_df = pivot_data(combined_df)
+
+            # 創建新表格，刪除 `Status` 列中包含 `TBA` 的行並存儲
+            tba_row = pivoted_df[pivoted_df['Status'] == 'TBA'].copy()
+            modified_pivoted_df = pivoted_df[pivoted_df['Status'] != 'TBA'].copy()
+
+            # 在每個 `Incoming` 狀態之下添加一行 `OUT`
+            incoming_indices = modified_pivoted_df.index[modified_pivoted_df['Status'].str.contains('Incoming')].tolist()
+            rows_to_insert = []
+            for idx in incoming_indices:
+                out_row = modified_pivoted_df.iloc[idx].copy()
+                # 修改 Status 為 "MMM-YY OUT"
+                incoming_date = out_row['Status'].split(' ')[0]
+                out_row['Status'] = f"{incoming_date} OUT"
+                # 修改數量為負數
+                for col in modified_pivoted_df.columns[1:]:
+                    out_row[col] = -1 * out_row[col]
+                rows_to_insert.append((idx + 1, out_row))
+
+            # 插入行
+            for idx, row in rows_to_insert[::-1]:  # 必須倒序插入，否則索引會錯亂
+                modified_pivoted_df = pd.concat([modified_pivoted_df.iloc[:idx], row.to_frame().T, modified_pivoted_df.iloc[idx:]]).reset_index(drop=True)
+
+            # 如果 Monthly Report 文件被提供，進一步處理
+            monthly_df = pd.read_excel(monthly_report_file, sheet_name='raw_sheet')
+
+            # 遍歷每個 `Incoming` 狀態，提取對應數據並填充 `OUT` 行
+            for idx, row in modified_pivoted_df.iterrows():
+                if 'Incoming' in row['Status']:
+                    # 提取年月
+                    incoming_date = row['Status'].split(' ')[0]
+                    month_year = pd.to_datetime(incoming_date, format='%b-%y', errors='coerce')
+                    if pd.notnull(month_year):
+                        year = month_year.year
+                        month = month_year.month
+                        
+                        # 過濾 `Monthly Report` 數據
+                        filtered_df = monthly_df[
+                            (monthly_df['Inv_Yr'] == year) &
+                            (monthly_df['Inv_Month'] == month) &
+                            (monthly_df['Ordered_Items'].isin(pivoted_df.columns[1:-1]))  # 排除非 Model 列
+                        ]
+
+                        # 計算每個 Model 的數量總和
+                        model_sums = filtered_df.groupby('Ordered_Items')['Item Qty'].sum()
+
+                        # 填充 `OUT` 行
+                        for model, qty in model_sums.items():
+                            modified_pivoted_df.loc[idx + 1, model] = -1 * qty  # +1 是對應 `OUT` 行，並顯示為負數
+
+            # 將 NaN 替換為 0，轉換為整數
+            modified_pivoted_df.fillna(0, inplace=True)
+            for col in modified_pivoted_df.columns[1:]:
+                modified_pivoted_df[col] = modified_pivoted_df[col].astype(int)
+
+            # 移除已有的 Grand Total 行（如果存在）
+            modified_pivoted_df = modified_pivoted_df[modified_pivoted_df['Status'] != 'Grand Total']
+            
+            # 計算新的 Grand Total 列，包括 TBA 行的數值
+            grand_total_row = modified_pivoted_df.iloc[:, 1:].sum(axis=0)
+            if not tba_row.empty:
+                grand_total_row += tba_row.iloc[:, 1:].sum(axis=0)
+            grand_total_row['Status'] = 'Grand Total'
+            
+            # 添加新的 Grand Total 行
+            modified_pivoted_df = pd.concat([modified_pivoted_df, grand_total_row.to_frame().T], ignore_index=True)
+
+            # 恢復 TBA 行到倒數第二行
+            modified_pivoted_df = pd.concat([modified_pivoted_df.iloc[:-1], tba_row, modified_pivoted_df.iloc[-1:].reset_index(drop=True)], ignore_index=True)
+            
+            # 對 `Incoming` 狀態進行排序
+            def sort_status(status):
+                if status == 'STOCK':
+                    return (0, None)  # 確保 STOCK 排在最前
+                if status == 'Grand Total':
+                    return (float('inf'), None)  # 確保 Grand Total 排在最後
+                if 'Incoming' in status or 'OUT' in status:
+                    parts = status.split(' ')[0]  # 提取月份和年份部分
+                    date = pd.to_datetime(parts, format='%b-%y', errors='coerce')
+                    if pd.notnull(date):
+                        return (1, date)  # 排序標誌和日期
+                return (2, None)  # 其他情況排在中間
+
+            # 使用排序邏輯對表格進行排序
+            modified_pivoted_df['SortKey'] = modified_pivoted_df['Status'].apply(sort_status)
+            modified_pivoted_df.sort_values(by='SortKey', inplace=True)
+            modified_pivoted_df.drop(columns=['SortKey'], inplace=True)  # 刪除臨時列
+            modified_pivoted_df.reset_index(drop=True, inplace=True)
+
+            # 顯示新表格
+            st.markdown('<div class="report-title">Modified Report</div>', unsafe_allow_html=True)
+            st.markdown(style_dataframe(modified_pivoted_df).to_html(index=False), unsafe_allow_html=True)
+
+            # 提供下載選項
+            st.download_button('Download Modified Report', modified_pivoted_df.to_csv(index=False), file_name='modified_report.csv',
+                               key='download_modified_button', help='Download the modified report')
+        else:
+            st.warning('Please upload both South and East files first.')
+
+
