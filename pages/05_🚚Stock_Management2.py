@@ -197,6 +197,10 @@ with right_column:
             tba_row = pivoted_df[pivoted_df['Status'] == 'TBA'].copy()
             modified_pivoted_df = pivoted_df[pivoted_df['Status'] != 'TBA'].copy()
 
+            # 隱藏 Subtotal 列
+            if 'Subtotal' in modified_pivoted_df.columns:
+                modified_pivoted_df.drop(columns=['Subtotal'], inplace=True)
+
             # 在每個 `Incoming` 狀態之下添加一行 `OUT`
             incoming_indices = modified_pivoted_df.index[modified_pivoted_df['Status'].str.contains('Incoming')].tolist()
             rows_to_insert = []
@@ -253,6 +257,7 @@ with right_column:
             grand_total_row = modified_pivoted_df.iloc[:, 1:].sum(axis=0)
             if not tba_row.empty:
                 grand_total_row += tba_row.iloc[:, 1:].sum(axis=0)
+            grand_total_row = grand_total_row.round(0).astype(int)  # 確保無小數點
             grand_total_row['Status'] = 'Grand Total'
             
             # 添加新的 Grand Total 行
@@ -289,5 +294,6 @@ with right_column:
                                key='download_modified_button', help='Download the modified report')
         else:
             st.warning('Please upload both South and East files first.')
+
 
 
