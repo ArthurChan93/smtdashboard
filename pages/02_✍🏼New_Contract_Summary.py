@@ -82,11 +82,6 @@ fq_invoice_filter = st.sidebar.multiselect(
 )
 df_fq_invoice = df[df["FQ(Contract)"].isin(fq_invoice_filter)]
 
-Contract_Month_filter = st.sidebar.multiselect(
-    "INV MONTH", sort_options(df["Contract_Month"])
-)
-df_Contract_Month = df[df["Contract_Month"].isin(Contract_Month_filter)]
-
 Region_filter = st.sidebar.multiselect(
     "REGION", sort_options(df["Region"])
 )
@@ -118,18 +113,17 @@ New_Customer_filter = st.sidebar.multiselect(
 df_New_Customer = df[df["New_Customer"].isin(New_Customer_filter)]
 
 # Handle different filter combinations
-if FY_Contract_filter and fq_invoice_filter and Contract_Month_filter and Region_filter and cost_centre_filter and brand_filter and Ordered_Items_filter and Customer_Name_filter and New_Customer_filter:
+if FY_Contract_filter and fq_invoice_filter and Region_filter and cost_centre_filter and brand_filter and Ordered_Items_filter and Customer_Name_filter and New_Customer_filter:
     # All filters are selected
     filter_df = df_FY_Contract
     filter_df = filter_df[filter_df["FQ(Contract)"].isin(fq_invoice_filter)]
-    filter_df = filter_df[filter_df["Contract_Month"].isin(Contract_Month_filter)]
     filter_df = filter_df[filter_df["Region"].isin(Region_filter)]
     filter_df = filter_df[filter_df["COST_CENTRE"].isin(cost_centre_filter)]
     filter_df = filter_df[filter_df["BRAND"].isin(brand_filter)]
     filter_df = filter_df[filter_df["Ordered_Items"].isin(Ordered_Items_filter)]
     filter_df = filter_df[filter_df["Customer_Name"].isin(Customer_Name_filter)]
     filter_df = filter_df[filter_df["New_Customer"].isin(New_Customer_filter)]
-elif not FY_Contract_filter and not fq_invoice_filter and not Contract_Month_filter and not Region_filter and not cost_centre_filter and not brand_filter and not Ordered_Items_filter and not Customer_Name_filter and not New_Customer_filter:
+elif not FY_Contract_filter and not fq_invoice_filter and not Region_filter and not cost_centre_filter and not brand_filter and not Ordered_Items_filter and not Customer_Name_filter and not New_Customer_filter:
     # No filters are selected
     filter_df = df
 else:
@@ -145,44 +139,38 @@ else:
         else:
             filter_df = filter_df[filter_df["FQ(Contract)"].isin(fq_invoice_filter)]
     
-    if Contract_Month_filter:
-        if not FY_Contract_filter and not fq_invoice_filter:
-            filter_df = pd.concat([filter_df, df_Contract_Month])
-        else:
-            filter_df = filter_df[filter_df["Contract_Month"].isin(Contract_Month_filter)]
-    
     if Region_filter:
-        if not FY_Contract_filter and not fq_invoice_filter and not Contract_Month_filter:
+        if not FY_Contract_filter and not fq_invoice_filter:
             filter_df = pd.concat([filter_df, df_Region])
         else:
             filter_df = filter_df[filter_df["Region"].isin(Region_filter)]
     
     if cost_centre_filter:
-        if not FY_Contract_filter and not fq_invoice_filter and not Contract_Month_filter and not Region_filter:
+        if not FY_Contract_filter and not fq_invoice_filter and not Region_filter:
             filter_df = pd.concat([filter_df, df_cost_centre])
         else:
             filter_df = filter_df[filter_df["COST_CENTRE"].isin(cost_centre_filter)]
     
     if brand_filter:
-        if not FY_Contract_filter and not fq_invoice_filter and not Contract_Month_filter and not Region_filter and not cost_centre_filter:
+        if not FY_Contract_filter and not fq_invoice_filter and not Region_filter and not cost_centre_filter:
             filter_df = pd.concat([filter_df, df_brand])
         else:
             filter_df = filter_df[filter_df["BRAND"].isin(brand_filter)]
     
     if Ordered_Items_filter:
-        if not FY_Contract_filter and not fq_invoice_filter and not Contract_Month_filter and not Region_filter and not cost_centre_filter and not brand_filter:
+        if not FY_Contract_filter and not fq_invoice_filter and not Region_filter and not cost_centre_filter and not brand_filter:
             filter_df = pd.concat([filter_df, df_Ordered_Items])
         else:
             filter_df = filter_df[filter_df["Ordered_Items"].isin(Ordered_Items_filter)]
     
     if Customer_Name_filter:
-        if not FY_Contract_filter and not fq_invoice_filter and not Contract_Month_filter and not Region_filter and not cost_centre_filter and not brand_filter and not Ordered_Items_filter:
+        if not FY_Contract_filter and not fq_invoice_filter and not Region_filter and not cost_centre_filter and not brand_filter and not Ordered_Items_filter:
             filter_df = pd.concat([filter_df, df_Customer_Name])
         else:
             filter_df = filter_df[filter_df["Customer_Name"].isin(Customer_Name_filter)]
     
     if New_Customer_filter:
-        if not FY_Contract_filter and not fq_invoice_filter and not Contract_Month_filter and not Region_filter and not cost_centre_filter and not brand_filter and not Ordered_Items_filter and not Customer_Name_filter:
+        if not FY_Contract_filter and not fq_invoice_filter and not Region_filter and not cost_centre_filter and not brand_filter and not Ordered_Items_filter and not Customer_Name_filter:
             filter_df = pd.concat([filter_df, df_New_Customer])
         else:
             filter_df = filter_df[filter_df["New_Customer"].isin(New_Customer_filter)]
