@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
-#
+
 # Function to process the uploaded files
 def process_files(south_file, east_file):
     # Read the sheets from the uploaded files
@@ -116,7 +116,7 @@ def style_dataframe(df):
     return styled_df
 
 # Streamlit app layout
-st.title('Machine Inventory and Incoming Status')
+st.title('📊Machine Inventory and Incoming Status')
 
 # Custom CSS for styling
 st.markdown("""
@@ -158,12 +158,12 @@ st.markdown("""
 # File uploaders with custom background colors
 st.markdown('<div class="south-uploader">', unsafe_allow_html=True)
 st.subheader('South STK info')
-south_file = st.file_uploader('Upload South Stock List Excel file', type='xlsx', key='south')
+south_file = st.file_uploader('1️⃣ Upload South stock information file:point_down:', type='xlsx', key='south')
 st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown('<div class="east-uploader">', unsafe_allow_html=True)
 st.subheader('EAST & WEST & NORTH STK info')
-east_file = st.file_uploader('Upload East China-STK Machine IND Order info Excel file', type='xlsx', key='east')
+east_file = st.file_uploader('2️⃣ Upload SHA stock information file:point_down:', type='xlsx', key='east')
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Combine button
@@ -185,7 +185,7 @@ with left_column:
 
 with right_column:
     # 添加文件上傳器
-    monthly_report_file = st.file_uploader('Upload Monthly Report Excel file (xlsx or xlsm)', type=['xlsx', 'xlsm'], key='monthly_report')
+    monthly_report_file = st.file_uploader('3️⃣ Upload Monthly Report :point_down:', type=['xlsx', 'xlsm'], key='monthly_report')
 
     if monthly_report_file:
         # 當文件已成功上傳後，重新執行“Combine”功能
@@ -293,7 +293,7 @@ with right_column:
             st.download_button('Download Modified Report', modified_pivoted_df.to_csv(index=False), file_name='modified_report.csv',
                                key='download_modified_button', help='Download the modified report')
         else:
-            st.warning('Please upload both South and East files first.')
+            st.warning('Please upload both South and East stock information files and combine first.')
 
 
 
