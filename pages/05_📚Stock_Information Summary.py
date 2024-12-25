@@ -157,12 +157,12 @@ st.markdown("""
 
 # File uploaders with custom background colors
 st.markdown('<div class="south-uploader">', unsafe_allow_html=True)
-st.subheader('South STK info')
+st.subheader(':orange[South]: STK info')
 south_file = st.file_uploader('1️⃣ Upload South stock information file:point_down:', type='xlsx', key='south')
 st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown('<div class="east-uploader">', unsafe_allow_html=True)
-st.subheader('EAST & WEST & NORTH STK info')
+st.subheader(':blue[EAST & WEST & NORTH]: STK info')
 east_file = st.file_uploader('2️⃣ Upload SHA stock information file:point_down:', type='xlsx', key='east')
 st.markdown('</div>', unsafe_allow_html=True)
 
@@ -185,22 +185,21 @@ with left_column:
 
 with right_column:
     # 添加文件上傳器
-    monthly_report_file = st.file_uploader('3️⃣ Upload Monthly Report :point_down:', type=['xlsx', 'xlsm'], key='monthly_report')
-
+    monthly_report_file = st.file_uploader('3️⃣ Upload :red[Monthly Report]: :point_down:', type=['xlsx', 'xlsm'], key='monthly_report')
     if monthly_report_file:
         # 當文件已成功上傳後，重新執行“Combine”功能
         if south_file and east_file:
             combined_df = process_files(south_file, east_file)
             pivoted_df = pivot_data(combined_df)
-
+            
             # 創建新表格，刪除 `Status` 列中包含 `TBA` 的行並存儲
             tba_row = pivoted_df[pivoted_df['Status'] == 'TBA'].copy()
             modified_pivoted_df = pivoted_df[pivoted_df['Status'] != 'TBA'].copy()
-
+            
             # 隱藏 Subtotal 列
             if 'Subtotal' in modified_pivoted_df.columns:
                 modified_pivoted_df.drop(columns=['Subtotal'], inplace=True)
-
+            
             # 在每個 `Incoming` 狀態之下添加一行 `OUT`
             incoming_indices = modified_pivoted_df.index[modified_pivoted_df['Status'].str.contains('Incoming')].tolist()
             rows_to_insert = []
@@ -213,14 +212,14 @@ with right_column:
                 for col in modified_pivoted_df.columns[1:]:
                     out_row[col] = -1 * out_row[col]
                 rows_to_insert.append((idx + 1, out_row))
-
+            
             # 插入行
             for idx, row in rows_to_insert[::-1]:  # 必須倒序插入，否則索引會錯亂
                 modified_pivoted_df = pd.concat([modified_pivoted_df.iloc[:idx], row.to_frame().T, modified_pivoted_df.iloc[idx:]]).reset_index(drop=True)
-
+            
             # 如果 Monthly Report 文件被提供，進一步處理
             monthly_df = pd.read_excel(monthly_report_file, sheet_name='raw_sheet')
-
+            
             # 遍歷每個 `Incoming` 狀態，提取對應數據並填充 `OUT` 行
             for idx, row in modified_pivoted_df.iterrows():
                 if 'Incoming' in row['Status']:
@@ -235,21 +234,19 @@ with right_column:
                         filtered_df = monthly_df[
                             (monthly_df['Inv_Yr'] == year) &
                             (monthly_df['Inv_Month'] == month) &
-                            (monthly_df['Ordered_Items'].isin(pivoted_df.columns[1:-1]))  # 排除非 Model 列
+                            (monthly_df['Ordered_Items'].isin(pivoted_df.columns[1:]))  # 排除非 Model 列
                         ]
-
                         # 計算每個 Model 的數量總和
                         model_sums = filtered_df.groupby('Ordered_Items')['Item Qty'].sum()
-
                         # 填充 `OUT` 行
                         for model, qty in model_sums.items():
                             modified_pivoted_df.loc[idx + 1, model] = -1 * qty  # +1 是對應 `OUT` 行，並顯示為負數
-
+            
             # 將 NaN 替換為 0，轉換為整數
             modified_pivoted_df.fillna(0, inplace=True)
             for col in modified_pivoted_df.columns[1:]:
                 modified_pivoted_df[col] = modified_pivoted_df[col].astype(int)
-
+            
             # 移除已有的 Grand Total 行（如果存在）
             modified_pivoted_df = modified_pivoted_df[modified_pivoted_df['Status'] != 'Grand Total']
             
@@ -262,36 +259,64 @@ with right_column:
             
             # 添加新的 Grand Total 行
             modified_pivoted_df = pd.concat([modified_pivoted_df, grand_total_row.to_frame().T], ignore_index=True)
-
             # 恢復 TBA 行到倒數第二行
             modified_pivoted_df = pd.concat([modified_pivoted_df.iloc[:-1], tba_row, modified_pivoted_df.iloc[-1:].reset_index(drop=True)], ignore_index=True)
             
-            # 對 `Incoming` 狀態進行排序
-            def sort_status(status):
-                if status == 'STOCK':
-                    return (0, None)  # 確保 STOCK 排在最前
-                if status == 'Grand Total':
-                    return (float('inf'), None)  # 確保 Grand Total 排在最後
-                if 'Incoming' in status or 'OUT' in status:
-                    parts = status.split(' ')[0]  # 提取月份和年份部分
-                    date = pd.to_datetime(parts, format='%b-%y', errors='coerce')
-                    if pd.notnull(date):
-                        return (1, date)  # 排序標誌和日期
-                return (2, None)  # 其他情況排在中間
+            # **新增的功能：生成 "Balance" 表格**
+            balance_df = modified_pivoted_df[modified_pivoted_df['Status'].str.contains('Incoming')].copy()
+            balance_df['Status'] = balance_df['Status'].str.replace('Incoming', 'Balance')
+            
+            # 修正累積總和邏輯
+            for idx, row in balance_df.iterrows():
+                # 找到對應的 "Incoming" 行
+                status_balance = row['Status']
+                incoming_status = status_balance.replace('Balance', 'Incoming')
+                out_status = status_balance.replace('Balance', 'OUT')
 
-            # 使用排序邏輯對表格進行排序
-            modified_pivoted_df['SortKey'] = modified_pivoted_df['Status'].apply(sort_status)
-            modified_pivoted_df.sort_values(by='SortKey', inplace=True)
-            modified_pivoted_df.drop(columns=['SortKey'], inplace=True)  # 刪除臨時列
-            modified_pivoted_df.reset_index(drop=True, inplace=True)
+                # 找到對應行的索引
+                incoming_idx = modified_pivoted_df[modified_pivoted_df['Status'] == incoming_status].index[0]
+                out_idx = modified_pivoted_df[modified_pivoted_df['Status'] == out_status].index[0]
 
-            # 顯示新表格
+                # 計算從頭到當前行的加總
+                cumulative_sums = modified_pivoted_df.iloc[:out_idx + 1, 1:].sum(axis=0)
+                for col in balance_df.columns[1:]:
+                    balance_df.loc[idx, col] = cumulative_sums[col]
+
+            # 填充 NaN 值並確保數據為整數
+            balance_df.fillna(0, inplace=True)
+            for col in balance_df.columns[1:]:
+                balance_df[col] = balance_df[col].astype(int)
+
+            # **為 Balance 行設置粉紅色背景**
+            def style_dataframe_with_balance(df):
+                styled_df = df.style.apply(lambda x: ['background-color: pink' if 'Balance' in v else '' for v in x], subset=['Status'])
+                return styled_df
+
+            # **顯示第一個表格**
             st.markdown('<div class="report-title">Modified Report</div>', unsafe_allow_html=True)
             st.markdown(style_dataframe(modified_pivoted_df).to_html(index=False), unsafe_allow_html=True)
 
-            # 提供下載選項
-            st.download_button('Download Modified Report', modified_pivoted_df.to_csv(index=False), file_name='modified_report.csv',
-                               key='download_modified_button', help='Download the modified report')
+            # **提供兩個表格的下載選項**
+            st.download_button(
+                'Download Modified Report',
+                modified_pivoted_df.to_csv(index=False),
+                file_name='modified_report.csv',
+                key='download_modified_button',
+                help='Download the modified report'
+            )
+
+
+            # **顯示新生成的 "Balance" 表格**
+            st.markdown('<div class="report-title">Balance Report</div>', unsafe_allow_html=True)
+            st.markdown(style_dataframe_with_balance(balance_df).to_html(index=False), unsafe_allow_html=True)
+            
+            st.download_button(
+                'Download Balance Report',
+                balance_df.to_csv(index=False),
+                file_name='balance_report.csv',
+                key='download_balance_button',
+                help='Download the balance report'
+            )
         else:
             st.warning('Please upload both South and East stock information files and combine first.')
 
