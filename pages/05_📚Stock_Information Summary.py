@@ -158,12 +158,12 @@ st.markdown("""
 # File uploaders with custom background colors
 st.markdown('<div class="south-uploader">', unsafe_allow_html=True)
 st.subheader(':orange[South]: STK info')
-south_file = st.file_uploader('1️⃣ Upload South stock information file:point_down:', type='xlsx', key='south')
+south_file = st.file_uploader('1️⃣ Upload :red[South stock information file]::point_down:', type='xlsx', key='south')
 st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown('<div class="east-uploader">', unsafe_allow_html=True)
 st.subheader(':blue[EAST & WEST & NORTH]: STK info')
-east_file = st.file_uploader('2️⃣ Upload SHA stock information file:point_down:', type='xlsx', key='east')
+east_file = st.file_uploader('2️⃣ Upload :red[SHA stock information file]::point_down:', type='xlsx', key='east')
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Combine button
