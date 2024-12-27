@@ -185,7 +185,7 @@ with left_column:
 
 with right_column:
     # 添加文件上傳器
-    monthly_report_file = st.file_uploader('3️⃣ Upload :red[Monthly Report]: :point_down:', type=['xlsx', 'xlsm'], key='monthly_report')
+    monthly_report_file = st.file_uploader('3️⃣ Upload :red[Monthly Report_edit]: :point_down:', type=['xlsx', 'xlsm'], key='monthly_report')
     if monthly_report_file:
         # 當文件已成功上傳後，重新執行“Combine”功能
         if south_file and east_file:
