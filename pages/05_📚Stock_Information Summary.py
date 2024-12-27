@@ -286,10 +286,15 @@ with right_column:
             balance_df.fillna(0, inplace=True)
             for col in balance_df.columns[1:]:
                 balance_df[col] = balance_df[col].astype(int)
+            
+            # 添加 TBA 行到 Balance 報告
+            tba_balance_row = tba_row.copy()
+            tba_balance_row['Status'] = 'TBA'
+            balance_df = pd.concat([balance_df, tba_balance_row], ignore_index=True)
 
-            # **為 Balance 行設置粉紅色背景**
+            # **為 Balance 行設置粉紅色背景，並為 TBA 行設置橙色背景**
             def style_dataframe_with_balance(df):
-                styled_df = df.style.apply(lambda x: ['background-color: pink' if 'Balance' in v else '' for v in x], subset=['Status'])
+                styled_df = df.style.apply(lambda x: ['background-color: pink' if 'Balance' in v else 'background-color: orange' if 'TBA' in v else '' for v in x], subset=['Status'])
                 return styled_df
 
             # **顯示第一個表格**
@@ -305,7 +310,6 @@ with right_column:
                 help='Download the modified report'
             )
 
-
             # **顯示新生成的 "Balance" 表格**
             st.markdown('<div class="report-title">Balance Report</div>', unsafe_allow_html=True)
             st.markdown(style_dataframe_with_balance(balance_df).to_html(index=False), unsafe_allow_html=True)
@@ -319,6 +323,5 @@ with right_column:
             )
         else:
             st.warning('Please upload both South and East stock information files and combine first.')
-
 
 
