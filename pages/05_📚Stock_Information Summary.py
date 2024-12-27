@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
-
+#
 # Function to process the uploaded files
 def process_files(south_file, east_file):
     # Read the sheets from the uploaded files
@@ -185,7 +185,7 @@ with left_column:
 
 with right_column:
     # 添加文件上傳器
-    monthly_report_file = st.file_uploader('3️⃣ Upload :red[Monthly Report_edit]: :point_down:', type=['xlsx', 'xlsm'], key='monthly_report')
+    monthly_report_file = st.file_uploader('3️⃣ Upload :red[Monthly Report]: :point_down:', type=['xlsx', 'xlsm'], key='monthly_report')
     if monthly_report_file:
         # 當文件已成功上傳後，重新執行“Combine”功能
         if south_file and east_file:
@@ -259,6 +259,8 @@ with right_column:
             
             # 添加新的 Grand Total 行
             modified_pivoted_df = pd.concat([modified_pivoted_df, grand_total_row.to_frame().T], ignore_index=True)
+            # 恢復 TBA 行到倒數第二行
+            modified_pivoted_df = pd.concat([modified_pivoted_df.iloc[:-1], tba_row, modified_pivoted_df.iloc[-1:].reset_index(drop=True)], ignore_index=True)
             
             # **新增的功能：生成 "Balance" 表格**
             balance_df = modified_pivoted_df[modified_pivoted_df['Status'].str.contains('Incoming')].copy()
@@ -285,23 +287,9 @@ with right_column:
             for col in balance_df.columns[1:]:
                 balance_df[col] = balance_df[col].astype(int)
 
-            # **將 TBA 行添加到 Balance 表格最底部**
-            if not tba_row.empty:
-                tba_row['Status'] = 'TBA'
-                tba_row.fillna(0, inplace=True)
-                for col in tba_row.columns[1:]:
-                    tba_row[col] = tba_row[col].astype(int)
-                balance_df = pd.concat([balance_df, tba_row], ignore_index=True)
-
-            # **為 Balance 行設置粉紅色背景，並為 TBA 行設置橙色背景**
-            def style_dataframe_with_balance_and_tba(df):
-                styled_df = df.style.apply(
-                    lambda x: [
-                        'background-color: pink' if 'Balance' in v else 'background-color: orange' if 'TBA' in v else ''
-                        for v in x
-                    ],
-                    subset=['Status']
-                )
+            # **為 Balance 行設置粉紅色背景**
+            def style_dataframe_with_balance(df):
+                styled_df = df.style.apply(lambda x: ['background-color: pink' if 'Balance' in v else '' for v in x], subset=['Status'])
                 return styled_df
 
             # **顯示第一個表格**
@@ -317,9 +305,10 @@ with right_column:
                 help='Download the modified report'
             )
 
+
             # **顯示新生成的 "Balance" 表格**
             st.markdown('<div class="report-title">Balance Report</div>', unsafe_allow_html=True)
-            st.markdown(style_dataframe_with_balance_and_tba(balance_df).to_html(index=False), unsafe_allow_html=True)
+            st.markdown(style_dataframe_with_balance(balance_df).to_html(index=False), unsafe_allow_html=True)
             
             st.download_button(
                 'Download Balance Report',
