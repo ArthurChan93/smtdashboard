@@ -379,16 +379,16 @@ with right_column:
 
             # 添加 TBA 行到 Balance 報告
             tba_balance_row = tba_row.copy()
-            tba_balance_row['Status'] = 'TBA Balance'
+            tba_balance_row['Status'] = 'TBA'
             balance_df = pd.concat([balance_df, tba_balance_row], ignore_index=True)
 
-            # **為 Balance 行和 TBA Balance 行中 Status 格子設置背景色**
+            # **為 Balance 行和 TBA 行中 Status 格子設置背景色**
             def style_dataframe_with_balance(df):
                 def highlight_status(cell):
                     if isinstance(cell, str):
                         if 'Balance' in cell and 'TBA' not in cell:
                             return 'background-color: pink'
-                        elif 'TBA Balance' in cell:
+                        elif 'TBA' in cell:
                             return 'background-color: orange'
                     return ''
 
