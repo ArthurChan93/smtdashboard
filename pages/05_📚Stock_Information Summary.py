@@ -242,6 +242,35 @@ with right_column:
                         for model, qty in model_sums.items():
                             modified_pivoted_df.loc[idx + 1, model] = -1 * qty  # +1 是對應 `OUT` 行，並顯示為負數
             
+            # 找出時間最靠後的一行 `OUT`
+            out_rows = modified_pivoted_df[modified_pivoted_df['Status'].str.contains('OUT')]
+            if not out_rows.empty:
+                out_rows['Date'] = out_rows['Status'].apply(lambda x: pd.to_datetime(x.split(' ')[0], format='%b-%y'))
+                latest_out_row = out_rows[out_rows['Date'] == out_rows['Date'].max()]
+                latest_out_date = latest_out_row['Date'].values[0]
+                next_month = pd.to_datetime(latest_out_date) + pd.DateOffset(months=1)
+                next_month_str = next_month.strftime('%b-%y').upper()
+
+                # 檢查 monthly_report_file 中是否有這組年月組合
+                next_year = next_month.year
+                next_month_num = next_month.month
+                next_month_filtered_df = monthly_df[
+                    (monthly_df['Inv_Yr'] == next_year) &
+                    (monthly_df['Inv_Month'] == next_month_num) &
+                    (monthly_df['Ordered_Items'].isin(pivoted_df.columns[1:]))
+                ]
+                if not next_month_filtered_df.empty:
+                    next_month_model_sums = next_month_filtered_df.groupby('Ordered_Items')['Item Qty'].sum()
+                    new_out_row = modified_pivoted_df.iloc[0].copy()
+                    new_out_row['Status'] = f"{next_month_str} OUT"
+                    for model, qty in next_month_model_sums.items():
+                        new_out_row[model] = -1 * qty
+
+                    # 找到 TBA 行的索引
+                    tba_index = modified_pivoted_df[modified_pivoted_df['Status'] == 'Grand Total'].index[0]
+                    # 插入新的 OUT 行
+                    modified_pivoted_df = pd.concat([modified_pivoted_df.iloc[:tba_index], new_out_row.to_frame().T, modified_pivoted_df.iloc[tba_index:]]).reset_index(drop=True)
+
             # 將 NaN 替換為 0，轉換為整數
             modified_pivoted_df.fillna(0, inplace=True)
             for col in modified_pivoted_df.columns[1:]:
@@ -263,38 +292,49 @@ with right_column:
             modified_pivoted_df = pd.concat([modified_pivoted_df.iloc[:-1], tba_row, modified_pivoted_df.iloc[-1:].reset_index(drop=True)], ignore_index=True)
             
             # **新增的功能：生成 "Balance" 表格**
-            balance_df = modified_pivoted_df[modified_pivoted_df['Status'].str.contains('Incoming')].copy()
-            balance_df['Status'] = balance_df['Status'].str.replace('Incoming', 'Balance')
-            
+            out_statuses = modified_pivoted_df[modified_pivoted_df['Status'].str.contains('OUT')]['Status'].tolist()
+            balance_dates = [status.replace(' OUT', ' Balance') for status in out_statuses]
+            balance_df = pd.DataFrame(columns=modified_pivoted_df.columns)
+            for date in balance_dates:
+                balance_row = modified_pivoted_df.iloc[0].copy()
+                balance_row['Status'] = date
+                balance_df = pd.concat([balance_df, balance_row.to_frame().T], ignore_index=True)
+
             # 修正累積總和邏輯
             for idx, row in balance_df.iterrows():
-                # 找到對應的 "Incoming" 行
+                # 找到對應的 "OUT" 行
                 status_balance = row['Status']
-                incoming_status = status_balance.replace('Balance', 'Incoming')
                 out_status = status_balance.replace('Balance', 'OUT')
 
                 # 找到對應行的索引
-                incoming_idx = modified_pivoted_df[modified_pivoted_df['Status'] == incoming_status].index[0]
                 out_idx = modified_pivoted_df[modified_pivoted_df['Status'] == out_status].index[0]
 
                 # 計算從頭到當前行的加總
                 cumulative_sums = modified_pivoted_df.iloc[:out_idx + 1, 1:].sum(axis=0)
-                for col in balance_df.columns[1:]:
+            for col in balance_df.columns[1:]:
                     balance_df.loc[idx, col] = cumulative_sums[col]
 
             # 填充 NaN 值並確保數據為整數
             balance_df.fillna(0, inplace=True)
             for col in balance_df.columns[1:]:
                 balance_df[col] = balance_df[col].astype(int)
-            
+
             # 添加 TBA 行到 Balance 報告
             tba_balance_row = tba_row.copy()
-            tba_balance_row['Status'] = 'TBA'
+            tba_balance_row['Status'] = 'TBA Balance'
             balance_df = pd.concat([balance_df, tba_balance_row], ignore_index=True)
 
-            # **為 Balance 行設置粉紅色背景，並為 TBA 行設置橙色背景**
+            # **為 Balance 行和 TBA Balance 行中 Status 格子設置背景色**
             def style_dataframe_with_balance(df):
-                styled_df = df.style.apply(lambda x: ['background-color: pink' if 'Balance' in v else 'background-color: orange' if 'TBA' in v else '' for v in x], subset=['Status'])
+                def highlight_status(cell):
+                    if isinstance(cell, str):
+                        if 'Balance' in cell and 'TBA' not in cell:
+                            return 'background-color: pink'
+                        elif 'TBA Balance' in cell:
+                            return 'background-color: orange'
+                    return ''
+
+                styled_df = df.style.applymap(highlight_status, subset=['Status'])
                 return styled_df
 
             # **顯示第一個表格**
@@ -313,7 +353,7 @@ with right_column:
             # **顯示新生成的 "Balance" 表格**
             st.markdown('<div class="report-title">Balance Report</div>', unsafe_allow_html=True)
             st.markdown(style_dataframe_with_balance(balance_df).to_html(index=False), unsafe_allow_html=True)
-            
+
             st.download_button(
                 'Download Balance Report',
                 balance_df.to_csv(index=False),
@@ -323,5 +363,3 @@ with right_column:
             )
         else:
             st.warning('Please upload both South and East stock information files and combine first.')
-
-
