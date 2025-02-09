@@ -174,11 +174,69 @@ with left_column:
             combined_df = process_files(south_file, east_file)
             pivoted_df = pivot_data(combined_df)
 
-            # Display the summary report
-            st.markdown('<div class="report-title">Summary Report</div>', unsafe_allow_html=True)
+            # Display the summary report (renamed)
+            st.markdown('<div class="report-title">STK Summary_[All Region]</div>', unsafe_allow_html=True)
             st.markdown(style_dataframe(pivoted_df).to_html(index=False), unsafe_allow_html=True)
-            st.download_button('Download Summary Report', pivoted_df.to_csv(index=False), file_name='summary_report.csv', 
-                               key='download_button', help='Download the summary report')
+            st.download_button('Download STK Summary Report_All Region', pivoted_df.to_csv(index=False), file_name='STK_summary_report_all_region.csv', 
+                               key='download_all_region_button', help='Download the all region summary report')
+
+            # Process South data separately
+            south_df = pd.read_excel(south_file, sheet_name='Stock_list', usecols=['ETA_Month', 'Item', 'Customer Reserved', 'Machine_QTY', 'ETA HK'])
+            south_df.rename(columns={'ETA_Month': 'Status', 'Item': 'Model', 'Customer Reserved': 'Customer', 'Machine_QTY': 'QTY', 'ETA HK': 'Incoming'}, inplace=True)
+            south_df = south_df[~south_df['Status'].str.contains('已发货', na=False)]
+            south_df['Status'] = south_df['Status'].replace({'已到货': 'STOCK', '已经到货': 'STOCK', '已发货': None})
+            south_df.dropna(subset=['Status'], inplace=True)
+            south_df['Incoming'] = south_df['Incoming'].apply(
+                lambda x: 'TBA' if 'TBA' in str(x) else 
+                          pd.to_datetime(x, errors='coerce').strftime('%b-%y').upper() if pd.notnull(pd.to_datetime(x, errors='coerce')) else x
+            )
+            south_df['Status'] = south_df.apply(lambda row: 'STOCK' if row['Status'] == 'STOCK' else 'TBA' if 'TBA' in str(row['Incoming']) else f"{row['Incoming']} Incoming" if pd.notnull(row['Incoming']) and '-' in str(row['Incoming']) else None, axis=1)
+            south_df.dropna(subset=['Status'], inplace=True)
+            south_df['Model'] = south_df['Model'].replace({
+                'YSi-V(DL)': 'YSi-V', 'YSi-V(SL)': 'YSi-V',
+                'YSM20R-2': 'YSM20R', 'YSM20R(PV)-2': 'YSM20R',
+                'YSM20R-1': 'YSM20R', 'YSM20R(SV)-2': 'YSM20R',
+                'YSM20R(PV)-1': 'YSM20R', 'YSM10 96': 'YSM10'
+            })
+            south_df.dropna(subset=['Model'], inplace=True)
+            south_pivoted_df = pivot_data(south_df)
+
+            # Display South summary report
+            st.markdown('<div class="report-title">STK Summary_[SOUTH]</div>', unsafe_allow_html=True)
+            st.markdown(style_dataframe(south_pivoted_df).to_html(index=False), unsafe_allow_html=True)
+            st.download_button('Download STK Summary Report_SOUTH', south_pivoted_df.to_csv(index=False), file_name='STK_summary_report_south.csv', 
+                               key='download_south_button', help='Download the South summary report')
+
+            # Process East, West, and North data separately
+            stk_df = pd.read_excel(east_file, sheet_name='STK', usecols=['ETA ', 'MACHINE TYPE', 'QTY', 'Customer', '到货情况'])
+            ind_df = pd.read_excel(east_file, sheet_name='IND', usecols=['ETA ', 'MACHINE TYPE', 'QTY', 'Customer', 'ETA '])
+            stk_df.rename(columns={'到货情况': 'Status', 'MACHINE TYPE': 'Model', 'ETA ': 'Incoming'}, inplace=True)
+            ind_df.rename(columns={'ETA ': 'Incoming', 'MACHINE TYPE': 'Model'}, inplace=True)
+            stk_df = stk_df[~stk_df['Status'].str.contains('已发货', na=False)]
+            east_west_north_df = pd.concat([stk_df, ind_df], ignore_index=True)
+            east_west_north_df['Status'] = east_west_north_df['Status'].replace({'已到货': 'STOCK', '已经到货': 'STOCK', '已发货': None})
+            east_west_north_df.dropna(subset=['Status'], inplace=True)
+            east_west_north_df['Incoming'] = east_west_north_df['Incoming'].apply(
+                lambda x: 'TBA' if 'TBA' in str(x) else 
+                          pd.to_datetime(x, errors='coerce').strftime('%b-%y').upper() if pd.notnull(pd.to_datetime(x, errors='coerce')) else x
+            )
+            east_west_north_df['Status'] = east_west_north_df.apply(lambda row: 'STOCK' if row['Status'] == 'STOCK' else 'TBA' if 'TBA' in str(row['Incoming']) else f"{row['Incoming']} Incoming" if pd.notnull(row['Incoming']) and '-' in str(row['Incoming']) else None, axis=1)
+            east_west_north_df.dropna(subset=['Status'], inplace=True)
+            east_west_north_df['Model'] = east_west_north_df['Model'].replace({
+                'YSi-V(DL)': 'YSi-V', 'YSi-V(SL)': 'YSi-V',
+                'YSM20R-2': 'YSM20R', 'YSM20R(PV)-2': 'YSM20R',
+                'YSM20R-1': 'YSM20R', 'YSM20R(SV)-2': 'YSM20R',
+                'YSM20R(PV)-1': 'YSM20R', 'YSM10 96': 'YSM10'
+            })
+            east_west_north_df.dropna(subset=['Model'], inplace=True)
+            east_west_north_pivoted_df = pivot_data(east_west_north_df)
+
+            # Display East, West, and North summary report
+            st.markdown('<div class="report-title">STK Summary_[EAST & WEST & NORTH] </div>', unsafe_allow_html=True)
+            st.markdown(style_dataframe(east_west_north_pivoted_df).to_html(index=False), unsafe_allow_html=True)
+            st.download_button('Download STK Summary Report_EAST & WEST & NORTH', east_west_north_pivoted_df.to_csv(index=False), file_name='STK_summary_report_east_west_north.csv', 
+                               key='download_STK_east_west_north_button', help='Download the East, West, and North summary report')
+
         else:
             st.warning('Please upload both files to proceed.')
 
@@ -276,7 +334,7 @@ with right_column:
             for col in modified_pivoted_df.columns[1:]:
                 modified_pivoted_df[col] = modified_pivoted_df[col].astype(int)
             
-            # 移除已有的 Grand Total 行（如果存在）
+                        # 移除已有的 Grand Total 行（如果存在）
             modified_pivoted_df = modified_pivoted_df[modified_pivoted_df['Status'] != 'Grand Total']
             
             # 計算新的 Grand Total 列，包括 TBA 行的數值
@@ -311,7 +369,7 @@ with right_column:
 
                 # 計算從頭到當前行的加總
                 cumulative_sums = modified_pivoted_df.iloc[:out_idx + 1, 1:].sum(axis=0)
-            for col in balance_df.columns[1:]:
+                for col in balance_df.columns[1:]:
                     balance_df.loc[idx, col] = cumulative_sums[col]
 
             # 填充 NaN 值並確保數據為整數
@@ -338,7 +396,7 @@ with right_column:
                 return styled_df
 
             # **顯示第一個表格**
-            st.markdown('<div class="report-title">Modified Report</div>', unsafe_allow_html=True)
+            st.markdown('<div class="report-title">STK_[All Region] & Monthly Report Summary</div>', unsafe_allow_html=True)
             st.markdown(style_dataframe(modified_pivoted_df).to_html(index=False), unsafe_allow_html=True)
 
             # **提供兩個表格的下載選項**
@@ -351,13 +409,13 @@ with right_column:
             )
 
             # **顯示新生成的 "Balance" 表格**
-            st.markdown('<div class="report-title">Balance Report</div>', unsafe_allow_html=True)
+            st.markdown('<div class="report-title">STK Monthly Balance & TBA </div>', unsafe_allow_html=True)
             st.markdown(style_dataframe_with_balance(balance_df).to_html(index=False), unsafe_allow_html=True)
 
             st.download_button(
-                'Download Balance Report',
+                'Download STK Monthly Balance Report',
                 balance_df.to_csv(index=False),
-                file_name='balance_report.csv',
+                file_name='STK Monthly Balance_report.csv',
                 key='download_balance_button',
                 help='Download the balance report'
             )
