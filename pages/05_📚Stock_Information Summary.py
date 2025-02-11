@@ -403,7 +403,7 @@ with right_column:
             st.download_button(
                 'Download STK_[All Region] & Monthly Report Summary Report',
                 modified_pivoted_df.to_csv(index=False),
-                file_name='modified_report.csv',
+                file_name='STK_[All Region] & Monthly Report Summary_report.csv',
                 key='download_modified_button',
                 help='Download the modified report'
             )
