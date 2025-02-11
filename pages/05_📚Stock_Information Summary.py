@@ -401,7 +401,7 @@ with right_column:
 
             # **提供兩個表格的下載選項**
             st.download_button(
-                'Download Modified Report',
+                'Download STK_[All Region] & Monthly Report Summary Report',
                 modified_pivoted_df.to_csv(index=False),
                 file_name='modified_report.csv',
                 key='download_modified_button',
