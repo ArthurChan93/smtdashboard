@@ -217,8 +217,8 @@ with left_column:
                                key='download_south_button', help='Download the South summary report')
 
             # Process East, West, and North data separately
-            stk_df = pd.read_excel(east_file, sheet_name='STK', usecols=['ETA ', 'MACHINE TYPE', 'QTY', 'Customer', '到货情况'])
-            ind_df = pd.read_excel(east_file, sheet_name='IND', usecols=['ETA ', 'MACHINE TYPE', 'QTY', 'Customer', 'ETA '])
+            stk_df = pd.read_excel(east_file, sheet_name='STK', usecols=['ETA ', 'MACHINE TYPE', 'QTY', 'Customer', '到货情况', 'REGION'])
+            ind_df = pd.read_excel(east_file, sheet_name='IND', usecols=['ETA ', 'MACHINE TYPE', 'QTY', 'Customer', 'ETA ', 'REGION'])
             stk_df.rename(columns={'到货情况': 'Status', 'MACHINE TYPE': 'Model', 'ETA ': 'Incoming'}, inplace=True)
             ind_df.rename(columns={'ETA ': 'Incoming', 'MACHINE TYPE': 'Model'}, inplace=True)
             stk_df = stk_df[~stk_df['Status'].str.contains('已发货', na=False)]
@@ -238,7 +238,37 @@ with left_column:
                 'YSM20R(PV)-1': 'YSM20R', 'YSM10 96': 'YSM10'
             })
             east_west_north_df.dropna(subset=['Model'], inplace=True)
-            east_west_north_pivoted_df = pivot_data(east_west_north_df)
+
+            # 定义新的 pivot 函数，考虑 REGION 列
+            def pivot_data_with_region(df):
+                grouped = df.groupby(['Status', 'REGION', 'Model']).agg({'QTY': 'sum'}).reset_index()
+                pivot = grouped.pivot(index=['Status', 'REGION'], columns='Model', values='QTY').fillna(0).astype(int)
+                pivot['Subtotal'] = pivot.sum(axis=1)
+                grand_total = pd.DataFrame(pivot.sum(axis=0)).T
+                grand_total['Status'] = 'Grand Total'
+                grand_total['REGION'] = 'All'
+                pivot = pd.concat([pivot.reset_index(), grand_total], ignore_index=True)
+
+                def sort_status(status):
+                    if status == 'STOCK':
+                        return (0, None)
+                    if status == 'Grand Total':
+                        return (float('inf'), None)
+                    if status == 'TBA':
+                        return (2, None)
+                    if 'Incoming' in status or 'OUT' in status:
+                        parts = status.split(' ')[0]
+                        date = pd.to_datetime(parts, format='%b-%y', errors='coerce')
+                        if pd.notnull(date):
+                            return (1, date)
+                    return (3, None)
+
+                pivot['SortKey'] = pivot['Status'].apply(sort_status)
+                pivot = pivot.sort_values(by='SortKey').drop(columns=['SortKey'])
+                pivot.reset_index(drop=True, inplace=True)
+                return pivot
+
+            east_west_north_pivoted_df = pivot_data_with_region(east_west_north_df)
 
             # Display East, West, and North summary report
             st.markdown('<div class="report-title blue">STK Summary_[EAST & WEST & NORTH] </div>', unsafe_allow_html=True)
@@ -258,15 +288,15 @@ with right_column:
         if south_file and east_file:
             combined_df = process_files(south_file, east_file)
             pivoted_df = pivot_data(combined_df)
-            
+
             # 創建新表格，刪除 `Status` 列中包含 `TBA` 的行並存儲
             tba_row = pivoted_df[pivoted_df['Status'] == 'TBA'].copy()
             modified_pivoted_df = pivoted_df[pivoted_df['Status'] != 'TBA'].copy()
-            
+
             # 隱藏 Subtotal 列
             if 'Subtotal' in modified_pivoted_df.columns:
                 modified_pivoted_df.drop(columns=['Subtotal'], inplace=True)
-            
+
             # 在每個 `Incoming` 狀態之下添加一行 `OUT`
             incoming_indices = modified_pivoted_df.index[modified_pivoted_df['Status'].str.contains('Incoming')].tolist()
             rows_to_insert = []
@@ -279,6 +309,7 @@ with right_column:
                 for col in modified_pivoted_df.columns[1:]:
                     out_row[col] = -1 * out_row[col]
                 rows_to_insert.append((idx + 1, out_row))
+
             # 插入行
             for idx, row in rows_to_insert[::-1]:  # 必須倒序插入，否則索引會錯亂
                 modified_pivoted_df = pd.concat([modified_pivoted_df.iloc[:idx], row.to_frame().T, modified_pivoted_df.iloc[idx:]]).reset_index(drop=True)
