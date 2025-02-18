@@ -270,14 +270,20 @@ with right_column:
                 for col in modified_pivoted_df.columns[1:]:
                     out_row[col] = -1 * out_row[col]
                 rows_to_insert.append((idx + 1, out_row))
-            
+
             # 插入行
             for idx, row in rows_to_insert[::-1]:  # 必須倒序插入，否則索引會錯亂
                 modified_pivoted_df = pd.concat([modified_pivoted_df.iloc[:idx], row.to_frame().T, modified_pivoted_df.iloc[idx:]]).reset_index(drop=True)
-            
+
             # 如果 Monthly Report 文件被提供，進一步處理
             monthly_df = pd.read_excel(monthly_report_file, sheet_name='raw_sheet')
-            
+
+            # 處理 Ordered_Items 中的特殊型號
+            monthly_df['Ordered_Items'] = monthly_df['Ordered_Items'].replace({
+                'YRM20': 'YRM20-2',
+                'DESEN DSP-10-YMH': 'DSP-10-YMH'
+            })
+
             # 遍歷每個 `Incoming` 狀態，提取對應數據並填充 `OUT` 行
             for idx, row in modified_pivoted_df.iterrows():
                 if 'Incoming' in row['Status']:
@@ -287,7 +293,7 @@ with right_column:
                     if pd.notnull(month_year):
                         year = month_year.year
                         month = month_year.month
-                        
+
                         # 過濾 `Monthly Report` 數據
                         filtered_df = monthly_df[
                             (monthly_df['Inv_Yr'] == year) &
@@ -299,7 +305,7 @@ with right_column:
                         # 填充 `OUT` 行
                         for model, qty in model_sums.items():
                             modified_pivoted_df.loc[idx + 1, model] = -1 * qty  # +1 是對應 `OUT` 行，並顯示為負數
-            
+
             # 找出時間最靠後的一行 `OUT`
             out_rows = modified_pivoted_df[modified_pivoted_df['Status'].str.contains('OUT')]
             if not out_rows.empty:
@@ -333,22 +339,22 @@ with right_column:
             modified_pivoted_df.fillna(0, inplace=True)
             for col in modified_pivoted_df.columns[1:]:
                 modified_pivoted_df[col] = modified_pivoted_df[col].astype(int)
-            
-                        # 移除已有的 Grand Total 行（如果存在）
+
+            # 移除已有的 Grand Total 行（如果存在）
             modified_pivoted_df = modified_pivoted_df[modified_pivoted_df['Status'] != 'Grand Total']
-            
+
             # 計算新的 Grand Total 列，包括 TBA 行的數值
             grand_total_row = modified_pivoted_df.iloc[:, 1:].sum(axis=0)
             if not tba_row.empty:
                 grand_total_row += tba_row.iloc[:, 1:].sum(axis=0)
             grand_total_row = grand_total_row.round(0).astype(int)  # 確保無小數點
             grand_total_row['Status'] = 'Grand Total'
-            
+
             # 添加新的 Grand Total 行
             modified_pivoted_df = pd.concat([modified_pivoted_df, grand_total_row.to_frame().T], ignore_index=True)
             # 恢復 TBA 行到倒數第二行
             modified_pivoted_df = pd.concat([modified_pivoted_df.iloc[:-1], tba_row, modified_pivoted_df.iloc[-1:].reset_index(drop=True)], ignore_index=True)
-            
+
             # **新增的功能：生成 "Balance" 表格**
             out_statuses = modified_pivoted_df[modified_pivoted_df['Status'].str.contains('OUT')]['Status'].tolist()
             balance_dates = [status.replace(' OUT', ' Balance') for status in out_statuses]
