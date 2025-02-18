@@ -158,8 +158,8 @@ st.markdown("""
     .orange {
         color: orange;
     }
-    .light-blue {
-        color: lightblue;
+    .blue {
+        color: blue;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -241,7 +241,7 @@ with left_column:
             east_west_north_pivoted_df = pivot_data(east_west_north_df)
 
             # Display East, West, and North summary report
-            st.markdown('<div class="report-title light-blue">STK Summary_[EAST & WEST & NORTH] </div>', unsafe_allow_html=True)
+            st.markdown('<div class="report-title blue">STK Summary_[EAST & WEST & NORTH] </div>', unsafe_allow_html=True)
             st.markdown(style_dataframe(east_west_north_pivoted_df).to_html(index=False), unsafe_allow_html=True)
             st.download_button('Download STK Summary Report_EAST & WEST & NORTH', east_west_north_pivoted_df.to_csv(index=False), file_name='STK_summary_report_east_west_north.csv', 
                                key='download_STK_east_west_north_button', help='Download the East, West, and North summary report')
@@ -279,7 +279,6 @@ with right_column:
                 for col in modified_pivoted_df.columns[1:]:
                     out_row[col] = -1 * out_row[col]
                 rows_to_insert.append((idx + 1, out_row))
-
             # 插入行
             for idx, row in rows_to_insert[::-1]:  # 必須倒序插入，否則索引會錯亂
                 modified_pivoted_df = pd.concat([modified_pivoted_df.iloc[:idx], row.to_frame().T, modified_pivoted_df.iloc[idx:]]).reset_index(drop=True)
