@@ -302,6 +302,9 @@ with right_column:
                         ]
                         # 計算每個 Model 的數量總和
                         model_sums = filtered_df.groupby('Ordered_Items')['Item Qty'].sum()
+                        # 先將 `OUT` 行的所有型號數量設為 0
+                        for model in pivoted_df.columns[1:]:
+                            modified_pivoted_df.loc[idx + 1, model] = 0
                         # 填充 `OUT` 行
                         for model, qty in model_sums.items():
                             modified_pivoted_df.loc[idx + 1, model] = -1 * qty  # +1 是對應 `OUT` 行，並顯示為負數
@@ -323,17 +326,20 @@ with right_column:
                     (monthly_df['Inv_Month'] == next_month_num) &
                     (monthly_df['Ordered_Items'].isin(pivoted_df.columns[1:]))
                 ]
+                new_out_row = modified_pivoted_df.iloc[0].copy()
+                new_out_row['Status'] = f"{next_month_str} OUT"
+                # 先將新 `OUT` 行的所有型號數量設為 0
+                for model in pivoted_df.columns[1:]:
+                    new_out_row[model] = 0
                 if not next_month_filtered_df.empty:
                     next_month_model_sums = next_month_filtered_df.groupby('Ordered_Items')['Item Qty'].sum()
-                    new_out_row = modified_pivoted_df.iloc[0].copy()
-                    new_out_row['Status'] = f"{next_month_str} OUT"
                     for model, qty in next_month_model_sums.items():
                         new_out_row[model] = -1 * qty
 
-                    # 找到 TBA 行的索引
-                    tba_index = modified_pivoted_df[modified_pivoted_df['Status'] == 'Grand Total'].index[0]
-                    # 插入新的 OUT 行
-                    modified_pivoted_df = pd.concat([modified_pivoted_df.iloc[:tba_index], new_out_row.to_frame().T, modified_pivoted_df.iloc[tba_index:]]).reset_index(drop=True)
+                # 找到 TBA 行的索引
+                tba_index = modified_pivoted_df[modified_pivoted_df['Status'] == 'Grand Total'].index[0]
+                # 插入新的 OUT 行
+                modified_pivoted_df = pd.concat([modified_pivoted_df.iloc[:tba_index], new_out_row.to_frame().T, modified_pivoted_df.iloc[tba_index:]]).reset_index(drop=True)
 
             # 將 NaN 替換為 0，轉換為整數
             modified_pivoted_df.fillna(0, inplace=True)
