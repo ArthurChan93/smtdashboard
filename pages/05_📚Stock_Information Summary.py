@@ -152,6 +152,15 @@ st.markdown("""
         font-weight: bold;
         text-decoration: underline;
     }
+    .dark-green {
+        color: darkgreen;
+    }
+    .orange {
+        color: orange;
+    }
+    .light-blue {
+        color: lightblue;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -175,7 +184,7 @@ with left_column:
             pivoted_df = pivot_data(combined_df)
 
             # Display the summary report (renamed)
-            st.markdown('<div class="report-title">STK Summary_[All Region]</div>', unsafe_allow_html=True)
+            st.markdown('<div class="report-title dark-green">STK Summary_[All Region]</div>', unsafe_allow_html=True)
             st.markdown(style_dataframe(pivoted_df).to_html(index=False), unsafe_allow_html=True)
             st.download_button('Download STK Summary Report_All Region', pivoted_df.to_csv(index=False), file_name='STK_summary_report_all_region.csv', 
                                key='download_all_region_button', help='Download the all region summary report')
@@ -202,7 +211,7 @@ with left_column:
             south_pivoted_df = pivot_data(south_df)
 
             # Display South summary report
-            st.markdown('<div class="report-title">STK Summary_[SOUTH]</div>', unsafe_allow_html=True)
+            st.markdown('<div class="report-title orange">STK Summary_[SOUTH]</div>', unsafe_allow_html=True)
             st.markdown(style_dataframe(south_pivoted_df).to_html(index=False), unsafe_allow_html=True)
             st.download_button('Download STK Summary Report_SOUTH', south_pivoted_df.to_csv(index=False), file_name='STK_summary_report_south.csv', 
                                key='download_south_button', help='Download the South summary report')
@@ -232,7 +241,7 @@ with left_column:
             east_west_north_pivoted_df = pivot_data(east_west_north_df)
 
             # Display East, West, and North summary report
-            st.markdown('<div class="report-title">STK Summary_[EAST & WEST & NORTH] </div>', unsafe_allow_html=True)
+            st.markdown('<div class="report-title light-blue">STK Summary_[EAST & WEST & NORTH] </div>', unsafe_allow_html=True)
             st.markdown(style_dataframe(east_west_north_pivoted_df).to_html(index=False), unsafe_allow_html=True)
             st.download_button('Download STK Summary Report_EAST & WEST & NORTH', east_west_north_pivoted_df.to_csv(index=False), file_name='STK_summary_report_east_west_north.csv', 
                                key='download_STK_east_west_north_button', help='Download the East, West, and North summary report')
@@ -408,7 +417,7 @@ with right_column:
                 return styled_df
 
             # **顯示第一個表格**
-            st.markdown('<div class="report-title">STK_[All Region] & Monthly Report Summary</div>', unsafe_allow_html=True)
+            st.markdown('<div class="report-title dark-green">STK_[All Region] & Monthly Report Summary</div>', unsafe_allow_html=True)
             st.markdown(style_dataframe(modified_pivoted_df).to_html(index=False), unsafe_allow_html=True)
 
             # **提供兩個表格的下載選項**
@@ -421,7 +430,7 @@ with right_column:
             )
 
             # **顯示新生成的 "Balance" 表格**
-            st.markdown('<div class="report-title">STK Monthly Balance & TBA </div>', unsafe_allow_html=True)
+            st.markdown('<div class="report-title dark-green">STK Monthly Balance & TBA </div>', unsafe_allow_html=True)
             st.markdown(style_dataframe_with_balance(balance_df).to_html(index=False), unsafe_allow_html=True)
 
             st.download_button(
