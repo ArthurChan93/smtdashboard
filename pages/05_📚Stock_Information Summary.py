@@ -49,6 +49,8 @@ def process_files(south_file, east_file):
         'YSi-V(DL)': 'YSi-V', 'YSi-V(SL)': 'YSi-V',
         'YSM20R-2': 'YSM20R', 'YSM20R(PV)-2': 'YSM20R',
         'YSM20R-1': 'YSM20R', 'YSM20R(SV)-2': 'YSM20R',
+        'YRM20DL-2': 'YRM20', 'YRM20SL-2': 'YRM20',
+        'YRM20-2': 'YRM20',
         'YSM20R(PV)-1': 'YSM20R', 'YSM10 96': 'YSM10'
     })
 
@@ -205,6 +207,8 @@ with left_column:
                 'YSi-V(DL)': 'YSi-V', 'YSi-V(SL)': 'YSi-V',
                 'YSM20R-2': 'YSM20R', 'YSM20R(PV)-2': 'YSM20R',
                 'YSM20R-1': 'YSM20R', 'YSM20R(SV)-2': 'YSM20R',
+                'YRM20DL-2': 'YRM20', 'YRM20SL-2': 'YRM20',
+                'YRM20-2': 'YRM20',
                 'YSM20R(PV)-1': 'YSM20R', 'YSM10 96': 'YSM10'
             })
             south_df.dropna(subset=['Model'], inplace=True)
@@ -235,6 +239,8 @@ with left_column:
                 'YSi-V(DL)': 'YSi-V', 'YSi-V(SL)': 'YSi-V',
                 'YSM20R-2': 'YSM20R', 'YSM20R(PV)-2': 'YSM20R',
                 'YSM20R-1': 'YSM20R', 'YSM20R(SV)-2': 'YSM20R',
+                'YRM20DL-2': 'YRM20', 'YRM20SL-2': 'YRM20',
+                'YRM20-2': 'YRM20',
                 'YSM20R(PV)-1': 'YSM20R', 'YSM10 96': 'YSM10'
             })
             east_west_north_df.dropna(subset=['Model'], inplace=True)
@@ -279,7 +285,6 @@ with left_column:
         else:
             st.warning('Please upload both files to proceed.')
 
-
 with right_column:
     # 添加文件上傳器
     monthly_report_file = st.file_uploader('3️⃣ Upload :red[Monthly Report_edit]: :point_down:', type=['xlsx', 'xlsm'], key='monthly_report')
@@ -320,8 +325,8 @@ with right_column:
             # 處理 Ordered_Items 中的特殊型號
             monthly_df['Ordered_Items'] = monthly_df['Ordered_Items'].replace({
                 'YRM20': 'YRM20-2',
-                'YRM20DL-2': 'YRM20',
-                'YRM20SL-2': 'YRM20',
+                'YRM20DL-2': 'YRM20-2',
+                'YRM20SL-2': 'YRM20-2',
                 'DESEN DSP-10-YMH': 'DSP-10-YMH'
             })
 
