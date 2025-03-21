@@ -113,7 +113,8 @@ try:
         all_delivery_terms = sorted(df['運輸條款'].dropna().unique())
         selected_delivery_terms = st.multiselect(
             "選擇運輸條款",
-            options=all_delivery_terms
+            options=all_delivery_terms,
+            default=['DAP']
         )
     
     # 篩選條件組合(統一型別處理)
