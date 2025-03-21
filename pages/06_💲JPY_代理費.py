@@ -222,3 +222,44 @@ except Exception as e:
     st.write("2. Excel文件是否包含'sheet_name='raw_sheet''工作表")
     st.write("3. Excel文件A:AU欄位格式是否符合預期")
     st.write("4. 確認Excel欄位無混合資料型別(數值與文字混用)")
+
+#讀取以下excel位置，不需要用家再自行上傳
+#
+#os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
+#
+#df = pd.read_excel(
+#               io='Monthly_report_for_edit.xlsm',engine= 'openpyxl',sheet_name='raw_sheet', skiprows=0, usecols='A:AT',nrows=100000,).query(
+#                    'Region != "C66 N/A"').query('FY_Contract != "Cancel"').query('FY_INV != "TBA"').query('FY_INV != "FY 17/18"').query(
+#                         'FY_INV != "Cancel"').query('Inv_Yr != "TBA"').query('Inv_Yr != "Cancel"').query('Inv_Month != "TBA"').query('Inv_Month != "Cancel"')
+#
+#Excel內的數據列內容我先給你說明:
+#-E列名稱是"FY_INV"，意思是財年
+#-R列名稱是"COST_CENTRE"，意思是成本中心
+#-W列名稱是"Curr"，意思是合同貨幣
+#-Z列名稱是"Signed Contract Amt"，意思是開票總金額(非港元)
+#-AB列名稱是"Before tax Inv Amt (HKD)"，意思是開票總金額(港元)
+#-F列名稱是"Inv_Yr"，意思是開票年份
+#-G列名稱是"Inv_Month"，意思是開票月份
+#-S列名稱是"Region"，意思是地區
+#-AU列名稱是"Delivery Terms"，意思是運輸條款
+#
+#我想在用家上傳檔案後，可以達到以下效果:
+#1. 在左邊出現sidebar filter，容許用家Filter一個或更多的財年，預設是"FY 24/25"
+#因此最終會有五個sidebar filter，數據結果要有齊五個sidebar filter同時存在的不同filter可能性
+#
+#-財年filter預設值是"FY 24/25"
+#-開票年份filter預設值為2024和2025
+#-開票月份filter預設值為1和2和4和5和6和7和8和9和10和11和12
+#-地區filter預設值為"SOUTH"
+#-運輸條款filter不用有預設值
+#
+#2. 先顯示已預設財年的總開票總金額(港元)的數字，另外要指出不同成本中心的開票總金額(港元)是多少
+#-如果開票年份和開票月份列中出現"Cancel"或"TBA"或"nan"，就無視該些數據，在數據計算中亦不要計算
+#
+#3. 出現Pie chart，同時顯示已預設財年中的以下數據
+#- 不同合同貨幣佔該財年的開票總金額(非港元)的百分比與金額是多少
+#- 百分比用小數點後兩個位，金額則要用會計單位顯示
+#- 在Pie chart中不同合同貨幣要用不同背景色，儘量不要用太深或沈的色
+#4. 在pie chart下方再加一個pivot table表格去數字化地顯示pie chart中所顯示的數據，如果合同貨幣中有"JPY"，則要在表格加多一列，顯示該"JPY"的合同貨幣在該財年中的總開票總金額(非港元)乘以0.0035後等於多少
+#-Pie chart不能過大，要縮小到與其他顯示的表格相若。另外pie chart百分比背後代表的貨幣顯示在圖的右上就可，顏色改用綠色，淺藍和橙色3隻色，PIE CHART中顯示的"JPY"部分我想固定用淺綠色，"RMB"固定用淺橙色
+#-pie chart上不同貨幣所顯示的百分比不要疊在一起，分開一點顯示; 如果百分比少於1%的就不在pie chart顯示，只在下方的pivot table照舊顯示
