@@ -10,25 +10,32 @@ st.set_page_config(layout="wide", page_title="合約分析系統")
 # 固定讀取Excel文件
 try:
     # 設定工作路徑
- #   os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
+  #  os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
     
-    # 直接讀取Excel文件
+    # 直接讀取Excel文件並轉換關鍵欄位為字串
     df = pd.read_excel(
         io='Monthly_report_for_edit.xlsm',
         engine='openpyxl',
         sheet_name='raw_sheet',
         skiprows=0,
-        usecols='A:AT',
-        nrows=100000
-    ).query('Region != "C66 N/A"'
-          ).query('FY_Contract != "Cancel"'
-                ).query('FY_INV != "TBA"'
-                      ).query('FY_INV != "FY 17/18"'
-                            ).query('FY_INV != "Cancel"'
-                                  ).query('Inv_Yr != "TBA"'
-                                        ).query('Inv_Yr != "Cancel"'
-                                              ).query('Inv_Month != "TBA"'
-                                                    ).query('Inv_Month != "Cancel"')
+        usecols='A:AU',
+        nrows=100000,
+        dtype={'FY_Contract': str, 'FY_INV': str, 'Inv_Yr': str, 'Inv_Month': str}  # 新增型別指定
+    )
+    
+    # 轉換Region欄位為字串
+    df['Region'] = df['Region'].astype(str)
+    
+    # 應用過濾條件
+    df = df.query('Region != "C66 N/A"'
+                ).query('FY_Contract != "Cancel"'
+                      ).query('FY_INV != "TBA"'
+                            ).query('FY_INV != "FY 17/18"'
+                                  ).query('FY_INV != "Cancel"'
+                                        ).query('Inv_Yr != "TBA"'
+                                              ).query('Inv_Yr != "Cancel"'
+                                                    ).query('Inv_Month != "TBA"'
+                                                          ).query('Inv_Month != "Cancel"')
     
     # 欄位名稱映射
     columns_mapping = {
@@ -39,20 +46,23 @@ try:
         'Before tax Inv Amt (HKD)': '開票總金額(港元)',
         'Inv_Yr': '開票年份',
         'Inv_Month': '開票月份',
-        'Region': '地區'
+        'Region': '地區',
+        'Delivery_Terms': '運輸條款'
     }
     df = df.rename(columns=columns_mapping)
     
-    # 數據清洗流程
+    # 數據清洗流程(強化型別轉換)
     invalid_values = ['Cancel', 'TBA', 'nan', '', np.nan]
-    df['開票年份'] = df['開票年份'].replace(invalid_values, pd.NA)
-    df['開票月份'] = df['開票月份'].replace(invalid_values, pd.NA)
-    df['地區'] = df['地區'].replace(invalid_values, pd.NA)
+    df['開票年份'] = pd.to_numeric(df['開票年份'], errors='coerce').replace(invalid_values, pd.NA)
+    df['開票月份'] = df['開票月份'].astype(str).str.strip().replace(invalid_values, pd.NA)
+    df['地區'] = df['地區'].astype(str).replace(invalid_values, pd.NA)
+    df['運輸條款'] = df['運輸條款'].astype(str).replace(invalid_values, pd.NA)
+    
+    # 移除無效資料
     df = df.dropna(subset=['開票年份', '開票月份', '地區'])
     df['開票年份'] = df['開票年份'].astype(int)
-    df['開票月份'] = df['開票月份'].astype(str).str.strip()
     
-    # 側邊欄篩選器
+    # 側邊欄篩選器(強化型別處理)
     with st.sidebar:
         st.header("篩選條件")
         
@@ -64,25 +74,25 @@ try:
             format="%.4f"
         )
         
-        # 財年篩選
+        # 財年篩選(確保字串比較)
         all_fy = sorted(df['財年'].astype(str).unique())
         selected_fy = st.multiselect(
             "選擇財年", 
             options=all_fy,
-            default=['FY 24/25'] if 'FY 24/25' in all_fy else []
+            default=['FY 24/25']
         )
         
-        # 開票年份篩選
+        # 開票年份篩選(確保整數型別)
         valid_years = sorted(df['開票年份'].unique())
         selected_years = st.multiselect(
             "選擇開票年份",
             options=valid_years,
-            default=[2024, 2025] if {2024, 2025}.issubset(set(valid_years)) else []
+            default=[2024, 2025]
         )
         
-        # 開票月份篩選
+        # 開票月份篩選(統一字串處理)
         valid_months = sorted(
-            df['開票月份'].unique(),
+            df['開票月份'].astype(str).unique(),
             key=lambda x: int(x) if x.isdigit() else 0
         )
         selected_months = st.multiselect(
@@ -96,15 +106,28 @@ try:
         selected_regions = st.multiselect(
             "選擇地區",
             options=all_regions,
-            default=['SOUTH'] if 'SOUTH' in all_regions else []
+            default=['SOUTH']
+        )
+        
+        # 運輸條款篩選
+        all_delivery_terms = sorted(df['運輸條款'].dropna().unique())
+        selected_delivery_terms = st.multiselect(
+            "選擇運輸條款",
+            options=all_delivery_terms
         )
     
-    # 篩選條件組合
+    # 篩選條件組合(統一型別處理)
     filter_conditions = []
-    if selected_fy: filter_conditions.append(df['財年'].astype(str).isin(selected_fy))
-    if selected_years: filter_conditions.append(df['開票年份'].isin(selected_years))
-    if selected_months: filter_conditions.append(df['開票月份'].isin(selected_months))
-    if selected_regions: filter_conditions.append(df['地區'].isin(selected_regions))
+    if selected_fy: 
+        filter_conditions.append(df['財年'].astype(str).isin(selected_fy))
+    if selected_years: 
+        filter_conditions.append(df['開票年份'].isin(selected_years))
+    if selected_months: 
+        filter_conditions.append(df['開票月份'].astype(str).isin(selected_months))
+    if selected_regions: 
+        filter_conditions.append(df['地區'].isin(selected_regions))
+    if selected_delivery_terms: 
+        filter_conditions.append(df['運輸條款'].isin(selected_delivery_terms))
     
     # 應用篩選
     if filter_conditions:
@@ -112,7 +135,7 @@ try:
     else:
         filtered_df = df
     
-    # 主顯示區
+    # 主顯示區(保持不變)
     col1, col2 = st.columns([1, 3])
     
     with col1:
@@ -197,4 +220,5 @@ except Exception as e:
     st.info("請確認以下事項：")
     st.write("1. 檔案路徑是否正確：D:\\ArthurChan\\OneDrive - Electronic Scientific Engineering Ltd\\Monthly report(one drive)\\Monthly_report_for_edit.xlsm")
     st.write("2. Excel文件是否包含'sheet_name='raw_sheet''工作表")
-    st.write("3. Excel文件A:AT欄位格式是否符合預期")
+    st.write("3. Excel文件A:AU欄位格式是否符合預期")
+    st.write("4. 確認Excel欄位無混合資料型別(數值與文字混用)")
