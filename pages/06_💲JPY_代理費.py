@@ -120,7 +120,7 @@ try:
         total_hkd = filtered_df['開票總金額(港元)'].sum()
         st.metric("總金額 (HKD)", f"HK$ {total_hkd:,.2f}")
         
-        st.subheader("各成本中心金額")
+        st.subheader("各Cost Centre金額")
         cost_center_sum = filtered_df.groupby('成本中心')['開票總金額(港元)'].sum().reset_index()
         st.dataframe(
             cost_center_sum.style.format({'開票總金額(港元)': "HK$ {:,.2f}"}),
