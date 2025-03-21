@@ -320,6 +320,8 @@ with right_column:
             # 處理 Ordered_Items 中的特殊型號
             monthly_df['Ordered_Items'] = monthly_df['Ordered_Items'].replace({
                 'YRM20': 'YRM20-2',
+                'YRM20DL-2': 'YRM20',
+                'YRM20SL-2': 'YRM20',
                 'DESEN DSP-10-YMH': 'DSP-10-YMH'
             })
 
