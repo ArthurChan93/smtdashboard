@@ -67,7 +67,7 @@ main_col1, main_col2 = st.columns(2)
 # 左边内容：Monthly Report Analysis
 with main_col1:
     st.markdown(
-        "<h3 style='background-color: #D8BFD8; padding: 10px; border-radius: 5px;'>Monthly Report Analysis</h3>",
+        "<h3 style='background-color: #D8BFD8; padding: 10px; border-radius: 5px;'>Monthly Report Data</h3>",
         unsafe_allow_html=True
     )
     
