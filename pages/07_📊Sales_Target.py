@@ -143,7 +143,7 @@ with main_col1:
 # 右边内容：Sales Target Analysis
 with main_col2:
     st.markdown(
-        "<h3 style='background-color: #FFFFE0; padding: 10px; border-radius: 5px;'>Sales Target Analysis</h3>",
+        "<h3 style='background-color: #FFFFE0; padding: 10px; border-radius: 5px;'>Sales Target</h3>",
         unsafe_allow_html=True
     )
     
