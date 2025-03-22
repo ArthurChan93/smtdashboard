@@ -6,8 +6,8 @@ import plotly.graph_objects as go
 from io import BytesIO
 
 # 设置工作目录并读取数据
-# os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
-# os.chdir(r"/Users/arthurchan/Downloads/Sample")
+#os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
+#os.chdir(r"/Users/arthurchan/Downloads/Sample")
 
 # 读取第一个数据源
 df = pd.read_excel(
@@ -243,7 +243,8 @@ for cost_center in cost_centers:
         'Sales Target(HKD)': [target_data[r].sum() for r in region_order]
     })
     merged['Difference(HKD)'] = merged['Actual Inv Amt(HKD)'] - merged['Sales Target(HKD)']
-    
+    merged['Achievement%'] = (merged['Actual Inv Amt(HKD)'] / merged['Sales Target(HKD)'] * 100).round(2)  # 新增百分比列
+
     # 生成带达标指示的图表
     fig = go.Figure()
     
@@ -251,12 +252,13 @@ for cost_center in cost_centers:
     for idx, region in enumerate(merged['Region']):
         actual = merged.loc[idx, 'Actual Inv Amt(HKD)']
         target = merged.loc[idx, 'Sales Target(HKD)']
+        percentage = merged.loc[idx, 'Achievement%']
         
         if actual >= target:
             fig.add_annotation(
                 x=region,
-                y=max(actual, target) * 1.3,  # 调整位置避免遮挡
-                text="✅ 达标",
+                y=max(actual, target) * 1.3,
+                text=f"✅ 达标，已实现{percentage}%",
                 showarrow=False,
                 font=dict(color="green", size=14, family="Arial Bold"),
                 bgcolor="white",
@@ -265,8 +267,8 @@ for cost_center in cost_centers:
         else:
             fig.add_annotation(
                 x=region,
-                y=max(actual, target) * 1.3,  # 调整位置避免遮挡
-                text="❌ 未达标",
+                y=max(actual, target) * 1.3,
+                text=f"❌ 未达标，已实现{percentage}%",
                 showarrow=False,
                 font=dict(color="red", size=14, family="Arial Bold"),
                 bgcolor="white",
@@ -284,8 +286,8 @@ for cost_center in cost_centers:
         text=merged['Actual Inv Amt(HKD)'].apply(lambda x: f"{x/1e6:.1f}M" if x >= 1e6 else f"{x/1e3:.0f}K"),
         textposition='outside',
         textfont=dict(
-            size=16,  # 加大字体
-            family='Arial Bold'  # 设置粗体
+            size=16,
+            family='Arial Bold'
         )
     ))
     
@@ -300,8 +302,8 @@ for cost_center in cost_centers:
         text=merged['Sales Target(HKD)'].apply(lambda x: f"{x/1e6:.1f}M" if x >= 1e6 else f"{x/1e3:.0f}K"),
         textposition='inside',
         textfont=dict(
-            size=16,  # 加大字体
-            family='Arial Bold'  # 设置粗体
+            size=16,
+            family='Arial Bold'
         )
     ))
     
@@ -335,8 +337,8 @@ for cost_center in cost_centers:
             xanchor="center",
             x=0.5
         ),
-        height=800,  # 增加高度
-        margin=dict(t=180, b=120)  # 增加顶部边距
+        height=800,
+        margin=dict(t=180, b=120)
     )
     st.plotly_chart(fig, use_container_width=True)
 
