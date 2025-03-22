@@ -7,7 +7,7 @@ from io import BytesIO
 
 # 设置工作目录并读取数据
 #os.chdir(r"/Users/arthurchan/Downloads/Sample")
-#  os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
+#os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
 # 读取第一个数据源
 df = pd.read_excel(
     io='Monthly_report_for_edit.xlsm',
