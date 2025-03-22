@@ -6,9 +6,8 @@ import plotly.graph_objects as go
 from io import BytesIO
 
 # 设置工作目录并读取数据
-#os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
 #os.chdir(r"/Users/arthurchan/Downloads/Sample")
-
+#os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
 # 读取第一个数据源
 df = pd.read_excel(
     io='Monthly_report_for_edit.xlsm',
@@ -81,7 +80,7 @@ with main_col1:
     
     # 总Inv Amt
     total_inv = filtered_df['Before tax Inv Amt (HKD)'].sum()
-    st.subheader("Total Inv Amt (HKD)", f"{total_inv:,.2f}")
+    st.metric("Total Inv Amt (HKD)", f"{total_inv:,.2f}")
 
     # 饼图部分
     col1, col2 = st.columns(2)
@@ -133,10 +132,16 @@ with main_col1:
         index='COST_CENTRE',
         columns='Region',
         aggfunc='sum',
-        fill_value=0
-    ).reindex(index=cost_center_order, columns=region_order, fill_value=0)
+        fill_value=0,
+        margins=True,
+        margins_name='Total'
+    ).reindex(index=cost_center_order + ['Total'], columns=region_order + ['Total'], fill_value=0)
     
-    st.write(pivot_df.style.format("{:,.2f}"))
+    # 样式设置
+    styled_df = pivot_df.style.format("{:,.2f}").apply(
+        lambda x: ['background: #FFFF00' if x.name == 'Total' else '' for _ in x], axis=1)
+    
+    st.write(styled_df)
     csv = pivot_df.to_csv().encode('utf-8')
     st.download_button("Download Pivot Table", csv, 'monthly_report.csv', 'text/csv')
 
@@ -152,7 +157,7 @@ with main_col2:
     
     # 总Sales Target
     total_target = filtered_df2['Total _Sales_Target(Inv Amt HKD)'].sum()
-    st.subheader("Total Sales Target (HKD)", f"{total_target:,.2f}")
+    st.metric("Total Sales Target (HKD)", f"{total_target:,.2f}")
 
     # 饼图部分
     col3, col4 = st.columns(2)
@@ -201,19 +206,32 @@ with main_col2:
         st.plotly_chart(fig4, use_container_width=True)
 
     # Sales Target Pivot Table
-    target_pivot = filtered_df2.pivot_table(
-        values=['SOUTH', 'EAST', 'NORTH', 'WEST'],
+    # 修复销售目标数据透视表
+    target_pivot = filtered_df2.melt(
+        id_vars=['FY_INV', 'COST_CENTRE'],
+        value_vars=['SOUTH', 'EAST', 'NORTH', 'WEST'],
+        var_name='Region',
+        value_name='Sales Target(HKD)'
+    ).pivot_table(
+        values='Sales Target(HKD)',
         index='COST_CENTRE',
-        aggfunc='sum'
-    ).reindex(index=cost_center_order, columns=region_order, fill_value=0)
+        columns='Region',
+        aggfunc='sum',
+        margins=True,
+        margins_name='Total'
+    ).reindex(index=cost_center_order + ['Total'], columns=region_order + ['Total'], fill_value=0)
     
-    st.write(target_pivot.style.format("{:,.2f}"))
+    # 样式设置
+    styled_target = target_pivot.style.format("{:,.2f}").apply(
+        lambda x: ['background: #FFFF00' if x.name == 'Total' else '' for _ in x], axis=1)
+    
+    st.write(styled_target)
     csv2 = target_pivot.to_csv().encode('utf-8')
     st.download_button("Download Target Pivot", csv2, 'sales_target.csv', 'text/csv')
 
 # ========== Regional Comparison ==========
 st.markdown(
-    "<h2 style='background-color: #FFFF00; text-align: center; padding: 10px; border-radius: 5px;'>Regional Comparison</h2>",
+    "<h2 style='background-color: #FFFF00; text-align: center; padding: 10px; border-radius: 5px; font-size: 24px;'>Regional Comparison</h2>",
     unsafe_allow_html=True
 )
 
@@ -229,7 +247,7 @@ for cost_center in cost_centers:
     }.get(cost_center, 'white')
     
     st.markdown(
-        f"<h4 style='background-color: {bg_color}; padding: 10px; border-radius: 5px; text-align: center;'>{cost_center}</h4>", 
+        f"<h4 style='background-color: {bg_color}; padding: 10px; border-radius: 5px; text-align: center; font-size: 20px;'>{cost_center}</h4>", 
         unsafe_allow_html=True
     )
     
@@ -243,7 +261,7 @@ for cost_center in cost_centers:
         'Sales Target(HKD)': [target_data[r].sum() for r in region_order]
     })
     merged['Difference(HKD)'] = merged['Actual Inv Amt(HKD)'] - merged['Sales Target(HKD)']
-    merged['Achievement%'] = (merged['Actual Inv Amt(HKD)'] / merged['Sales Target(HKD)'] * 100).round(2)  # 新增百分比列
+    merged['Achievement%'] = (merged['Actual Inv Amt(HKD)'] / merged['Sales Target(HKD)'] * 100).round(2)
 
     # 生成带达标指示的图表
     fig = go.Figure()
@@ -325,7 +343,8 @@ for cost_center in cost_centers:
     ))
     
     fig.update_layout(
-        title=f"{cost_center} - Actual Inv Amt(HKD) vs Sales Target(HKD)",
+        # 移除标题
+        #title=None,
         barmode='group',
         yaxis_title="Amount (HKD)",
         xaxis_title="Region",
@@ -338,7 +357,7 @@ for cost_center in cost_centers:
             x=0.5
         ),
         height=800,
-        margin=dict(t=180, b=120)
+        margin=dict(t=100, b=120)  # 调整顶部边距
     )
     st.plotly_chart(fig, use_container_width=True)
 
@@ -432,4 +451,4 @@ for cost_center in cost_centers:
 #-Bar Chart內是否達標的標示不要檔住Sales Target Amt(HKD)數字
 #-Bar Chart的legend中的difference要一同顯示達標與不達標的兩種顏色
 #-由於每個地區的sales target最終只會有達標與不達標的其中一個結果，因此每個"Region"只能有三條bar。不達標的地區就不要顯示達標bar或留位置給達標bar了，同樣地達標的地區就不要顯示未達標bar或留位置給未達標bar了；只是在legend裡顯示有兩種色的difference就好。
-
+#每個pivot table都加入總計，每個pivot table除了行有總計，列都要加入總計，計總一行配以黃色背景色；另外每個bar chart的title都取消不用title
