@@ -15,8 +15,7 @@ df = pd.read_excel(
     sheet_name='raw_sheet',
     skiprows=0,
     usecols='A:AU',
-    nrows=100000
-).query('Region != "C66 N/A"').query('FY_Contract != "Cancel"').query(
+    nrows=100000).query('Region != "C66 N/A"').query('FY_Contract != "Cancel"').query(
     'FY_INV != "TBA"').query('FY_INV != "FY 17/18"').query(
     'FY_INV != "Cancel"').query('Inv_Yr != "TBA"').query(
     'Inv_Yr != "Cancel"').query('Inv_Month != "TBA"').query(
