@@ -10,8 +10,8 @@ st.set_page_config(layout="wide", page_title="合約分析系統")
 # 固定讀取Excel文件
 try:
     # 設定工作路徑
- #  os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
-    
+    #os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
+    #os.chdir(r"/Users/arthurchan/Downloads/Sample")   
     # 直接讀取Excel文件並轉換關鍵欄位為字串
     df = pd.read_excel(
         io='Monthly_report_for_edit.xlsm',
