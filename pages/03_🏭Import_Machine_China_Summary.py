@@ -161,7 +161,7 @@ with col1:
 
 with col2:
     if not filter_smt.empty:
-        df_smt_group = filter_smt.groupby(['Inv_Yr', 'Inv_Month']).agg({'Item Qty':'sum', 'Before tax Inv Amt (HKD)':'sum'}).reset_index()
+        df_smt_group = filter_smt.groupby(['Inv_Yr', 'Inv_Month']).agg({'Before tax Inv Amt (HKD)','Item Qty':'sum':'sum'}).reset_index()
         
         fig = subplots.make_subplots(specs=[[{"secondary_y": True}]])
         
