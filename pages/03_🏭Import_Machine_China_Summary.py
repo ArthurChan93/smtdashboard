@@ -69,7 +69,7 @@ region = st.sidebar.multiselect("選擇地區", df["Region"].unique())
 filter_import = df_import[df_import['YEAR'].isin(selected_years)]
 filter_smt = df[
     (df['Inv_Yr'].isin(selected_inv_years)) &
-    (df['BRAND'].isin(['HELLER', 'PEMTRON', 'YAMAHA']))  # 新增品牌過濾
+    (df['BRAND'].isin(['HELLER', 'PEMTRON', 'YAMAHA']))  # 品牌過濾
 ]
 if region: filter_smt = filter_smt[filter_smt["Region"].isin(region)]
 
@@ -78,8 +78,6 @@ col1, col2 = st.columns(2)
 
 with col1:
     # 中國進口組合圖表
-    st.subheader(":chart_with_upwards_trend: China Mounter Import Trend(QTY & CNY Amount)")
-    
     if not filter_import.empty:
         # 數據處理
         df_import_group = filter_import.groupby(['YEAR', 'MONTH']).agg({'台数':'sum', '进口金额（人民币）':'sum'}).reset_index()
@@ -113,7 +111,7 @@ with col1:
                 marker=dict(symbol='square', size=10),
                 text=df_year['台数'],
                 textposition='middle right',
-                textfont=dict(color='black', size=15)  # 字體放大50%
+                textfont=dict(color='black', size=15)
             ), secondary_y=True)
         
         # 圖表佈局
@@ -161,7 +159,8 @@ with col1:
                 aggfunc="sum",
                 margins=True,
                 margins_name="總計"
-            )
+            ).fillna(0)  # 處理NaN值
+            
             html = pivot_import.applymap(lambda x: f"{x:,.0f}").to_html(classes='table table-bordered')
             html = html.replace('<th>台数</th>', '<th style="background-color: #90EE90">台数</th>')
             html = html.replace('<th>进口金额（人民币）</th>', '<th style="background-color: #90EE90">进口金额（人民币）</th>')
@@ -174,8 +173,6 @@ with col1:
 
 with col2:
     # SMT發票組合圖表
-    st.subheader(":bar_chart: SMT Invoice Trend(YAMAHA/HELLER/PEMTRON QTY & HKD Amount)")
-    
     if not filter_smt.empty:
         # 數據處理
         df_smt_group = filter_smt.groupby(['Inv_Yr', 'Inv_Month']).agg({'Item Qty':'sum', 'Before tax Inv Amt (HKD)':'sum'}).reset_index()
@@ -209,7 +206,7 @@ with col2:
                 marker=dict(symbol='square', size=10),
                 text=df_year['Item Qty'],
                 textposition='middle right',
-                textfont=dict(color='black', size=15)  # 字體放大50%
+                textfont=dict(color='black', size=15)
             ), secondary_y=True)
         
         # 圖表佈局
@@ -250,16 +247,21 @@ with col2:
         
         # 樞紐分析表
         with st.expander("發票數據樞紐分析表", expanded=True):
-            pivot_smt = filter_smt.pivot_table(
+            # 排序處理
+            df_sorted = filter_smt.sort_values('Inv_Yr', ascending=False)
+            
+            pivot_smt = df_sorted.pivot_table(
                 values=["Before tax Inv Amt (HKD)", "Item Qty"],
                 index=["Inv_Yr", "Inv_Month"],
                 columns="BRAND",
                 aggfunc="sum",
                 margins=True
-            )
-            # 只保留指定品牌
+            ).fillna(0)  # 處理NaN值
+            
+            # 品牌篩選
             valid_brands = ['HELLER', 'PEMTRON', 'YAMAHA']
             pivot_smt = pivot_smt.loc[:, (slice(None), valid_brands + ['All'])]
+            
             # 條件格式處理
             html = pivot_smt.style.format("{:,.0f}").to_html()
             html = html.replace('<th>HELLER</th>', '<th style="background-color: #90EE90">HELLER</th>')
@@ -281,6 +283,7 @@ st.markdown("""
     <p style="color:#666">Developed by Arthur Chan • Data Version: 2024-02</p>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
