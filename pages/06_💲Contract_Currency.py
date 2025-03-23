@@ -234,23 +234,23 @@ try:
             # JPY計算公式
             if 'JPY' in currency_sum['合同貨幣'].values:
                 jpy_amount = currency_sum.loc[currency_sum['合同貨幣'] == 'JPY', '開票總金額(非港元)'].values[0]
-                merged_sum['JPY 0.35%計算'] = merged_sum['合同貨幣'].apply(
+                merged_sum['JPY DAP Amt*0.0035%計算'] = merged_sum['合同貨幣'].apply(
                     lambda x: jpy_amount * 0.0035 if x == 'JPY' else None
                 )
                 merged_sum['JPY兌人民幣'] = merged_sum['合同貨幣'].apply(
-                    lambda x: merged_sum.loc[merged_sum['合同貨幣'] == 'JPY', 'JPY 0.35%計算'].values[0] * jpy_rate if x == 'JPY' else None
+                    lambda x: merged_sum.loc[merged_sum['合同貨幣'] == 'JPY', 'JPY DAP Amt*0.0035%計算'].values[0] * jpy_rate if x == 'JPY' else None
                 )
             
             # 動態獲取運輸條款列名
             delivery_terms_columns = [col for col in merged_sum.columns if col not in [
-                '合同貨幣', '開票總金額(非港元)', '百分比 (%)', 'JPY 0.35%計算', 'JPY兌人民幣'
+                '合同貨幣', '開票總金額(非港元)', '百分比 (%)', 'JPY DAP Amt*0.0035%計算', 'JPY兌人民幣'
             ]]
             
             # 格式化數據(新增運輸條款格式)
             format_dict = {
                 '開票總金額(非港元)': "{:,.2f}",
                 '百分比 (%)': "{:.2f}%",
-                'JPY 0.35%計算': "JP¥ {:,.3f}",
+                'JPY DAP Amt*0.0035%計算': "JP¥ {:,.3f}",
                 'JPY兌人民幣': "¥ {:,.2f}" 
             }
             # 動態添加運輸條款格式
