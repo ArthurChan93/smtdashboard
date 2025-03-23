@@ -14,7 +14,6 @@ st.write("by Arthur Chan")
 # 資料載入與清洗
 @st.cache_data
 def load_clean_data():
-    # 載入主要資料集
     df = pd.read_excel(
         io='Monthly_report_for_edit.xlsm',
         engine='openpyxl',
@@ -23,12 +22,10 @@ def load_clean_data():
         dtype={'Inv_Yr': str}
     ).query('Region != "C66 N/A" and FY_Contract != "Cancel" and FY_INV not in ["TBA", "FY 17/18"]')
     
-    # 嚴格處理Inv_Yr型別
     df['Inv_Yr'] = pd.to_numeric(df['Inv_Yr'], errors='coerce')
     df = df.dropna(subset=['Inv_Yr'])
     df['Inv_Yr'] = df['Inv_Yr'].astype(int)
     
-    # 載入進口資料
     df_import = pd.read_excel(
         io='Machine_Import_data.xlsm',
         sheet_name='raw data',
@@ -46,7 +43,6 @@ df, df_import = load_clean_data()
 st.sidebar.divider()
 st.sidebar.header(":point_down: Filters")
 
-# 進口年份範圍篩選 (預設全選)
 valid_years_import = sorted(df_import['YEAR'].unique())
 selected_years = st.sidebar.multiselect(
     "選擇進口年份範圍",
@@ -54,7 +50,6 @@ selected_years = st.sidebar.multiselect(
     default=valid_years_import
 )
 
-# 發票年份篩選 (動態跟隨進口年份)
 valid_years_inv = sorted(df['Inv_Yr'].unique())
 selected_inv_years = st.sidebar.multiselect(
     "選擇發票年份",
@@ -62,10 +57,8 @@ selected_inv_years = st.sidebar.multiselect(
     default=selected_years
 )
 
-# 其他篩選器
 region = st.sidebar.multiselect("選擇地區", df["Region"].unique())
 
-# 資料篩選
 filter_import = df_import[df_import['YEAR'].isin(selected_years)]
 filter_smt = df[
     (df['Inv_Yr'].isin(selected_inv_years)) &
@@ -73,7 +66,6 @@ filter_smt = df[
 ]
 if region: filter_smt = filter_smt[filter_smt["Region"].isin(region)]
 
-# 主視覺化佈局
 col1, col2 = st.columns(2)
 
 with col1:
@@ -153,9 +145,17 @@ with col1:
                 margins_name="總計"
             ).fillna(0)
             
-            html = pivot_import.applymap(lambda x: f"{x:,.0f}").to_html(classes='table table-bordered')
-            html = html.replace('<th>台数</th>', '<th style="background-color: #90EE90">台数</th>')
-            html = html.replace('<th>进口金额（人民币）</th>', '<th style="background-color: #FFA500">进口金额（人民币）</th>')
+            html = pivot_import.to_html(classes='table table-bordered')
+            # 台数欄位處理
+            html = html.replace(
+                '<th>台数</th>',
+                '<th style="background-color: #90EE90">台数</th>'
+            )
+            # 進口金額欄位處理
+            html = html.replace(
+                '<th>进口金额（人民币）</th>',
+                '<th style="background-color: #FFA500">进口金额（人民币）</th>'
+            )
             st.markdown(f'<div style="zoom:1.1">{html}</div>', unsafe_allow_html=True)
             csv = pivot_import.to_csv(float_format='%.0f').encode('utf-8')
             st.download_button("下載進口數據", csv, "china_import.csv", "text/csv")
@@ -231,16 +231,17 @@ with col2:
             # 調整樞紐表結構
             pivot_smt = filter_smt.pivot_table(
                 values=["Before tax Inv Amt (HKD)", "Item Qty"],
-                index="BRAND",
-                columns=["Inv_Yr", "Inv_Month"],
+                index=["BRAND", "Inv_Month"],  # Inv_Month移到row位置
+                columns="Inv_Yr",  # Inv_Yr移到column位置
                 aggfunc="sum",
                 margins=True
             ).fillna(0)
             
-            # 按品牌字母降序排序
-            pivot_smt = pivot_smt.reindex(sorted(pivot_smt.index, reverse=True))
+            # 按品牌和月份排序
+            pivot_smt = pivot_smt.sort_index(level=['BRAND', 'Inv_Month'], ascending=[False, True])
             
             html = pivot_smt.style.format("{:,.0f}").to_html()
+            # 品牌顏色處理
             html = html.replace('<th>HELLER</th>', '<th style="background-color: #FFA500">HELLER</th>')
             html = html.replace('<th>PEMTRON</th>', '<th style="background-color: #ADD8E6">PEMTRON</th>')
             html = html.replace('<th>YAMAHA</th>', '<th style="background-color: #FFB6C1">YAMAHA</th>')
@@ -248,12 +249,44 @@ with col2:
             csv = pivot_smt.to_csv(float_format='%.0f').encode('utf-8')
             st.download_button("下載發票數據", csv, "smt_invoice.csv", "text/csv")
 
-# 樣式設定
 style_metric_cards(background_color="#FFFFFF", border_left_color="#686664")
 
-# 頁尾
 st.markdown("""
 <div style="text-align:center;padding:1rem;margin-top:2rem;border-top:2px solid #ddd">
     <p style="color:#666">Developed by Arthur Chan • Data Version: 2024-02</p>
 </div>
 """, unsafe_allow_html=True)
+
+
+
+
+
+
+#加pivot table, column只用YAMAHA, PEMTRON, HELLER台數要match圖
+################################################################################################################################# 
+#-China Mounter Import Trend和SMT Invoice Trend:兩部分用st.column(2)分兩邊
+#-所有st.expander都取消
+#-China Mounter Import Trend的range bar預設全選
+#-China Mounter Import Trend的pivot table中的"台数"這字用綠色背景色；"进口金额（人民币）"這字用綠色背景色
+#-China Mounter Import Trend的combine chart加入Title，名為"China Mounter Import Trend(QTY& CNY Amount)，字體跟subheader大小相若
+#-China Mounter Import Trend的combine chart背景色不再用紅色，改用淡黃色
+#-China Mounter Import Trend的combine chart中的进口金额（人民币）的scale用m代替現在的b，即是以百萬作單位，50000000就用50M去表示
+#-SMT Invoice Trend的combine chart加入Title，名為"SMT Invoice Trend(QTY& HKD Amount)"，字體跟subheader大小相若
+#-所有combine chart都改用solid的全格網線
+#-所有combine chart中，bar和折線再分開一點，折線的每格scale再拆細一半，令到折線可以放高一點
+#-所有combine chart中的折線的marker改用solid的正方形
+#-所有combine chart中，bar的顏色比例淡一點，另外最新一年的數據的bar和折線都一律用橙色
+#-range bar直接改為sidebar filter
+#-所有combine chart我要的格網線是正方形一格一格的那種，取消現在那種格線重新設置
+#-China Mounter Import Trend的combine chart中"台数"的數字要直接顯示在折線圖的marker之上
+#-SMT Invoice Trend的combine chart中"數量"的數字要直接顯示在折線圖的marker之上
+#-進口年份範圍sidebar filter預設所有選項
+#-發票年份sidebar filter預設要視乎進口年份範圍sidebar filter，例如進口年份範圍sidebar filter預設選擇了2022和2023，那麼發票年份sidebar filter預設就照樣是2022和2023
+#-所有combine chart的Title要按我之前指示補回給我
+#-China Mounter Import Trend的combine chart中"台数"的數字改為顯示在折線圖的marker右邊
+#-SMT Invoice Trend的combine chart中"數量"的數字改為顯示在折線圖的marker右邊
+#-China Mounter Import Trend的combine chart中的进口金额（人民币）的scale參考SMT Invoice Trend的-combine chart中bar的scale顯示方式，現在雖然是以百萬作單位，但20000000在圖上scale現在只顯示為200，我想要的是在200後加一個"M"，寫為"20M"
+#-之前China Mounter Import Trend(QTY & CNY)和SMT Invoice Trend(QTY & HKD)兩部分的pivot table都消失了，要按原來的模樣不變地補回給我
+#-仍未見表格有做到條件格式：進口數據樞紐分析表的pivot table內，"台数"字眼背景色用綠色，"进口金额（人民币）"字眼背景色用橙色
+#-仍未見表格有做到條件格式：SMT Invoice Trend的pivot table內，HELLER字眼背景色用橙色，PEMTRON字眼背景色用淺藍色，YAMAHA字眼背景色用淺紅色
+#-另外SMT Invoice Trend的pivot table的內，Inv_Month要放在BRAND的位置後面，不要把Inv_Month放在Inv_Yr後面。BRAND和Inv_Month同樣在row，只有Inv_Yr在列
