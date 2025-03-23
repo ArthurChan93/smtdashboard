@@ -145,14 +145,15 @@ with col1:
                 margins_name="總計"
             ).fillna(0)
             
-            html = pivot_import.to_html(classes='table table-bordered')
+            # 格式化數值為會計格式
+            formatted_pivot = pivot_import.applymap(lambda x: f"{x:,.0f}")
+            
+            html = formatted_pivot.to_html(classes='table table-bordered')
             # 台数欄位處理
             html = html.replace(
                 '<th>台数</th>',
                 '<th style="background-color: #90EE90">台数</th>'
-            )
-            # 進口金額欄位處理
-            html = html.replace(
+            ).replace(
                 '<th>进口金额（人民币）</th>',
                 '<th style="background-color: #FFA500">进口金额（人民币）</th>'
             )
@@ -228,23 +229,29 @@ with col2:
         st.plotly_chart(fig, use_container_width=True)
         
         with st.expander("發票數據樞紐分析表", expanded=True):
-            # 調整樞紐表結構
             pivot_smt = filter_smt.pivot_table(
                 values=["Before tax Inv Amt (HKD)", "Item Qty"],
-                index=["BRAND", "Inv_Month"],  # Inv_Month移到row位置
-                columns="Inv_Yr",  # Inv_Yr移到column位置
+                index=["BRAND", "Inv_Month"],
+                columns="Inv_Yr",
                 aggfunc="sum",
                 margins=True
             ).fillna(0)
             
-            # 按品牌和月份排序
-            pivot_smt = pivot_smt.sort_index(level=['BRAND', 'Inv_Month'], ascending=[False, True])
+            # 格式化數值
+            formatted_smt = pivot_smt.style.format("{:,.0f}")
             
-            html = pivot_smt.style.format("{:,.0f}").to_html()
+            html = formatted_smt.to_html()
             # 品牌顏色處理
-            html = html.replace('<th>HELLER</th>', '<th style="background-color: #FFA500">HELLER</th>')
-            html = html.replace('<th>PEMTRON</th>', '<th style="background-color: #ADD8E6">PEMTRON</th>')
-            html = html.replace('<th>YAMAHA</th>', '<th style="background-color: #FFB6C1">YAMAHA</th>')
+            html = html.replace(
+                '<th>HELLER</th>', 
+                '<th style="background-color: #FFA500">HELLER</th>'
+            ).replace(
+                '<th>PEMTRON</th>', 
+                '<th style="background-color: #ADD8E6">PEMTRON</th>'
+            ).replace(
+                '<th>YAMAHA</th>', 
+                '<th style="background-color: #FFB6C1">YAMAHA</th>'
+            )
             st.markdown(f'<div style="zoom:1.1">{html}</div>', unsafe_allow_html=True)
             csv = pivot_smt.to_csv(float_format='%.0f').encode('utf-8')
             st.download_button("下載發票數據", csv, "smt_invoice.csv", "text/csv")
@@ -256,6 +263,7 @@ st.markdown("""
     <p style="color:#666">Developed by Arthur Chan • Data Version: 2024-02</p>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
