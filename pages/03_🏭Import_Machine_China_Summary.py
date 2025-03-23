@@ -64,20 +64,21 @@ selected_inv_years = st.sidebar.multiselect(
 
 # 其他篩選器
 region = st.sidebar.multiselect("選擇地區", df["Region"].unique())
-brand = st.sidebar.multiselect("選擇品牌", df["BRAND"].unique())
 
-# 資料篩選
+# 資料篩選 (新增品牌過濾)
 filter_import = df_import[df_import['YEAR'].isin(selected_years)]
-filter_smt = df[df['Inv_Yr'].isin(selected_inv_years)]
+filter_smt = df[
+    (df['Inv_Yr'].isin(selected_inv_years)) &
+    (df['BRAND'].isin(['HELLER', 'PEMTRON', 'YAMAHA']))  # 新增品牌過濾
+]
 if region: filter_smt = filter_smt[filter_smt["Region"].isin(region)]
-if brand: filter_smt = filter_smt[filter_smt["BRAND"].isin(brand)]
 
 # 主視覺化佈局
 col1, col2 = st.columns(2)
 
 with col1:
     # 中國進口組合圖表
-    #st.subheader(":chart_with_upwards_trend: China Mounter Import Trend(QTY & CNY Amount)")
+    st.subheader(":chart_with_upwards_trend: China Mounter Import Trend(QTY & CNY Amount)")
     
     if not filter_import.empty:
         # 數據處理
@@ -93,7 +94,7 @@ with col1:
         for year in years:
             df_year = df_import_group[df_import_group['YEAR'] == year]
             
-            # 金額柱狀圖 (移除數值標籤)
+            # 金額柱狀圖
             fig.add_trace(go.Bar(
                 x=df_year['MONTH'],
                 y=df_year['进口金额（人民币）'] / 1e6,
@@ -112,14 +113,14 @@ with col1:
                 marker=dict(symbol='square', size=10),
                 text=df_year['台数'],
                 textposition='middle right',
-                textfont=dict(color='black', size=10)
+                textfont=dict(color='black', size=15)  # 字體放大50%
             ), secondary_y=True)
         
         # 圖表佈局
         fig.update_layout(
             height=600,
             title={
-                'text': "📈 China Mounter Import Trend(QTY & CNY Amount)",
+                'text': "China Mounter Import Trend(QTY & CNY Amount)",
                 'font': {'size': 24}
             },
             xaxis=dict(
@@ -134,7 +135,7 @@ with col1:
                 title='金額 (百萬人民幣)',
                 gridcolor='rgba(0,0,0,0.3)',
                 gridwidth=0.5,
-                tickformat='.0fM',  # 強制顯示M後綴
+                tickformat='.0fM',
                 showgrid=True
             ),
             yaxis2=dict(
@@ -151,7 +152,7 @@ with col1:
         )
         st.plotly_chart(fig, use_container_width=True)
         
-        # 樞紐分析表 (使用expander)
+        # 樞紐分析表
         with st.expander("進口數據樞紐分析表", expanded=True):
             pivot_import = filter_import.pivot_table(
                 values=["进口金额（人民币）", "台数"],
@@ -161,12 +162,10 @@ with col1:
                 margins=True,
                 margins_name="總計"
             )
-            # 條件格式處理
             html = pivot_import.applymap(lambda x: f"{x:,.0f}").to_html(classes='table table-bordered')
             html = html.replace('<th>台数</th>', '<th style="background-color: #90EE90">台数</th>')
             html = html.replace('<th>进口金额（人民币）</th>', '<th style="background-color: #90EE90">进口金额（人民币）</th>')
             st.markdown(f'<div style="zoom:1.1">{html}</div>', unsafe_allow_html=True)
-            # 下載按鈕
             csv = pivot_import.to_csv(float_format='%.0f').encode('utf-8')
             st.download_button("下載進口數據", csv, "china_import.csv", "text/csv")
         
@@ -175,7 +174,7 @@ with col1:
 
 with col2:
     # SMT發票組合圖表
-    #st.subheader(":bar_chart: SMT Invoice Trend(QTY & HKD Amount)")
+    st.subheader(":bar_chart: SMT Invoice Trend(QTY & HKD Amount)")
     
     if not filter_smt.empty:
         # 數據處理
@@ -191,7 +190,7 @@ with col2:
         for year in years:
             df_year = df_smt_group[df_smt_group['Inv_Yr'] == year]
             
-            # 金額柱狀圖 (移除數值標籤)
+            # 金額柱狀圖
             fig.add_trace(go.Bar(
                 x=df_year['Inv_Month'],
                 y=df_year['Before tax Inv Amt (HKD)'] / 1e6,
@@ -210,14 +209,14 @@ with col2:
                 marker=dict(symbol='square', size=10),
                 text=df_year['Item Qty'],
                 textposition='middle right',
-                textfont=dict(color='black', size=10)
+                textfont=dict(color='black', size=15)  # 字體放大50%
             ), secondary_y=True)
         
         # 圖表佈局
         fig.update_layout(
             height=600,
             title={
-                'text': "📊 SMT Invoice Trend(QTY & HKD Amount)",
+                'text': "SMT Invoice Trend(QTY & HKD Amount)",
                 'font': {'size': 24}
             },
             xaxis=dict(
@@ -232,7 +231,7 @@ with col2:
                 title='金額 (百萬港幣)',
                 gridcolor='rgba(0,0,0,0.3)',
                 gridwidth=0.5,
-                tickformat='.0fM',  # 強制顯示M後綴
+                tickformat='.0fM',
                 showgrid=True
             ),
             yaxis2=dict(
@@ -249,7 +248,7 @@ with col2:
         )
         st.plotly_chart(fig, use_container_width=True)
         
-        # 樞紐分析表 (使用expander)
+        # 樞紐分析表
         with st.expander("發票數據樞紐分析表", expanded=True):
             pivot_smt = filter_smt.pivot_table(
                 values=["Before tax Inv Amt (HKD)", "Item Qty"],
@@ -258,12 +257,15 @@ with col2:
                 aggfunc="sum",
                 margins=True
             )
+            # 只保留指定品牌
+            valid_brands = ['HELLER', 'PEMTRON', 'YAMAHA']
+            pivot_smt = pivot_smt.loc[:, (slice(None), valid_brands + ['All'])]
             # 條件格式處理
             html = pivot_smt.style.format("{:,.0f}").to_html()
-            html = html.replace('<th>YAMAHA</th>', '<th style="background-color: #90EE90">YAMAHA</th>')
+            html = html.replace('<th>HELLER</th>', '<th style="background-color: #90EE90">HELLER</th>')
             html = html.replace('<th>PEMTRON</th>', '<th style="background-color: #90EE90">PEMTRON</th>')
+            html = html.replace('<th>YAMAHA</th>', '<th style="background-color: #90EE90">YAMAHA</th>')
             st.markdown(f'<div style="zoom:1.1">{html}</div>', unsafe_allow_html=True)
-            # 下載按鈕
             csv = pivot_smt.to_csv(float_format='%.0f').encode('utf-8')
             st.download_button("下載發票數據", csv, "smt_invoice.csv", "text/csv")
         
@@ -279,6 +281,7 @@ st.markdown("""
     <p style="color:#666">Developed by Arthur Chan • Data Version: 2024-02</p>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
