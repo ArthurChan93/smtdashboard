@@ -4,12 +4,15 @@ import plotly.graph_objects as go
 from plotly import subplots
 import plotly.colors as colors
 from streamlit_extras.metric_cards import style_metric_cards
+import os
+from io import StringIO
 
 # 網頁基本設定
 st.set_page_config(page_title="Sales Dashboard", page_icon=":rainbow:", layout="wide")
 st.title(':factory:  Mounter Import Data of China_Analysis')
 st.markdown('<style>div.block-container{padding-top:1rem;}</style>', unsafe_allow_html=True)
 st.write("by Arthur Chan")
+#os.chdir(r"/Users/arthurchan/Downloads/Sample")
 
 # 資料載入與清洗
 @st.cache_data
