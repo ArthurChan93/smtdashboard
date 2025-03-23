@@ -4,15 +4,12 @@ import plotly.graph_objects as go
 from plotly import subplots
 import plotly.colors as colors
 from streamlit_extras.metric_cards import style_metric_cards
-import os
-from io import StringIO
 
 # 網頁基本設定
 st.set_page_config(page_title="Sales Dashboard", page_icon=":rainbow:", layout="wide")
 st.title(':factory:  Mounter Import Data of China_Analysis')
 st.markdown('<style>div.block-container{padding-top:1rem;}</style>', unsafe_allow_html=True)
 st.write("by Arthur Chan")
-#os.chdir(r"/Users/arthurchan/Downloads/Sample")
 
 # 資料載入與清洗
 @st.cache_data
@@ -230,20 +227,18 @@ with col2:
         st.plotly_chart(fig, use_container_width=True)
         
         with st.expander("發票數據樞紐分析表", expanded=True):
-            # 生成樞紐表時調整數值順序
             pivot_smt = filter_smt.pivot_table(
-                values=["Item Qty", "Before tax Inv Amt (HKD)"],  # 調整數值順序
+                values=["Item Qty", "Before tax Inv Amt (HKD)"],
                 index=["BRAND", "Inv_Month"],
                 columns="Inv_Yr",
                 aggfunc="sum",
-                margins=True
+                margins=True,
+                margins_name="總計"
             ).fillna(0)
             
-            # 按品牌總數量降序排序
             brand_totals = filter_smt.groupby('BRAND')['Item Qty'].sum().sort_values(ascending=False)
             ordered_brands = brand_totals.index.tolist()
             
-            # 重新索引排序
             pivot_smt = pivot_smt.reindex(index=ordered_brands, level='BRAND')
             
             formatted_smt = pivot_smt.style.format("{:,.0f}")
@@ -270,6 +265,7 @@ st.markdown("""
     <p style="color:#666">Developed by Arthur Chan • Data Version: 2024-02</p>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
