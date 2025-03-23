@@ -11,8 +11,9 @@ st.set_page_config(layout="wide", page_title="合約分析系統")
 # 固定讀取Excel文件
 try:
     # 設定工作路徑
+    os.chdir(r"/Users/arthurchan/Downloads/Sample")
     #os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
-    #os.chdir(r"/Users/arthurchan/Downloads/Sample")
+    
     # 直接讀取Excel文件並轉換關鍵欄位為字串
     df = pd.read_excel(
         io='Monthly_report_for_edit.xlsm',
@@ -140,7 +141,7 @@ try:
         filtered_df = df
     
     # 主顯示區新佈局
-    col1, col2 = st.columns([1, 1])  # 調整為等寬兩欄
+    col1, col2 = st.columns([2, 3])  # 調整列寬比例
     
     with col1:
         st.subheader("總開票金額")
@@ -191,8 +192,8 @@ try:
             # 合併數據
             merged_sum = pd.merge(currency_sum, delivery_terms_sum, on='合同貨幣')
             
-            # 創建餅圖
-            fig, ax = plt.subplots(figsize=(6, 4))
+            # 創建餅圖(調整尺寸)
+            fig, ax = plt.subplots(figsize=(4, 3))  # 縮小餅圖尺寸
             
             # 顏色配置
             color_mapping = {
@@ -218,11 +219,15 @@ try:
                 startangle=90,
                 colors=colors,
                 pctdistance=0.8,
-                textprops={'color': 'black', 'weight': 'bold'},
+                textprops={'color': 'black', 'weight': 'bold', 'fontsize': 8},  # 調整字體大小
                 wedgeprops={'width': 0.4, 'linewidth': 1, 'edgecolor': 'white'}
             )
             
-            ax.legend(wedges, currency_sum['合同貨幣'], title="合同貨幣", loc="upper right", bbox_to_anchor=(1.3, 1))
+            ax.legend(wedges, currency_sum['合同貨幣'], 
+                     title="合同貨幣", 
+                     loc="upper right", 
+                     bbox_to_anchor=(1.5, 1),  # 調整圖例位置
+                     fontsize=8)  # 調整圖例字體大小
             ax.axis('equal')
             st.pyplot(fig)
 
@@ -236,14 +241,23 @@ try:
                     lambda x: merged_sum.loc[merged_sum['合同貨幣'] == 'JPY', 'JPY 0.35%計算'].values[0] * jpy_rate if x == 'JPY' else None
                 )
             
-            # 顯示合併數據
+            # 動態獲取運輸條款列名
+            delivery_terms_columns = [col for col in merged_sum.columns if col not in [
+                '合同貨幣', '開票總金額(非港元)', '百分比 (%)', 'JPY 0.35%計算', 'JPY兌人民幣'
+            ]]
+            
+            # 格式化數據(新增運輸條款格式)
+            format_dict = {
+                '開票總金額(非港元)': "{:,.2f}",
+                '百分比 (%)': "{:.2f}%",
+                'JPY 0.35%計算': "JP¥ {:,.3f}",
+                'JPY兌人民幣': "¥ {:,.2f}" 
+            }
+            # 動態添加運輸條款格式
+            format_dict.update({col: "{:,.2f}" for col in delivery_terms_columns})
+            
             st.dataframe(
-                merged_sum.style.format({
-                    '開票總金額(非港元)': "{:,.2f}",
-                    '百分比 (%)': "{:.2f}%",
-                    'JPY 0.35%計算': "JP¥ {:,.3f}",
-                    'JPY兌人民幣': "¥ {:,.2f}" 
-                }),
+                merged_sum.style.format(format_dict),
                 hide_index=True,
                 height=400
             )
@@ -309,5 +323,7 @@ except Exception as e:
 #-pie chart上不同貨幣所顯示的百分比不要疊在一起，分開一點顯示; 如果百分比少於1%的就不在pie chart顯示，只在下方的pivot table照舊顯示
 #-sidebar中的運輸條款部分不用有預設值，如果運輸條款在數據源中出現0這數據，就不要題示0這選項
 #-各Cost Centre金額的pivot table要加上計總，並加入download button讓用家下載
-#-pie chart用st.columns(2)把合同貨幣分布的部分放右邊
+#-pie chart用st.columns(2)把合同貨幣分布的部分放右邊，pie chart縮小到與左邊column比例一樣平衡
 #-pie chart下的pivot table的百分比%列後面加入每個運輸條款去顯示它們各自的開票總金額(非港元)，並加入download button讓用家下載
+#-pie chart下的pivot table的剛才加入的每個運輸條款各自的開票總金額(非港元)，都用會計單位顯示，小數點後兩個位
+
