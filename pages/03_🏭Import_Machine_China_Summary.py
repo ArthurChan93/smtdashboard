@@ -145,11 +145,9 @@ with col1:
                 margins_name="總計"
             ).fillna(0)
             
-            # 格式化數值為會計格式
             formatted_pivot = pivot_import.applymap(lambda x: f"{x:,.0f}")
             
             html = formatted_pivot.to_html(classes='table table-bordered')
-            # 台数欄位處理
             html = html.replace(
                 '<th>台数</th>',
                 '<th style="background-color: #90EE90">台数</th>'
@@ -229,19 +227,25 @@ with col2:
         st.plotly_chart(fig, use_container_width=True)
         
         with st.expander("發票數據樞紐分析表", expanded=True):
+            # 生成樞紐表時調整數值順序
             pivot_smt = filter_smt.pivot_table(
-                values=["Before tax Inv Amt (HKD)", "Item Qty"],
+                values=["Item Qty", "Before tax Inv Amt (HKD)"],  # 調整數值順序
                 index=["BRAND", "Inv_Month"],
                 columns="Inv_Yr",
                 aggfunc="sum",
                 margins=True
             ).fillna(0)
             
-            # 格式化數值
+            # 按品牌總數量降序排序
+            brand_totals = filter_smt.groupby('BRAND')['Item Qty'].sum().sort_values(ascending=False)
+            ordered_brands = brand_totals.index.tolist()
+            
+            # 重新索引排序
+            pivot_smt = pivot_smt.reindex(index=ordered_brands, level='BRAND')
+            
             formatted_smt = pivot_smt.style.format("{:,.0f}")
             
             html = formatted_smt.to_html()
-            # 品牌顏色處理
             html = html.replace(
                 '<th>HELLER</th>', 
                 '<th style="background-color: #FFA500">HELLER</th>'
@@ -263,6 +267,7 @@ st.markdown("""
     <p style="color:#666">Developed by Arthur Chan • Data Version: 2024-02</p>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
