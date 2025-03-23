@@ -118,7 +118,7 @@ with col1:
         fig.update_layout(
             height=600,
             title={
-                'text': "China Mounter Import Trend(QTY & CNY Amount)",
+                'text': "📈 China Mounter Import Trend(QTY & CNY Amount)",
                 'font': {'size': 24}
             },
             xaxis=dict(
@@ -213,7 +213,7 @@ with col2:
         fig.update_layout(
             height=600,
             title={
-                'text': "SMT Invoice Trend(YAMAHA/HELLER/PEMTRON QTY & HKD Amount)",
+                'text': "📊 SMT Invoice Trend(YAMAHA/HELLER/PEMTRON QTY & HKD Amount)",
                 'font': {'size': 24}
             },
             xaxis=dict(
