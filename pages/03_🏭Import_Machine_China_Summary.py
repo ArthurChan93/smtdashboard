@@ -227,19 +227,25 @@ with col2:
         st.plotly_chart(fig, use_container_width=True)
         
         with st.expander("發票數據樞紐分析表", expanded=True):
+            # 生成樞紐表時啟用總計行
             pivot_smt = filter_smt.pivot_table(
                 values=["Item Qty", "Before tax Inv Amt (HKD)"],
                 index=["BRAND", "Inv_Month"],
                 columns="Inv_Yr",
                 aggfunc="sum",
-                margins=True,
-                margins_name="總計"
+                margins=True,  # 啟用總計行
+                margins_name="總計"  # 總計行標籤
             ).fillna(0)
             
+            # 按品牌總數量降序排序（排除總計行）
             brand_totals = filter_smt.groupby('BRAND')['Item Qty'].sum().sort_values(ascending=False)
             ordered_brands = brand_totals.index.tolist()
             
+            # 重新排序並保留總計行
             pivot_smt = pivot_smt.reindex(index=ordered_brands, level='BRAND')
+            
+            # 確保總計行位於最後
+            pivot_smt = pivot_smt.sort_index(level='BRAND', ascending=False, sort_remaining=False)
             
             formatted_smt = pivot_smt.style.format("{:,.0f}")
             
