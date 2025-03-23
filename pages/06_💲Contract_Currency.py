@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+from io import StringIO
 
 # 設定頁面配置
 st.set_page_config(layout="wide", page_title="合約分析系統")
@@ -11,7 +12,7 @@ st.set_page_config(layout="wide", page_title="合約分析系統")
 try:
     # 設定工作路徑
     #os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
-    #os.chdir(r"/Users/arthurchan/Downloads/Sample")   
+    #os.chdir(r"/Users/arthurchan/Downloads/Sample")
     # 直接讀取Excel文件並轉換關鍵欄位為字串
     df = pd.read_excel(
         io='Monthly_report_for_edit.xlsm',
@@ -20,7 +21,7 @@ try:
         skiprows=0,
         usecols='A:AU',
         nrows=100000,
-        dtype={'FY_Contract': str, 'FY_INV': str, 'Inv_Yr': str, 'Inv_Month': str}  # 新增型別指定
+        dtype={'FY_Contract': str, 'FY_INV': str, 'Inv_Yr': str, 'Inv_Month': str}
     )
     
     # 轉換Region欄位為字串
@@ -51,8 +52,8 @@ try:
     }
     df = df.rename(columns=columns_mapping)
     
-    # 數據清洗流程(強化型別轉換)
-    invalid_values = ['Cancel', 'TBA', 'nan', '', np.nan]
+    # 數據清洗流程
+    invalid_values = ['Cancel', 'TBA', 'nan', '', np.nan, '0']
     df['開票年份'] = pd.to_numeric(df['開票年份'], errors='coerce').replace(invalid_values, pd.NA)
     df['開票月份'] = df['開票月份'].astype(str).str.strip().replace(invalid_values, pd.NA)
     df['地區'] = df['地區'].astype(str).replace(invalid_values, pd.NA)
@@ -62,7 +63,7 @@ try:
     df = df.dropna(subset=['開票年份', '開票月份', '地區'])
     df['開票年份'] = df['開票年份'].astype(int)
     
-    # 側邊欄篩選器(強化型別處理)
+    # 側邊欄篩選器
     with st.sidebar:
         st.header("篩選條件")
         
@@ -74,7 +75,7 @@ try:
             format="%.4f"
         )
         
-        # 財年篩選(確保字串比較)
+        # 財年篩選
         all_fy = sorted(df['財年'].astype(str).unique())
         selected_fy = st.multiselect(
             "選擇財年", 
@@ -82,7 +83,7 @@ try:
             default=['FY 24/25']
         )
         
-        # 開票年份篩選(確保整數型別)
+        # 開票年份篩選
         valid_years = sorted(df['開票年份'].unique())
         selected_years = st.multiselect(
             "選擇開票年份",
@@ -90,7 +91,7 @@ try:
             default=[2024, 2025]
         )
         
-        # 開票月份篩選(統一字串處理)
+        # 開票月份篩選
         valid_months = sorted(
             df['開票月份'].astype(str).unique(),
             key=lambda x: int(x) if x.isdigit() else 0
@@ -109,15 +110,17 @@ try:
             default=['SOUTH']
         )
         
-        # 運輸條款篩選
-        all_delivery_terms = sorted(df['運輸條款'].dropna().unique())
+        # 運輸條款篩選(排除0值)
+        all_delivery_terms = sorted([
+            term for term in df['運輸條款'].dropna().unique() 
+            if term not in ['0', 0]
+        ])
         selected_delivery_terms = st.multiselect(
             "選擇運輸條款",
-            options=all_delivery_terms,
-            default=['DAP']
+            options=all_delivery_terms
         )
     
-    # 篩選條件組合(統一型別處理)
+    # 篩選條件組合
     filter_conditions = []
     if selected_fy: 
         filter_conditions.append(df['財年'].astype(str).isin(selected_fy))
@@ -136,8 +139,8 @@ try:
     else:
         filtered_df = df
     
-    # 主顯示區(保持不變)
-    col1, col2 = st.columns([1, 3])
+    # 主顯示區新佈局
+    col1, col2 = st.columns([1, 1])  # 調整為等寬兩欄
     
     with col1:
         st.subheader("總開票金額")
@@ -146,17 +149,47 @@ try:
         
         st.subheader("各Cost Centre金額")
         cost_center_sum = filtered_df.groupby('成本中心')['開票總金額(港元)'].sum().reset_index()
+        
+        # 添加總計行
+        total_row = pd.DataFrame({
+            '成本中心': ['總計'],
+            '開票總金額(港元)': [cost_center_sum['開票總金額(港元)'].sum()]
+        })
+        cost_center_sum = pd.concat([cost_center_sum, total_row], ignore_index=True)
+        
         st.dataframe(
             cost_center_sum.style.format({'開票總金額(港元)': "HK$ {:,.2f}"}),
             hide_index=True
+        )
+        
+        # 下載按鈕
+        csv = cost_center_sum.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="下載成本中心數據",
+            data=csv,
+            file_name='cost_center_summary.csv',
+            mime='text/csv'
         )
     
     with col2:
         st.subheader("合同貨幣分布")
         if not filtered_df.empty:
+            # 生成貨幣匯總數據
             currency_sum = filtered_df.groupby('合同貨幣')['開票總金額(非港元)'].sum().reset_index()
             total = currency_sum['開票總金額(非港元)'].sum()
             currency_sum['百分比 (%)'] = (currency_sum['開票總金額(非港元)'] / total * 100).round(2)
+            
+            # 生成運輸條款分項數據
+            delivery_terms_sum = filtered_df.pivot_table(
+                index='合同貨幣',
+                columns='運輸條款',
+                values='開票總金額(非港元)',
+                aggfunc='sum',
+                fill_value=0
+            ).reset_index()
+            
+            # 合併數據
+            merged_sum = pd.merge(currency_sum, delivery_terms_sum, on='合同貨幣')
             
             # 創建餅圖
             fig, ax = plt.subplots(figsize=(6, 4))
@@ -196,15 +229,16 @@ try:
             # JPY計算公式
             if 'JPY' in currency_sum['合同貨幣'].values:
                 jpy_amount = currency_sum.loc[currency_sum['合同貨幣'] == 'JPY', '開票總金額(非港元)'].values[0]
-                currency_sum['JPY 0.35%計算'] = currency_sum['合同貨幣'].apply(
+                merged_sum['JPY 0.35%計算'] = merged_sum['合同貨幣'].apply(
                     lambda x: jpy_amount * 0.0035 if x == 'JPY' else None
                 )
-                currency_sum['JPY兌人民幣'] = currency_sum['合同貨幣'].apply(
-                    lambda x: currency_sum.loc[currency_sum['合同貨幣'] == 'JPY', 'JPY 0.35%計算'].values[0] * jpy_rate if x == 'JPY' else None
+                merged_sum['JPY兌人民幣'] = merged_sum['合同貨幣'].apply(
+                    lambda x: merged_sum.loc[merged_sum['合同貨幣'] == 'JPY', 'JPY 0.35%計算'].values[0] * jpy_rate if x == 'JPY' else None
                 )
             
+            # 顯示合併數據
             st.dataframe(
-                currency_sum.style.format({
+                merged_sum.style.format({
                     '開票總金額(非港元)': "{:,.2f}",
                     '百分比 (%)': "{:.2f}%",
                     'JPY 0.35%計算': "JP¥ {:,.3f}",
@@ -212,6 +246,15 @@ try:
                 }),
                 hide_index=True,
                 height=400
+            )
+            
+            # 下載按鈕
+            csv = merged_sum.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="下載貨幣分布數據",
+                data=csv,
+                file_name='currency_distribution.csv',
+                mime='text/csv'
             )
         else:
             st.warning("沒有符合篩選條件的數據")
@@ -264,3 +307,7 @@ except Exception as e:
 #4. 在pie chart下方再加一個pivot table表格去數字化地顯示pie chart中所顯示的數據，如果合同貨幣中有"JPY"，則要在表格加多一列，顯示該"JPY"的合同貨幣在該財年中的總開票總金額(非港元)乘以0.0035後等於多少
 #-Pie chart不能過大，要縮小到與其他顯示的表格相若。另外pie chart百分比背後代表的貨幣顯示在圖的右上就可，顏色改用綠色，淺藍和橙色3隻色，PIE CHART中顯示的"JPY"部分我想固定用淺綠色，"RMB"固定用淺橙色
 #-pie chart上不同貨幣所顯示的百分比不要疊在一起，分開一點顯示; 如果百分比少於1%的就不在pie chart顯示，只在下方的pivot table照舊顯示
+#-sidebar中的運輸條款部分不用有預設值，如果運輸條款在數據源中出現0這數據，就不要題示0這選項
+#-各Cost Centre金額的pivot table要加上計總，並加入download button讓用家下載
+#-pie chart用st.columns(2)把合同貨幣分布的部分放右邊
+#-pie chart下的pivot table的百分比%列後面加入每個運輸條款去顯示它們各自的開票總金額(非港元)，並加入download button讓用家下載
