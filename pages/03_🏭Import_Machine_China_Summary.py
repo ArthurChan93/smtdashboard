@@ -174,7 +174,7 @@ with col1:
 
 with col2:
     # SMT發票組合圖表
-    st.subheader(":bar_chart: SMT Invoice Trend(QTY & HKD Amount)")
+    st.subheader(":bar_chart: SMT Invoice Trend(YAMAHA/HELLER/PEMTRON QTY & HKD Amount)")
     
     if not filter_smt.empty:
         # 數據處理
@@ -216,7 +216,7 @@ with col2:
         fig.update_layout(
             height=600,
             title={
-                'text': "SMT Invoice Trend(QTY & HKD Amount)",
+                'text': "SMT Invoice Trend(YAMAHA/HELLER/PEMTRON QTY & HKD Amount)",
                 'font': {'size': 24}
             },
             xaxis=dict(
