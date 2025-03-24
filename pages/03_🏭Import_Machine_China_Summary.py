@@ -4,12 +4,27 @@ import plotly.graph_objects as go
 from plotly import subplots
 import plotly.colors as colors
 from streamlit_extras.metric_cards import style_metric_cards
+import os
+from io import BytesIO
+
+def format_numbers(x):
+    """Custom number formatter with K and M abbreviations"""
+    try:
+        num = float(x)
+        if num >= 1_000_000:
+            return f"{num/1_000_000:,.0f}M"
+        elif num >= 1_000:
+            return f"{num/1_000:,.0f}K"
+        return f"{num:,.0f}"
+    except:
+        return str(x)
 
 # 網頁基本設定
 st.set_page_config(page_title="Sales Dashboard", page_icon=":rainbow:", layout="wide")
 st.title(':factory:  Mounter Import Data of China_Analysis')
 st.markdown('<style>div.block-container{padding-top:1rem;}</style>', unsafe_allow_html=True)
 st.write("by Arthur Chan")
+#os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
 
 # 資料載入與清洗
 @st.cache_data
@@ -103,7 +118,7 @@ with col1:
         fig.update_layout(
             height=600,
             title={
-                'text': "📈 China Mounter Import Trend(QTY & CNY Amount)",
+                'text': "📈 China Mounter Import Trend(QTY & Import CNY Amount)",
                 'font': {'size': 24}
             },
             xaxis=dict(
@@ -112,30 +127,40 @@ with col1:
                 dtick=1,
                 gridcolor='black',
                 gridwidth=1,
-                showgrid=True
+                showgrid=True,
+                tickfont=dict(color='#333333', size=18),
+                title_font=dict(color='#333333', size=20)
             ),
             yaxis=dict(
                 title='金額 (百萬人民幣)',
                 gridcolor='rgba(0,0,0,0.3)',
                 gridwidth=0.5,
                 tickformat='.0fM',
-                showgrid=True
+                showgrid=True,
+                tickfont=dict(color='#333333', size=18),
+                title_font=dict(color='#333333', size=20)
             ),
             yaxis2=dict(
                 title='數量 (台)',
                 gridcolor='rgba(0,0,0,0.3)',
                 gridwidth=0.5,
                 showgrid=True,
-                rangemode='tozero'
+                rangemode='tozero',
+                tickfont=dict(color='#333333', size=18),
+                title_font=dict(color='#333333', size=20)
             ),
             plot_bgcolor='rgba(255,255,255,0.9)',
             paper_bgcolor='rgb(240,240,240)',
             hovermode='x unified',
-            showlegend=True
+            showlegend=True,
+            legend=dict(
+                font=dict(size=24),
+                bgcolor='rgba(255,255,255,0.8)'
+            )
         )
         st.plotly_chart(fig, use_container_width=True)
         
-        with st.expander("進口數據樞紐分析表", expanded=True):
+        with st.expander("進口數據樞紐分析表"):
             pivot_import = filter_import.pivot_table(
                 values=["进口金额（人民币）", "台数"],
                 index="MONTH",
@@ -145,7 +170,7 @@ with col1:
                 margins_name="總計"
             ).fillna(0)
             
-            formatted_pivot = pivot_import.applymap(lambda x: f"{x:,.0f}")
+            formatted_pivot = pivot_import.applymap(format_numbers)
             
             html = formatted_pivot.to_html(classes='table table-bordered')
             html = html.replace(
@@ -156,7 +181,7 @@ with col1:
                 '<th style="background-color: #FFA500">进口金额（人民币）</th>'
             )
             st.markdown(f'<div style="zoom:1.1">{html}</div>', unsafe_allow_html=True)
-            csv = pivot_import.to_csv(float_format='%.0f').encode('utf-8')
+            csv = pivot_import.to_csv(float_format='%.0f', encoding='utf-8-sig').encode('utf-8-sig')
             st.download_button("下載進口數據", csv, "china_import.csv", "text/csv")
 
 with col2:
@@ -195,7 +220,9 @@ with col2:
             height=600,
             title={
                 'text': "📊 SMT Invoice Trend(YAMAHA/HELLER/PEMTRON QTY & HKD Amount)",
-                'font': {'size': 24}
+                'font': {'size': 24},
+                'xanchor': 'center',
+                'yanchor': 'top'
             },
             xaxis=dict(
                 title='月份',
@@ -203,51 +230,54 @@ with col2:
                 dtick=1,
                 gridcolor='black',
                 gridwidth=1,
-                showgrid=True
+                showgrid=True,
+                tickfont=dict(color='#333333', size=18),
+                title_font=dict(color='#333333', size=20)
             ),
             yaxis=dict(
                 title='金額 (百萬港幣)',
                 gridcolor='rgba(0,0,0,0.3)',
                 gridwidth=0.5,
                 tickformat='.0fM',
-                showgrid=True
+                showgrid=True,
+                tickfont=dict(color='#333333', size=18),
+                title_font=dict(color='#333333', size=20)
             ),
             yaxis2=dict(
                 title='數量 (件)',
                 gridcolor='rgba(0,0,0,0.3)',
                 gridwidth=0.5,
                 showgrid=True,
-                rangemode='tozero'
+                rangemode='tozero',
+                tickfont=dict(color='#333333', size=18),
+                title_font=dict(color='#333333', size=20)
             ),
             plot_bgcolor='rgba(255,255,255,0.9)',
             paper_bgcolor='rgb(240,240,240)',
             hovermode='x unified',
-            showlegend=True
+            showlegend=True,
+            legend=dict(
+                font=dict(size=24),
+                bgcolor='rgba(255,255,255,0.8)'
+            )
         )
         st.plotly_chart(fig, use_container_width=True)
         
-        with st.expander("發票數據樞紐分析表", expanded=True):
-            # 生成樞紐表時啟用總計行
+        with st.expander("發票數據樞紐分析表"):
             pivot_smt = filter_smt.pivot_table(
                 values=["Item Qty", "Before tax Inv Amt (HKD)"],
                 index=["BRAND", "Inv_Month"],
                 columns="Inv_Yr",
                 aggfunc="sum",
-                margins=True,  # 啟用總計行
-                margins_name="總計"  # 總計行標籤
+                margins=True,
+                margins_name="總計"
             ).fillna(0)
             
-            # 按品牌總數量降序排序（排除總計行）
             brand_totals = filter_smt.groupby('BRAND')['Item Qty'].sum().sort_values(ascending=False)
             ordered_brands = brand_totals.index.tolist()
-            
-            # 重新排序並保留總計行
             pivot_smt = pivot_smt.reindex(index=ordered_brands, level='BRAND')
             
-            # 確保總計行位於最後
-            pivot_smt = pivot_smt.sort_index(level='BRAND', ascending=False, sort_remaining=False)
-            
-            formatted_smt = pivot_smt.style.format("{:,.0f}")
+            formatted_smt = pivot_smt.applymap(format_numbers)
             
             html = formatted_smt.to_html()
             html = html.replace(
@@ -261,7 +291,7 @@ with col2:
                 '<th style="background-color: #FFB6C1">YAMAHA</th>'
             )
             st.markdown(f'<div style="zoom:1.1">{html}</div>', unsafe_allow_html=True)
-            csv = pivot_smt.to_csv(float_format='%.0f').encode('utf-8')
+            csv = pivot_smt.to_csv(float_format='%.0f', encoding='utf-8-sig').encode('utf-8-sig')
             st.download_button("下載發票數據", csv, "smt_invoice.csv", "text/csv")
 
 style_metric_cards(background_color="#FFFFFF", border_left_color="#686664")
@@ -271,6 +301,7 @@ st.markdown("""
     <p style="color:#666">Developed by Arthur Chan • Data Version: 2024-02</p>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
@@ -308,3 +339,12 @@ st.markdown("""
 #-仍未見表格有做到條件格式：進口數據樞紐分析表的pivot table內，"台数"字眼背景色用綠色，"进口金额（人民币）"字眼背景色用橙色
 #-仍未見表格有做到條件格式：SMT Invoice Trend的pivot table內，HELLER字眼背景色用橙色，PEMTRON字眼背景色用淺藍色，YAMAHA字眼背景色用淺紅色
 #-另外SMT Invoice Trend的pivot table的內，Inv_Month要放在BRAND的位置後面，不要把Inv_Month放在Inv_Yr後面。BRAND和Inv_Month同樣在row，只有Inv_Yr在列
+#-所有combine chart內的scale的字體深色一點
+#-所有combine chart的legend的字體加大一倍
+#-所有st.expander一開始時收起來，不用打開
+#-所有pivot table裡的數字，如果大於一百萬就用簡寫"M"去表達，M就是百萬的意思。例如是25,000,000，就顯示為25M; 如果是25,000,0000，就顯示為250M
+#-SMT invoice Trend的combine chart的title中，"YAMAHA"字體用紅色，"HELLER"字體用藍色，"PEMTRON"字體用綠色
+#-所有combine chart內的scale的字體大一半
+#-所有pivot table裡的數字，如果大於一千，而又少於一百萬就用簡寫"K"去表達，K就是一千的意思。例如是1,000，就顯示為1k; 如果是100,000，就顯示為100K; 如果是800,000，就顯示為800K
+#-所有pivot table裡的數字，如果大於一百萬就用簡寫"M"去表達，M就是百萬的意思。例如是25,000,000，就顯示為25M; 如果是250,000,0000，就顯示為250M; 如果是2,500,000,000就顯示為2,500M
+#-pivot table下載後，原來表格中的中文字變成了亂碼，請修正
