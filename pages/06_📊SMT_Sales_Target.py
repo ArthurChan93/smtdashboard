@@ -81,7 +81,7 @@ with main_col1:
     
     # 总Inv Amt
     total_inv = filtered_df['Before tax Inv Amt (HKD)'].sum()
-    st.metric("Total Inv Amt (HKD)", f"{total_inv:,.2f}")
+    st.subheader("Total Inv Amt (HKD)", f"{total_inv:,.2f}")
 
     # 饼图部分
     col1, col2 = st.columns(2)
@@ -160,7 +160,7 @@ with main_col2:
     
     # 总Sales Target
     total_target = filtered_df2['Total _Sales_Target(Inv Amt HKD)'].sum()
-    st.metric("Total Sales Target (HKD)", f"{total_target:,.2f}")
+    st.subheader("Total Sales Target (HKD)", f"{total_target:,.2f}")
 
     # 饼图部分
     col3, col4 = st.columns(2)
