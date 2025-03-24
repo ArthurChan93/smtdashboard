@@ -6,7 +6,7 @@ import plotly.colors as colors
 from streamlit_extras.metric_cards import style_metric_cards
 import os
 from io import BytesIO
-
+#
 def format_numbers(x):
     """Custom number formatter with K and M abbreviations"""
     try:
