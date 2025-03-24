@@ -110,7 +110,7 @@ with col1:
                 mode='lines+markers+text',
                 name=f'{year} 台數',
                 line=dict(color=color_map[year], width=3),
-                marker=dict(symbol='square', size=10, color='black'),  # 折線標記改黑色
+                marker=dict(symbol='square', size=6, color='black'),  # 折線標記改黑色
                 text=df_year['台数'],
                 textposition='middle right',
                 textfont=dict(color='black', size=20)
@@ -216,7 +216,7 @@ with col2:
                 mode='lines+markers+text',
                 name=f'{year} 數量',
                 line=dict(color=color_map[year], width=3),
-                marker=dict(symbol='square', size=10, color='black'),  # 折線標記改黑色
+                marker=dict(symbol='square', size=6, color='black'),  # 折線標記改黑色
                 text=df_year['Item Qty'],
                 textposition='middle right',
                 textfont=dict(color='black', size=20)
@@ -348,46 +348,3 @@ st.markdown("""
 #-仍未見表格有做到條件格式：進口數據樞紐分析表的pivot table內，"台数"字眼背景色用綠色，"进口金额（人民币）"字眼背景色用橙色
 #-仍未見表格有做到條件格式：SMT Invoice Trend的pivot table內，HELLER字眼背景色用橙色，PEMTRON字眼背景色用淺藍色，YAMAHA字眼背景色用淺紅色
 #-另外SMT Invoice Trend的pivot table的內，Inv_Month要放在BRAND的位置後面，不要把Inv_Month放在Inv_Yr後面。BRAND和Inv_Month同樣在row，只有Inv_Yr在列
-
-
-
-
-
-
-#加pivot table, column只用YAMAHA, PEMTRON, HELLER台數要match圖
-################################################################################################################################# 
-#-China Mounter Import Trend和SMT Invoice Trend:兩部分用st.column(2)分兩邊
-#-所有st.expander都取消
-#-China Mounter Import Trend的range bar預設全選
-#-China Mounter Import Trend的pivot table中的"台数"這字用綠色背景色；"进口金额（人民币）"這字用綠色背景色
-#-China Mounter Import Trend的combine chart加入Title，名為"China Mounter Import Trend(QTY& CNY Amount)，字體跟subheader大小相若
-#-China Mounter Import Trend的combine chart背景色不再用紅色，改用淡黃色
-#-China Mounter Import Trend的combine chart中的进口金额（人民币）的scale用m代替現在的b，即是以百萬作單位，50000000就用50M去表示
-#-SMT Invoice Trend的combine chart加入Title，名為"SMT Invoice Trend(QTY& HKD Amount)"，字體跟subheader大小相若
-#-所有combine chart都改用solid的全格網線
-#-所有combine chart中，bar和折線再分開一點，折線的每格scale再拆細一半，令到折線可以放高一點
-#-所有combine chart中的折線的marker改用solid的正方形
-#-所有combine chart中，bar的顏色比例淡一點，另外最新一年的數據的bar和折線都一律用橙色
-#-range bar直接改為sidebar filter
-#-所有combine chart我要的格網線是正方形一格一格的那種，取消現在那種格線重新設置
-#-China Mounter Import Trend的combine chart中"台数"的數字要直接顯示在折線圖的marker之上
-#-SMT Invoice Trend的combine chart中"數量"的數字要直接顯示在折線圖的marker之上
-#-進口年份範圍sidebar filter預設所有選項
-#-發票年份sidebar filter預設要視乎進口年份範圍sidebar filter，例如進口年份範圍sidebar filter預設選擇了2022和2023，那麼發票年份sidebar filter預設就照樣是2022和2023
-#-所有combine chart的Title要按我之前指示補回給我
-#-China Mounter Import Trend的combine chart中"台数"的數字改為顯示在折線圖的marker右邊
-#-SMT Invoice Trend的combine chart中"數量"的數字改為顯示在折線圖的marker右邊
-#-China Mounter Import Trend的combine chart中的进口金额（人民币）的scale參考SMT Invoice Trend的-combine chart中bar的scale顯示方式，現在雖然是以百萬作單位，但20000000在圖上scale現在只顯示為200，我想要的是在200後加一個"M"，寫為"20M"
-#-之前China Mounter Import Trend(QTY & CNY)和SMT Invoice Trend(QTY & HKD)兩部分的pivot table都消失了，要按原來的模樣不變地補回給我
-#-仍未見表格有做到條件格式：進口數據樞紐分析表的pivot table內，"台数"字眼背景色用綠色，"进口金额（人民币）"字眼背景色用橙色
-#-仍未見表格有做到條件格式：SMT Invoice Trend的pivot table內，HELLER字眼背景色用橙色，PEMTRON字眼背景色用淺藍色，YAMAHA字眼背景色用淺紅色
-#-另外SMT Invoice Trend的pivot table的內，Inv_Month要放在BRAND的位置後面，不要把Inv_Month放在Inv_Yr後面。BRAND和Inv_Month同樣在row，只有Inv_Yr在列
-#-所有combine chart內的scale的字體深色一點
-#-所有combine chart的legend的字體加大一倍
-#-所有st.expander一開始時收起來，不用打開
-#-所有pivot table裡的數字，如果大於一百萬就用簡寫"M"去表達，M就是百萬的意思。例如是25,000,000，就顯示為25M; 如果是25,000,0000，就顯示為250M
-#-SMT invoice Trend的combine chart的title中，"YAMAHA"字體用紅色，"HELLER"字體用藍色，"PEMTRON"字體用綠色
-#-所有combine chart內的scale的字體大一半
-#-所有pivot table裡的數字，如果大於一千，而又少於一百萬就用簡寫"K"去表達，K就是一千的意思。例如是1,000，就顯示為1k; 如果是100,000，就顯示為100K; 如果是800,000，就顯示為800K
-#-所有pivot table裡的數字，如果大於一百萬就用簡寫"M"去表達，M就是百萬的意思。例如是25,000,000，就顯示為25M; 如果是250,000,0000，就顯示為250M; 如果是2,500,000,000就顯示為2,500M
-#-pivot table下載後，原來表格中的中文字變成了亂碼，請修正
