@@ -3,6 +3,7 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
+from io import StringIO
 from io import BytesIO
 
 # 设置工作目录并读取数据
@@ -97,6 +98,7 @@ with main_col1:
         fig1.update_layout(
             legend=dict(
                 orientation="h",
+                font=dict(size=24),
                 yanchor="bottom",
                 y=1.02,
                 xanchor="center",
@@ -116,6 +118,7 @@ with main_col1:
         fig2.update_layout(
             legend=dict(
                 orientation="h",
+                font=dict(size=24),
                 yanchor="bottom",
                 y=1.02,
                 xanchor="center",
@@ -173,6 +176,7 @@ with main_col2:
         fig3.update_layout(
             legend=dict(
                 orientation="h",
+                font=dict(size=24),
                 yanchor="bottom",
                 y=1.02,
                 xanchor="center",
@@ -197,6 +201,7 @@ with main_col2:
         fig4.update_layout(
             legend=dict(
                 orientation="h",
+                font=dict(size=24),
                 yanchor="bottom",
                 y=1.02,
                 xanchor="center",
@@ -348,6 +353,7 @@ for cost_center in cost_centers:
         showlegend=True,
         legend=dict(
             orientation="h",
+            font=dict(size=24),
             yanchor="bottom",
             y=1.02,
             xanchor="center",
