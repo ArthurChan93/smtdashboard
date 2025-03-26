@@ -156,8 +156,8 @@ with col1:
             paper_bgcolor='rgb(240,240,240)',
             hovermode='x unified',
             showlegend=True,
-            legend=dict(
-                font=dict(size=24),
+            legend=dict(orientation="h",
+                font=dict(size=18),
                 bgcolor='rgba(255,255,255,0.8)'
             )
         )
@@ -262,8 +262,8 @@ with col2:
             paper_bgcolor='rgb(240,240,240)',
             hovermode='x unified',
             showlegend=True,
-            legend=dict(
-                font=dict(size=24),
+            legend=dict(orientation="h",
+                font=dict(size=18),
                 bgcolor='rgba(255,255,255,0.8)'
             )
         )
