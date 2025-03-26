@@ -157,7 +157,7 @@ with col1:
             hovermode='x unified',
             showlegend=True,
             legend=dict(orientation="h",
-                font=dict(size=18),
+                font=dict(size=20),
                 bgcolor='rgba(255,255,255,0.8)'
             )
         )
@@ -263,7 +263,7 @@ with col2:
             hovermode='x unified',
             showlegend=True,
             legend=dict(orientation="h",
-                font=dict(size=18),
+                font=dict(size=20),
                 bgcolor='rgba(255,255,255,0.8)'
             )
         )
