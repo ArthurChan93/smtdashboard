@@ -225,7 +225,7 @@ with col2:
         fig.update_layout(
             height=600,
             title={
-                'text': "📊 SMT Invoice Trend(<span style='color:#FF0000'>YAMAHA</span>/<span style='color:#0000FF'>HELLER</span>/<span style='color:#006400'>PEMTRON</span> QTY & INV Amount HKD)",
+                'text': "📊 SMT Invoice Trend(<span style='color:#FF0000'>YAMAHA</span>/<span style='color:#0000FF'>HELLER</span>/<span style='color:#006400'>PEMTRON</span> INV QTY & INV Amount HKD)",
                 'font': {'size': 24},
                 'x': 0.5,
                 'xanchor': 'center'
