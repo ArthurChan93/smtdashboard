@@ -13,9 +13,9 @@ def format_numbers(x):
         num = float(x)
         if num >= 1_000_000:
             return f"{num/1_000_000:,.0f}M"
-        elif num >= 1_000:
+        elif num >= 10_000:  # 修改為1萬以上才用K顯示
             return f"{num/1_000:,.0f}K"
-        return f"{num:,.0f}"
+        return f"{num:,.0f}"  # 1萬以下直接顯示原始數字
     except:
         return str(x)
 
@@ -110,7 +110,7 @@ with col1:
                 mode='lines+markers+text',
                 name=f'{year} 台數',
                 line=dict(color=color_map[year], width=3),
-                marker=dict(symbol='square', size=6, color='black'),  # 折線標記改黑色
+                marker=dict(symbol='square', size=6, color='black'),
                 text=df_year['台数'],
                 textposition='middle right',
                 textfont=dict(color='black', size=20)
@@ -185,7 +185,6 @@ with col1:
             )
             st.markdown(f'<div style="zoom:1.1">{html}</div>', unsafe_allow_html=True)
             
-            # 使用格式化後的數據生成CSV
             formatted_csv = pivot_import.applymap(format_numbers)
             csv = formatted_csv.to_csv(encoding='utf-8-sig').encode('utf-8-sig')
             st.download_button("下載進口數據", csv, "china_import.csv", "text/csv")
@@ -216,7 +215,7 @@ with col2:
                 mode='lines+markers+text',
                 name=f'{year} 數量',
                 line=dict(color=color_map[year], width=3),
-                marker=dict(symbol='square', size=6, color='black'),  # 折線標記改黑色
+                marker=dict(symbol='square', size=6, color='black'),
                 text=df_year['Item Qty'],
                 textposition='middle right',
                 textfont=dict(color='black', size=20)
@@ -291,14 +290,13 @@ with col2:
                 '<th style="background-color: #FFA500">HELLER</th>'
             ).replace(
                 '<th>PEMTRON</th>', 
-                '<th style="background-color: #006400; color: white">PEMTRON</th>'  # 深綠色背景
+                '<th style="background-color: #006400; color: white">PEMTRON</th>'
             ).replace(
                 '<th>YAMAHA</th>', 
                 '<th style="background-color: #FFB6C1">YAMAHA</th>'
             )
             st.markdown(f'<div style="zoom:1.1">{html}</div>', unsafe_allow_html=True)
             
-            # 使用格式化後的數據生成CSV
             formatted_csv = pivot_smt.applymap(format_numbers)
             csv = formatted_csv.to_csv(encoding='utf-8-sig').encode('utf-8-sig')
             st.download_button("下載發票數據", csv, "smt_invoice.csv", "text/csv")
@@ -310,7 +308,6 @@ st.markdown("""
     <p style="color:#666">Developed by Arthur Chan • Data Version: 2024-02</p>
 </div>
 """, unsafe_allow_html=True)
-
 
 
 
