@@ -249,7 +249,7 @@ with col2:
                 title_font=dict(color='#333333', size=27)
             ),
             yaxis2=dict(
-                title='數量 (件)',
+                title='數量 (台)',
                 gridcolor='rgba(0,0,0,0.3)',
                 gridwidth=0.5,
                 showgrid=True,
