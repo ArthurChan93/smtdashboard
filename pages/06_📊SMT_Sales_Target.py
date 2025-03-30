@@ -3,36 +3,26 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
-from io import StringIO
-from io import BytesIO
 
 # ========== 數據初始化 ==========
-# 設置工作目錄
-#os.chdir(r"/Users/arthurchan/Downloads/Sample")
-# os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
-
-# 讀取主要數據
+os.chdir(r"/Users/arthurchan/Downloads/Sample")
+#os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
 df = pd.read_excel(
     io='Monthly_report_for_edit.xlsm',
     engine='openpyxl',
     sheet_name='raw_sheet',
-    skiprows=0,
-    usecols='A:AU',
-    nrows=100000
+    usecols='A:AU'
 ).query('Region != "C66 N/A"').query('FY_Contract != "Cancel"').query(
     'FY_INV != "TBA"').query('FY_INV != "FY 17/18"').query(
     'FY_INV != "Cancel"').query('Inv_Yr != "TBA"').query(
     'Inv_Yr != "Cancel"').query('Inv_Month != "TBA"').query(
     'Inv_Month != "Cancel"')
 
-# 讀取銷售目標數據
 df2 = pd.read_excel(
     io='Monthly_report_for_edit.xlsm',
     engine='openpyxl',
     sheet_name='SMT_Internal_Sales_Target',
-    skiprows=0,
-    usecols='A:G',
-    nrows=100000)
+    usecols='A:G')
 
 # ========== 數據預處理 ==========
 df = df.dropna(subset=['Inv_Yr', 'Inv_Month'])
@@ -41,11 +31,37 @@ df['Region'] = df['Region'].replace(['', 'C66 N/A'], pd.NA).dropna()
 # ========== 頁面配置 ==========
 st.set_page_config(layout="wide")
 
+# ========== 全局樣式設定 ==========
+region_order = ['SOUTH', 'EAST', 'NORTH', 'WEST']
+cost_center_order = ['C49', 'C28', 'C66']
+large_font_style = dict(
+    xaxis=dict(
+        tickfont=dict(size=24),
+        titlefont=dict(size=28),
+        categoryorder='array',
+        categoryarray=region_order,
+        type='category'
+    ),
+    yaxis=dict(
+        tickfont=dict(size=24),
+        titlefont=dict(size=28)
+    ),
+    legend=dict(
+        font=dict(size=35),
+        orientation="h",
+        yanchor="bottom",
+        y=1.02,
+        xanchor="center",
+        x=0.5
+    ),
+    margin=dict(t=100, b=120),
+    height=800,
+    annotationdefaults=dict(font=dict(size=20))
+)
+
 # ========== 左側邊欄 ==========
 with st.sidebar:
     st.header("Monthly Report")
-    
-    # 篩選器設定
     selected_fy = st.selectbox(
         'FY',
         options=df['FY_INV'].unique(),
@@ -66,14 +82,14 @@ with st.sidebar:
 # ========== 主內容區 ==========
 main_col1, main_col2 = st.columns(2)
 
-# 左側主內容區 (Monthly Report)
+# 左側主內容區
 with main_col1:
     st.markdown(
-        "<h3 style='background-color: #D8BFD8; padding: 10px; border-radius: 5px;'>Monthly Report Data</h3>",
+        f"<h3 style='background-color: #D8BFD8; padding: 10px; border-radius: 5px;'>"
+        f"Monthly Report Data - {selected_fy}</h3>",
         unsafe_allow_html=True
     )
     
-    # 應用篩選
     filtered_df = df[
         (df['FY_INV'] == selected_fy) &
         (df['Inv_Yr'].isin(selected_yr if selected_yr else df['Inv_Yr'].unique())) &
@@ -81,29 +97,24 @@ with main_col1:
         (df['Region'].isin(selected_region if selected_region else region_options))
     ]
     
-    # 總發票金額
     total_inv = filtered_df['Before tax Inv Amt (HKD)'].sum()
     st.subheader(f"Total Inv Amt (HKD): {total_inv:,.2f}")
 
-    # 成本中心與區域分佈圖
     col1, col2 = st.columns(2)
     with col1:
         cost_center_colors = {'C49': '#90EE90', 'C28': '#87CEEB', 'C66': '#FFB6C1'}
         fig1 = px.pie(filtered_df, names='COST_CENTRE', values='Before tax Inv Amt (HKD)',
                      color='COST_CENTRE', color_discrete_map=cost_center_colors)
-        fig1.update_traces(textposition='inside', textinfo='percent+label', texttemplate='%{percent:.2%}', textfont_size=28)
-        fig1.update_layout(legend=dict(orientation="h", font=dict(size=24), yanchor="bottom", y=1.02, xanchor="center", x=0.5))
+        fig1.update_traces(textposition='inside', textinfo='percent+label', texttemplate='%{percent:.2%}', textfont_size=40)
+        #fig1.update_layout(**large_font_style)
         st.plotly_chart(fig1, use_container_width=True)
 
     with col2:
         fig2 = px.pie(filtered_df, names='Region', values='Before tax Inv Amt (HKD)')
-        fig2.update_traces(textposition='inside', textinfo='percent+label', texttemplate='%{percent:.2%}', textfont_size=28)
-        fig2.update_layout(legend=dict(orientation="h", font=dict(size=24), yanchor="bottom", y=1.02, xanchor="center", x=0.5))
+        fig2.update_traces(textposition='inside', textinfo='percent+label', texttemplate='%{percent:.2%}', textfont_size=40)
+        #fig2.update_layout(**large_font_style)
         st.plotly_chart(fig2, use_container_width=True)
 
-    # 樞紐分析表
-    region_order = ['SOUTH', 'EAST', 'NORTH', 'WEST']
-    cost_center_order = ['C49', 'C28', 'C66']
     pivot_df = filtered_df.pivot_table(
         values='Before tax Inv Amt (HKD)',
         index='COST_CENTRE',
@@ -119,10 +130,11 @@ with main_col1:
     st.write(styled_df)
     st.download_button("Download Pivot Table", pivot_df.to_csv().encode('utf-8'), 'monthly_report.csv', 'text/csv')
 
-# 右側主內容區 (Sales Target)
+# 右側主內容區
 with main_col2:
     st.markdown(
-        "<h3 style='background-color: #FFFFE0; padding: 10px; border-radius: 5px;'>Sales Target</h3>",
+        f"<h3 style='background-color: #FFFFE0; padding: 10px; border-radius: 5px;'>"
+        f"Sales Target - {selected_target_fy}</h3>",
         unsafe_allow_html=True
     )
     
@@ -134,25 +146,24 @@ with main_col2:
     with col3:
         fig3 = px.pie(filtered_df2, names='COST_CENTRE', values='Total _Sales_Target(Inv Amt HKD)',
                      color='COST_CENTRE', color_discrete_map=cost_center_colors)
-        fig3.update_traces(textposition='inside', textinfo='percent+label', texttemplate='%{percent:.2%}', textfont_size=28)
-        fig3.update_layout(legend=dict(orientation="h", font=dict(size=24), yanchor="bottom", y=1.02, xanchor="center", x=0.5))
+        fig3.update_traces(textposition='inside', textinfo='percent+label', texttemplate='%{percent:.2%}', textfont_size=40)
+    #    fig3.update_layout(**large_font_style)
         st.plotly_chart(fig3, use_container_width=True)
 
     with col4:
         region_colors = {'SOUTH': 'orange', 'EAST': 'blue', 'NORTH': '#D8BFD8', 'WEST': 'green'}
         fig4 = px.pie(filtered_df2.melt(id_vars=['FY_INV', 'COST_CENTRE'], 
-                                      value_vars=['SOUTH', 'EAST', 'NORTH', 'WEST'],
+                                      value_vars=region_order,
                                       var_name='Region', value_name='Sales Target(HKD)'),
                      names='Region', values='Sales Target(HKD)',
                      color='Region', color_discrete_map=region_colors)
-        fig4.update_traces(textposition='inside', textinfo='percent+label', texttemplate='%{percent:.2%}', textfont_size=28)
-        fig4.update_layout(legend=dict(orientation="h", font=dict(size=24), yanchor="bottom", y=1.02, xanchor="center", x=0.5))
+        fig4.update_traces(textposition='inside', textinfo='percent+label', texttemplate='%{percent:.2%}', textfont_size=40)
+    #    fig4.update_layout(**large_font_style)
         st.plotly_chart(fig4, use_container_width=True)
 
-    # 銷售目標樞紐表
     target_pivot = filtered_df2.melt(
         id_vars=['FY_INV', 'COST_CENTRE'],
-        value_vars=['SOUTH', 'EAST', 'NORTH', 'WEST'],
+        value_vars=region_order,
         var_name='Region',
         value_name='Sales Target(HKD)'
     ).pivot_table(
@@ -169,7 +180,7 @@ with main_col2:
     st.write(styled_target)
     st.download_button("Download Target Pivot", target_pivot.to_csv().encode('utf-8'), 'sales_target.csv', 'text/csv')
 
-# ========== 區域比較模組 ==========
+# ========== Regional Comparison 模組 ==========
 st.markdown(
     "<h2 style='background-color: #FFFF00; text-align: center; padding: 10px; border-radius: 5px; font-size: 24px;'>Regional Comparison</h2>",
     unsafe_allow_html=True
@@ -181,9 +192,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-region_order = ['SOUTH', 'EAST', 'NORTH', 'WEST']  # 強制排序參數
-
-# 實際數據處理
 all_actual = (
     filtered_df.groupby('Region')['Before tax Inv Amt (HKD)']
     .sum()
@@ -191,7 +199,6 @@ all_actual = (
     .reset_index()
 )
 
-# 目標數據處理
 all_target = (
     filtered_df2.melt(
         id_vars=['FY_INV', 'COST_CENTRE'],
@@ -205,15 +212,12 @@ all_target = (
     .reset_index()
 )
 
-# 數據合併
 merged_all = pd.merge(all_actual, all_target, on='Region', how='outer')
 merged_all['Difference(HKD)'] = merged_all['Before tax Inv Amt (HKD)'] - merged_all['Sales Target(HKD)']
 merged_all['Achievement%'] = (merged_all['Before tax Inv Amt (HKD)'] / merged_all['Sales Target(HKD)'] * 100).round(2)
 
-# 生成圖表
 fig_all = go.Figure()
 
-# 添加達標標註
 for idx, row in merged_all.iterrows():
     actual = row['Before tax Inv Amt (HKD)']
     target = row['Sales Target(HKD)']
@@ -225,7 +229,7 @@ for idx, row in merged_all.iterrows():
             y=max(actual, target) * 1.3,
             text=f"✅ 达标，已实现{percentage}%",
             showarrow=False,
-            font=dict(color="green", size=14, family="Arial Bold"),
+            font=dict(color="green", size=20, family="Arial Bold"),
             bgcolor="white",
             bordercolor="green"
         )
@@ -235,67 +239,45 @@ for idx, row in merged_all.iterrows():
             y=max(actual, target) * 1.3,
             text=f"❌ 未达标，已实现{percentage}%",
             showarrow=False,
-            font=dict(color="red", size=14, family="Arial Bold"),
+            font=dict(color="red", size=20, family="Arial Bold"),
             bgcolor="white",
             bordercolor="red"
         )
 
-# 實際值柱狀圖
 fig_all.add_trace(go.Bar(
     x=merged_all['Region'],
     y=merged_all['Before tax Inv Amt (HKD)'],
-    name='Actual Inv Amt(HKD)',
+    name=f'Actual ({selected_fy})',  # 圖例保留FY信息
     marker_color='#1f77b4',
-    marker_line_color='black',
-    marker_line_width=1,
-    text=merged_all['Before tax Inv Amt (HKD)'].apply(lambda x: f"{x/1e6:.1f}M" if x >= 1e6 else f"{x/1e3:.0f}K"),
+    text=[f"{x/1e6:.1f}M" if x >=1e6 else f"{x/1e3:.0f}K" for x in merged_all['Before tax Inv Amt (HKD)']],  # 移除FY標籤
     textposition='outside',
-    textfont=dict(size=16, family='Arial Bold')
+    textfont=dict(size=20, family='Arial Bold')
 ))
 
-# 目標值柱狀圖
 fig_all.add_trace(go.Bar(
     x=merged_all['Region'],
     y=merged_all['Sales Target(HKD)'],
-    name='Sales Target(HKD)',
+    name=f'Target ({selected_target_fy})',  # 圖例保留FY信息
     marker_color='#FFD700',
-    marker_line_color='black',
-    marker_line_width=1,
-    text=merged_all['Sales Target(HKD)'].apply(lambda x: f"{x/1e6:.1f}M" if x >= 1e6 else f"{x/1e3:.0f}K"),
+    text=[f"{x/1e6:.1f}M" if x >=1e6 else f"{x/1e3:.0f}K" for x in merged_all['Sales Target(HKD)']],  # 移除FY標籤
     textposition='inside',
-    textfont=dict(size=16, family='Arial Bold')
+    textfont=dict(size=20, family='Arial Bold')
 ))
 
-# 差異值柱狀圖
-colors = ['#2ca02c' if diff >=0 else '#ff7f0e' for diff in merged_all['Difference(HKD)']]
 fig_all.add_trace(go.Bar(
     x=merged_all['Region'],
     y=merged_all['Difference(HKD)'].abs(),
-    name='Difference(HKD)',
-    marker_color=colors,
-    marker_line_color='black',
-    marker_line_width=1,
-    text=merged_all['Difference(HKD)'].apply(lambda x: f"+{x/1e6:.1f}M" if x >=0 else f"-{abs(x)/1e6:.1f}M"),
+    name='Difference',
+    marker_color=['#2ca02c' if d >=0 else '#ff7f0e' for d in merged_all['Difference(HKD)']],
+    text=[f"+{x/1e6:.1f}M" if x >=0 else f"-{abs(x)/1e6:.1f}M" for x in merged_all['Difference(HKD)']],
     textposition='outside',
-    textfont=dict(size=14, family='Arial Bold')
+    textfont=dict(size=20, family='Arial Bold')
 ))
 
-# 圖表配置
 fig_all.update_layout(
     barmode='group',
-    xaxis={'categoryorder': 'array', 'categoryarray': region_order},
     yaxis_title="Amount (HKD)",
-    showlegend=True,
-    legend=dict(
-        orientation="h",
-        font=dict(size=24),
-        yanchor="bottom",
-        y=1.02,
-        xanchor="center",
-        x=0.5
-    ),
-    height=800,
-    margin=dict(t=100, b=120)
+    **large_font_style
 )
 st.plotly_chart(fig_all, use_container_width=True)
 
@@ -315,7 +297,6 @@ for cost_center in cost_centers:
         unsafe_allow_html=True
     )
     
-    # 數據準備
     actual_data = filtered_df[filtered_df['COST_CENTRE'] == cost_center]
     target_data = filtered_df2[filtered_df2['COST_CENTRE'] == cost_center]
     
@@ -327,10 +308,8 @@ for cost_center in cost_centers:
     merged['Difference(HKD)'] = merged['Actual Inv Amt(HKD)'] - merged['Sales Target(HKD)']
     merged['Achievement%'] = (merged['Actual Inv Amt(HKD)'] / merged['Sales Target(HKD)'] * 100).round(2)
 
-    # 生成圖表
     fig = go.Figure()
     
-    # 添加達標標註
     for idx, region in enumerate(merged['Region']):
         actual = merged.loc[idx, 'Actual Inv Amt(HKD)']
         target = merged.loc[idx, 'Sales Target(HKD)']
@@ -342,7 +321,7 @@ for cost_center in cost_centers:
                 y=max(actual, target) * 1.3,
                 text=f"✅ 达标，已实现{percentage}%",
                 showarrow=False,
-                font=dict(color="green", size=14, family="Arial Bold"),
+                font=dict(color="green", size=20, family="Arial Bold"),
                 bgcolor="white",
                 bordercolor="green"
             )
@@ -352,68 +331,48 @@ for cost_center in cost_centers:
                 y=max(actual, target) * 1.3,
                 text=f"❌ 未达标，已实现{percentage}%",
                 showarrow=False,
-                font=dict(color="red", size=14, family="Arial Bold"),
+                font=dict(color="red", size=20, family="Arial Bold"),
                 bgcolor="white",
                 bordercolor="red"
             )
     
-    # 實際值柱狀圖
     fig.add_trace(go.Bar(
         x=merged['Region'],
         y=merged['Actual Inv Amt(HKD)'],
-        name='Actual Inv Amt(HKD)',
+        name=f'Actual ({selected_fy})',  # 圖例保留FY信息
         marker_color='#1f77b4',
-        marker_line_color='black',
-        marker_line_width=1,
-        text=merged['Actual Inv Amt(HKD)'].apply(lambda x: f"{x/1e6:.1f}M" if x >= 1e6 else f"{x/1e3:.0f}K"),
+        text=[f"{x/1e6:.1f}M" if x >=1e6 else f"{x/1e3:.0f}K" for x in merged['Actual Inv Amt(HKD)']],  # 移除FY標籤
         textposition='outside',
-        textfont=dict(size=16, family='Arial Bold')
+        textfont=dict(size=20, family='Arial Bold')
     ))
     
-    # 目標值柱狀圖
     fig.add_trace(go.Bar(
         x=merged['Region'],
         y=merged['Sales Target(HKD)'],
-        name='Sales Target(HKD)',
+        name=f'Target ({selected_target_fy})',  # 圖例保留FY信息
         marker_color='#FFD700',
-        marker_line_color='black',
-        marker_line_width=1,
-        text=merged['Sales Target(HKD)'].apply(lambda x: f"{x/1e6:.1f}M" if x >= 1e6 else f"{x/1e3:.0f}K"),
+        text=[f"{x/1e6:.1f}M" if x >=1e6 else f"{x/1e3:.0f}K" for x in merged['Sales Target(HKD)']],  # 移除FY標籤
         textposition='inside',
-        textfont=dict(size=16, family='Arial Bold')
+        textfont=dict(size=20, family='Arial Bold')
     ))
     
-    # 差異值柱狀圖
-    colors = ['#2ca02c' if diff >=0 else '#ff7f0e' for diff in merged['Difference(HKD)']]
     fig.add_trace(go.Bar(
         x=merged['Region'],
         y=merged['Difference(HKD)'].abs(),
-        name='Difference(HKD)',
-        marker_color=colors,
-        marker_line_color='black',
-        marker_line_width=1,
-        text=merged['Difference(HKD)'].apply(lambda x: f"+{x/1e6:.1f}M" if x >=0 else f"-{abs(x)/1e6:.1f}M"),
+        name='Difference',
+        marker_color=['#2ca02c' if d >=0 else '#ff7f0e' for d in merged['Difference(HKD)']],
+        text=[f"+{x/1e6:.1f}M" if x >=0 else f"-{abs(x)/1e6:.1f}M" for x in merged['Difference(HKD)']],
         textposition='outside',
-        textfont=dict(size=14, family='Arial Bold')
+        textfont=dict(size=20, family='Arial Bold')
     ))
     
     fig.update_layout(
         barmode='group',
-        xaxis={'categoryorder': 'array', 'categoryarray': region_order},
         yaxis_title="Amount (HKD)",
-        showlegend=True,
-        legend=dict(
-            orientation="h",
-            font=dict(size=24),
-            yanchor="bottom",
-            y=1.02,
-            xanchor="center",
-            x=0.5
-        ),
-        height=800,
-        margin=dict(t=100, b=120)
+        **large_font_style
     )
     st.plotly_chart(fig, use_container_width=True)
+
 
 
 # 幫我設計一個用於streamlit的python程式，順序完成以下要求，給我完整CODE
@@ -503,3 +462,8 @@ for cost_center in cost_centers:
 #-在Regional Comparison部分，"All Cost Centres"部分，"SOUTH"和"EAST"和"NORTH"和"WEST"各自的amount(HKD)數值展示該地區的所有COST_CENTRE加起來的invoice數值就可
 #-在Regional Comparison部分，"All Cost Centres"部分，"SOUTH"和"EAST"和"NORTH"和"WEST"各自的amount(HKD)invoice數值我不想在同一bar內分開展示幾個cost centre的數值，只展示總數就可
 #-在Regional Comparison部分，"All Cost Centres"部分，排列次序要按"SOUTH"和"EAST"和"NORTH"和"WEST"排，Sales Targe和Difference都要用棒形圖，格式參考其他單一COST_CENTRE比較圖就可
+#- Monthly Report Data部分要有標示去顯示現在此部分的數據是屬於哪一個FY，例如在Monthly Report的sidebar filter中已選了 FY 22/23，就標示"FY 22/23"，所以標示就是視乎Monthly Report的sidebar ilter中filter的FY是什麼，就變成什麼
+#- Sales Target部分要有標示去顯示現在此部分的數據是屬於哪一個FY_INV (Target)，例如在Sales Target_FY的sidebar filter中已選了 FY 22/23，就標示"FY 22/23"，所以標示就是視乎Sales Target_FY的sidefilter中filter的是什麼，就變成什麼
+#- 在Regional Comparison部分，所有柱圖的scale和column字體都加大一半
+#- Regional Comparison所有柱圖內的Actual inv amt的bar都要有標示該bar的數據是屬於哪一個FY。Actual inv amt的bar要視乎Monthly Report的sidebar ilter中filter的FY是什麼，如果在Monthly Report的sidebar filter中的FY已選了 FY 22/23，就每條Actual inv amt的bar標示"FY 22/23"
+#- Regional Comparison所有柱圖內的sales target的bar都要有標示該bar的數據是屬於哪一個FY_INV (Target)。sales target的bar要視乎Sales Target_FY的sidefilter中filter的是什麼，如果在FY_INV (Target)的sidebar filter中的FY已選了 FY 22/23，就每條sales target的bar標示"FY 22/23"
