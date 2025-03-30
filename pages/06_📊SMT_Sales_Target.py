@@ -85,7 +85,7 @@ main_col1, main_col2 = st.columns(2)
 # 左側主內容區
 with main_col1:
     st.markdown(
-        f"<h3 style='background-color: #D8BFD8; padding: 10px; border-radius: 5px;'>"
+        f"<h3 style='background-color: #ADD8E6; padding: 10px; border-radius: 5px;'>"
         f"Monthly Report Data - {selected_fy}</h3>",
         unsafe_allow_html=True
     )
