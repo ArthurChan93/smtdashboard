@@ -65,7 +65,7 @@ with st.sidebar:
     selected_fy = st.selectbox(
         'FY',
         options=df['FY_INV'].unique(),
-        index=list(df['FY_INV'].unique()).index('FY 24/25') if 'FY 24/25' in df['FY_INV'].unique() else 0
+        index=list(df['FY_INV'].unique()).index('FY 25/26') if 'FY 25/26' in df['FY_INV'].unique() else 0
     )
     selected_yr = st.multiselect('Inv Yr', options=df['Inv_Yr'].unique())
     selected_month = st.multiselect('Inv Month', options=df['Inv_Month'].unique())
