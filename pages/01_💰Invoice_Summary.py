@@ -73,7 +73,7 @@ def sort_options(series):
 
 # Sidebar Filter
 fy_inv_filter = st.sidebar.multiselect(
-    "FY_INV", sort_options(df["FY_INV"]), default=["FY 24/25", "FY 23/24"]
+    "FY_INV", sort_options(df["FY_INV"]), default=["FY 25/26", "FY 24/25", "FY 23/24"]
 )
 df_fy_inv = df[df["FY_INV"].isin(fy_inv_filter)]
 
