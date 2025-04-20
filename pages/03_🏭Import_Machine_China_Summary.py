@@ -225,6 +225,7 @@ with col2:
             height=600,
             title={
                 'text': "📊 SMT Department Invoice Trend(Machine INV QTY & Amount HKD)",
+                'text': "Including YAMAHA& HELLER& PEMTRON",
                 'font': {'size': 24},
                 'x': 0.5,
                 'xanchor': 'center'
