@@ -28,7 +28,7 @@ st.write("by Arthur Chan")
 #os.chdir(r"D:\ArthurChan\OneDrive - Electronic Scientific Engineering Ltd\Monthly report(one drive)")
 
 # 資料載入與清洗
-@st.cache_data
+#@st.cache_data
 def load_clean_data():
     df = pd.read_excel(
         io='Monthly_report_for_edit.xlsm',
