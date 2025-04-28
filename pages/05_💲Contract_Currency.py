@@ -100,7 +100,7 @@ try:
         selected_months = st.multiselect(
             "選擇開票月份",
             options=valid_months,
-            default=[str(m) for m in range(1,13) if m != 3]
+            default=[str(m) for m in range(1,13)]
         )
         
         # 地區篩選
